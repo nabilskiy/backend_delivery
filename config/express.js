@@ -17,14 +17,14 @@ function parallel(middlewares) {
 
 module.exports = function () {
     if (process.env.NODE_ENV == 'development') {
-        app.use(session({resave: true, saveUninitialized: true, secret: 'SOMERANDOMSECRETHERE', maxAge: '1h'}));
+        app.use(session({ resave: true, saveUninitialized: true, secret: 'SOMERANDOMSECRETHERE', maxAge: '1h' }));
     } else if (process.env.NODE_ENV == 'production') {
         var RedisStore = require('connect-redis')(session);
         var redis = require("redis");
         var client = redis.createClient();
 
         ///// FOR SESSION SET /////
-        app.use(session({resave: true, saveUninitialized: true, secret: 'SOMERANDOMSECRETHERE', maxAge: '1h', store: new RedisStore({host: 'localhost', port: 6379, client: client, ttl: 1440})}));
+        app.use(session({ resave: true, saveUninitialized: true, secret: 'SOMERANDOMSECRETHERE', maxAge: '1h', store: new RedisStore({ host: 'localhost', port: 6379, client: client, ttl: 1440 }) }));
     }
 
 
@@ -32,9 +32,9 @@ module.exports = function () {
         express.static(path.join(__dirname, '../dist')),
         express.static(path.join(__dirname, '../uploads')),
         compression(),
-        bodyParser.json({limit: '50mb'}),
-        bodyParser.urlencoded({limit: '50mb', extended: true}),
-        multer({dest: __dirname + '/uploads/'}).any()
+        bodyParser.json({ limit: '50mb' }),
+        bodyParser.urlencoded({ limit: '50mb', extended: true }),
+        multer({ dest: __dirname + '/uploads/' }).any()
     ]));
     var Store = require('mongoose').model('store');
     var Admin = require('mongoose').model('admin');
@@ -44,9 +44,8 @@ module.exports = function () {
 
     app.all('/store_documents/*', function (request_data, response_data, next) {
 
-        if (request_data.headers.type == "admin")
-        {
-            Admin.findOne({server_token: request_data.headers.token}, function (error, admin) {
+        if (request_data.headers.type == "admin") {
+            Admin.findOne({ server_token: request_data.headers.token }).then(admin => {
                 if (admin) {
                     next();
                 } else {
@@ -58,13 +57,12 @@ module.exports = function () {
             id = id.split('/');
             id = id[2].split('.')
             id = id[0].slice(0, -4);
-            Document_uploaded_list.findById(id, function (error, document) {
+            Document_uploaded_list.findById(id).then(document => {
 
                 if (document) {
                     Store.findById(document.user_id, function (error, store) {
                         if (store) {
-                            if (store.server_token == request_data.headers.token)
-                            {
+                            if (store.server_token == request_data.headers.token) {
                                 next();
                             } else {
                                 response_data.json();
@@ -83,9 +81,8 @@ module.exports = function () {
 
     app.all('/provider_documents/*', function (request_data, response_data, next) {
 
-        if (request_data.headers.type == "admin")
-        {
-            Admin.findOne({server_token: request_data.headers.token}, function (error, admin) {
+        if (request_data.headers.type == "admin") {
+            Admin.findOne({ server_token: request_data.headers.token }, function (error, admin) {
                 if (admin) {
                     next();
                 } else {
@@ -102,8 +99,7 @@ module.exports = function () {
                 if (document) {
                     Provider.findById(document.user_id, function (error, provider) {
                         if (provider) {
-                            if (provider.server_token == request_data.headers.token)
-                            {
+                            if (provider.server_token == request_data.headers.token) {
                                 next();
                             } else {
                                 response_data.json();
@@ -121,9 +117,8 @@ module.exports = function () {
 
     app.all('/user_documents/*', function (request_data, response_data, next) {
 
-        if (request_data.headers.type == "admin")
-        {
-            Admin.findOne({server_token: request_data.headers.token}, function (error, admin) {
+        if (request_data.headers.type == "admin") {
+            Admin.findOne({ server_token: request_data.headers.token }, function (error, admin) {
                 if (admin) {
                     next();
                 } else {
@@ -140,8 +135,7 @@ module.exports = function () {
                 if (document) {
                     User.findById(document.user_id, function (error, user) {
                         if (user) {
-                            if (user.server_token == request_data.headers.token)
-                            {
+                            if (user.server_token == request_data.headers.token) {
                                 next();
                             } else {
                                 response_data.json();
@@ -226,7 +220,7 @@ module.exports = function () {
     require('../app/admin_routes/cancellation_charge')(app);
     require('../app/admin_routes/transaction_history')(app);
 
-   require('../app/admin_routes/mass_notification')(app);
+    require('../app/admin_routes/mass_notification')(app);
 
     //Online menu Api
     require('../app/routes/online_menu/store')(app);

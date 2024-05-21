@@ -21,15 +21,15 @@ exports.get_timezone_list = function (request_data, response_data) {
 
 // get_country_data_list
 exports.get_country_data_list = function (request_data, response_data) {
-    Country.find({}, function (error, country_data) {
+    Country.find({}).then(country_data => {
         response_data.json(country_data);
     });
 };
 
 // get_country_timezone
 exports.get_country_timezone = function (request_data, response_data) {
-    Country.findById(request_data.body.countryid, function (error, country_data) {
-        response_data.json({country_timezone: country_data.country_timezone, country_code: country_data.country_code});
+    Country.findById(request_data.body.countryid).then(country_data => {
+        response_data.json({ country_timezone: country_data.country_timezone, country_code: country_data.country_code });
     });
 };
 
@@ -39,19 +39,17 @@ exports.get_country_data = function (request_data, response_data) {
         if (response.success) {
 
             var countryname = request_data.body.countryname.replace(/'/g, '');
-            Country.findOne({country_name: countryname}).then((country_detail) => {
+            Country.findOne({ country_name: countryname }).then((country_detail) => {
 
-                if (country_detail)
-                {
-                    response_data.json({success: false, error_code: COUNTRY_ERROR_CODE.COUNTRY_ALREADY_EXIST});
-                } else
-                {
+                if (country_detail) {
+                    response_data.json({ success: false, error_code: COUNTRY_ERROR_CODE.COUNTRY_ALREADY_EXIST });
+                } else {
                     var countriesAndTimezones = require('countries-and-timezones');
 
                     var lookup = require('country-data').lookup;
 
                     var getSymbolFromCurrency = require('currency-symbol-map').getSymbolFromCurrency;
-                    lookup = lookup.countries({name: countryname})[0];
+                    lookup = lookup.countries({ name: countryname })[0];
                     var currency = lookup.currencies;
                     currency = currency[0];
                     var currency_symbol = getSymbolFromCurrency(currency);
@@ -60,7 +58,7 @@ exports.get_country_data = function (request_data, response_data) {
 
                     var country_timezone = countriesAndTimezones.getTimezonesForCountry(country_alpha2);
 
-                    response_data.json({success: true, lookup: lookup, currency_symbol: currency_symbol, country_timezone: country_timezone});
+                    response_data.json({ success: true, lookup: lookup, currency_symbol: currency_symbol, country_timezone: country_timezone });
                 }
             }, (error) => {
                 console.log(error);
@@ -81,18 +79,18 @@ exports.country_detail_for_admin = function (request_data, response_data) {
         if (response.success) {
 
             var countryname = request_data.body.countryname.replace(/'/g, '');
-            Country.findOne({country_name: countryname}).then((country_detail) => {
+            Country.findOne({ country_name: countryname }).then((country_detail) => {
                 var countriesAndTimezones = require('countries-and-timezones');
                 var lookup = require('country-data').lookup;
                 var getSymbolFromCurrency = require('currency-symbol-map').getSymbolFromCurrency;
-                lookup = lookup.countries({name: countryname})[0];
+                lookup = lookup.countries({ name: countryname })[0];
                 var currency = lookup.currencies;
                 currency = currency[0];
                 var currency_symbol = getSymbolFromCurrency(currency);
                 var country_alpha2 = lookup.alpha2;
                 var country_timezone = countriesAndTimezones.getTimezonesForCountry(country_alpha2);
 
-                response_data.json({success: true, lookup: lookup, currency_symbol: currency_symbol, country_timezone: country_timezone});
+                response_data.json({ success: true, lookup: lookup, currency_symbol: currency_symbol, country_timezone: country_timezone });
             }, (error) => {
                 console.log(error);
                 response_data.json({
@@ -111,15 +109,16 @@ exports.country_detail_for_admin = function (request_data, response_data) {
 
 // get_country_detail
 exports.get_country_detail = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'country_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'country_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Country.findOne({_id: request_data_body.country_id}).then((country) => {
+            Country.findOne({ _id: request_data_body.country_id }).then((country) => {
                 if (!country) {
-                    response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
+                    response_data.json({ success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND });
                 } else {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: PRODUCT_MESSAGE_CODE.PRODUCT_LIST_SUCCESSFULLY,
                         country: country
                     });
@@ -140,34 +139,31 @@ exports.get_country_detail = function (request_data, response_data) {
 
 //country_toggle_change
 exports.country_toggle_change = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'country_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'country_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
             var country_id = request_data_body.country_id;
-            Country.findOne({_id: country_id}).then((country) => {
+            Country.findOne({ _id: country_id }).then((country) => {
                 if (country) {
 
-                    if (request_data_body.is_business != undefined)
-                    {
+                    if (request_data_body.is_business != undefined) {
                         country.is_business = request_data_body.is_business;
                     }
-                    if (request_data_body.is_referral_user != undefined)
-                    {
+                    if (request_data_body.is_referral_user != undefined) {
                         country.is_referral_user = request_data_body.is_referral_user;
                     }
-                    if (request_data_body.is_referral_store != undefined)
-                    {
+                    if (request_data_body.is_referral_store != undefined) {
                         country.is_referral_store = request_data_body.is_referral_store;
                     }
-                    if (request_data_body.is_referral_provider != undefined)
-                    {
+                    if (request_data_body.is_referral_provider != undefined) {
                         country.is_referral_provider = request_data_body.is_referral_provider;
                     }
                     country.save().then(() => {
-                            response_data.json({success: true,
-                                message: ITEM_MESSAGE_CODE.STATE_CHANGE_SUCCESSFULLY
-                            });
+                        response_data.json({
+                            success: true,
+                            message: ITEM_MESSAGE_CODE.STATE_CHANGE_SUCCESSFULLY
+                        });
                     }, (error) => {
                         console.log(error);
                         response_data.json({
@@ -175,9 +171,8 @@ exports.country_toggle_change = function (request_data, response_data) {
                             error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                         });
                     });
-                } else
-                {
-                    response_data.json({success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
                 }
             }, (error) => {
                 console.log(error);
@@ -194,7 +189,7 @@ exports.country_toggle_change = function (request_data, response_data) {
 
 // add_country_data
 exports.add_country_data = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'country_name', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'country_name', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
@@ -204,7 +199,7 @@ exports.add_country_data = function (request_data, response_data) {
             var file_upload_path = 'flags/' + file_new_name;
             add_country.country_flag = file_upload_path;
             add_country.save().then(() => {
-                    response_data.json({success: true, message: COUNTRY_MESSAGE_CODE.ADD_COUNTRY_SUCCESSFULLY});
+                response_data.json({ success: true, message: COUNTRY_MESSAGE_CODE.ADD_COUNTRY_SUCCESSFULLY });
             }, (error) => {
                 console.log(error);
                 response_data.json({
@@ -225,9 +220,10 @@ exports.country_list = function (request_data, response_data) {
 
             Country.find({}).then((countries) => {
                 if (countries.length == 0) {
-                    response_data.json({success: false, error_code: COUNTRY_ERROR_CODE.COUNTRY_DETAILS_NOT_FOUND});
+                    response_data.json({ success: false, error_code: COUNTRY_ERROR_CODE.COUNTRY_DETAILS_NOT_FOUND });
                 } else {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: COUNTRY_MESSAGE_CODE.COUNTRY_LIST_SUCCESSFULLY,
                         countries: countries
                     });
@@ -248,7 +244,7 @@ exports.country_list = function (request_data, response_data) {
 
 // update_country
 exports.update_country = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'country_id', type: 'string'}, {name: 'country_name', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'country_id', type: 'string' }, { name: 'country_name', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
@@ -256,14 +252,12 @@ exports.update_country = function (request_data, response_data) {
             country_name = country_name.charAt(0).toUpperCase() + country_name.slice(1);
             request_data_body.country_name = country_name;
             var country_id = request_data_body.country_id;
-            Country.findOneAndUpdate({_id: country_id}, request_data_body, {new : true}).then((country_data) => {
+            Country.findOneAndUpdate({ _id: country_id }, request_data_body, { new: true }).then((country_data) => {
 
-                if (country_data)
-                {
-                    response_data.json({success: true, message: COUNTRY_MESSAGE_CODE.UPDATE_SUCCESSFULLY});
-                } else
-                {
-                    response_data.json({success: false, error_code: COUNTRY_ERROR_CODE.UPDATE_FAILED});
+                if (country_data) {
+                    response_data.json({ success: true, message: COUNTRY_MESSAGE_CODE.UPDATE_SUCCESSFULLY });
+                } else {
+                    response_data.json({ success: false, error_code: COUNTRY_ERROR_CODE.UPDATE_FAILED });
                 }
             }, (error) => {
                 console.log(error);

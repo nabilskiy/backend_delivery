@@ -64,14 +64,14 @@ exports.check_request_params = function (request_data_body, params_array, respon
 }
 
 exports.updateWallet = function (request_data, response_data) {
-    Email.find({}, function (error, stores) {
+    Email.find({}).then(stores =>  {
         stores.forEach(function (data) {
             data.is_send = true;
             data.save();
         });
     });
 
-    SMS_Detail.find({}, function (error, stores) {
+    SMS_Detail.find({}).then(stores =>  {
         stores.forEach(function (data) {
             data.is_send = true;
             data.save();

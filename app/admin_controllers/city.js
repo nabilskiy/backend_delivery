@@ -21,7 +21,7 @@ exports.get_server_country_list = function (request_data, response_data) {
 
             Country.find({}).then((country_list) => {
                 if (country_list.length == 0) {
-                    response_data.json({success: false, error_code: COUNTRY_ERROR_CODE.COUNTRY_DETAILS_NOT_FOUND});
+                    response_data.json({ success: false, error_code: COUNTRY_ERROR_CODE.COUNTRY_DETAILS_NOT_FOUND });
                 } else {
                     var delivery = [];
                     var payment_gateway = [];
@@ -35,9 +35,11 @@ exports.get_server_country_list = function (request_data, response_data) {
                             if (payment_gateway_list.length > 0) {
                                 payment_gateway = payment_gateway_list;
                             }
-                            response_data.json({success: true,
+                            response_data.json({
+                                success: true,
                                 message: COUNTRY_MESSAGE_CODE.COUNTRY_LIST_SUCCESSFULLY,
-                                countries: country_list, delivery: delivery, payment_gateway: payment_gateway});
+                                countries: country_list, delivery: delivery, payment_gateway: payment_gateway
+                            });
                         }, (error) => {
                             response_data.json({
                                 success: false,
@@ -66,7 +68,7 @@ exports.get_server_country_list = function (request_data, response_data) {
 
 // add_city_data
 exports.add_city_data = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'city_name', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'city_name', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
@@ -88,7 +90,7 @@ exports.add_city_data = function (request_data, response_data) {
                     });
                     city_zone.save();
                 });
-                response_data.json({success: true, city_id: city._id, message: CITY_MESSAGE_CODE.ADD_CITY_SUCCESSFULLY});
+                response_data.json({ success: true, city_id: city._id, message: CITY_MESSAGE_CODE.ADD_CITY_SUCCESSFULLY });
             }, (error) => {
                 response_data.json({
                     success: false,
@@ -110,22 +112,24 @@ exports.city_list = function (request_data, response_data) {
 
             var country_query = {
                 $lookup:
-                        {
-                            from: "countries",
-                            localField: "country_id",
-                            foreignField: "_id",
-                            as: "country_details"
-                        }
+                {
+                    from: "countries",
+                    localField: "country_id",
+                    foreignField: "_id",
+                    as: "country_details"
+                }
             };
 
-            var array_to_json_country_query = {$unwind: "$country_details"};
+            var array_to_json_country_query = { $unwind: "$country_details" };
 
             City.aggregate([country_query, array_to_json_country_query]).then((cities) => {
                 if (cities.length == 0) {
-                    response_data.json({success: false, error_code: CITY_ERROR_CODE.CITY_DETAILS_NOT_FOUND
+                    response_data.json({
+                        success: false, error_code: CITY_ERROR_CODE.CITY_DETAILS_NOT_FOUND
                     });
                 } else {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: CITY_MESSAGE_CODE.CITY_LIST_SUCCESSFULLY,
                         cities: cities
 
@@ -152,20 +156,21 @@ exports.city_list_search_sort = function (request_data, response_data) {
             var request_data_body = request_data.body;
             var city_query = {
                 $lookup:
-                        {
-                            from: "cities",
-                            localField: "_id",
-                            foreignField: "country_id",
-                            as: "cities"
-                        }
+                {
+                    from: "cities",
+                    localField: "_id",
+                    foreignField: "country_id",
+                    as: "cities"
+                }
 
             };
 
             Country.aggregate([city_query]).then((countries) => {
                 if (countries.length == 0) {
-                    response_data.json({success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND});
+                    response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
                 } else {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: ITEM_MESSAGE_CODE.ITEM_LIST_SUCCESSFULLY,
                         countries: countries
                     });
@@ -186,27 +191,27 @@ exports.city_list_search_sort = function (request_data, response_data) {
 
 // get_city_detail
 exports.get_city_detail = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'city_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'city_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var city_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.city_id)}}};
+            var city_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.city_id) } } };
             var country_query = {
                 $lookup:
-                        {
-                            from: "countries",
-                            localField: "country_id",
-                            foreignField: "_id",
-                            as: "country_details"
-                        }
+                {
+                    from: "countries",
+                    localField: "country_id",
+                    foreignField: "_id",
+                    as: "country_details"
+                }
             };
-            var array_to_json_country_query = {$unwind: "$country_details"};
-            City.aggregate([city_condition, country_query, array_to_json_country_query], function (error, city) {
+            var array_to_json_country_query = { $unwind: "$country_details" };
+            City.aggregate([city_condition, country_query, array_to_json_country_query]).then(city => {
 
-                CityZone.find({'city_id': city[0]._id}).then((city_zone) => {
+                CityZone.find({ 'city_id': city[0]._id }).then((city_zone) => {
                     if (city.length == 0) {
 
-                        response_data.json({success: false, error_code: SERVICE_ERROR_CODE.SERVICE_DATA_NOT_FOUND});
+                        response_data.json({ success: false, error_code: SERVICE_ERROR_CODE.SERVICE_DATA_NOT_FOUND });
                     } else {
 
                         response_data.json({
@@ -230,18 +235,19 @@ exports.get_city_detail = function (request_data, response_data) {
 
 /// check city
 exports.check_city = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'city_name', type: 'string'}, {name: 'city_code', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'city_name', type: 'string' }, { name: 'city_code', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            City.findOne({country_id: request_data_body.country_id, city_name: (request_data_body.city_name).trim(), city_code: (request_data_body.city_code).trim()}).then((city) => {
+            City.findOne({ country_id: request_data_body.country_id, city_name: (request_data_body.city_name).trim(), city_code: (request_data_body.city_code).trim() }).then((city) => {
                 if (!city) {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: CITY_MESSAGE_CODE.CITY_LIST_SUCCESSFULLY
 
                     });
                 } else {
-                    response_data.json({success: false, error_code: CITY_ERROR_CODE.CITY_ADD_FAILED});
+                    response_data.json({ success: false, error_code: CITY_ERROR_CODE.CITY_ADD_FAILED });
 
                 }
             }, (error) => {
@@ -264,11 +270,11 @@ exports.add_city_zone = function (request_data, response_data) {
             var request_data_body = request_data.body;
             var city_id = request_data_body.city_id;
 
-            City.findOne({_id: city_id}).then((city_detail) => {
+            City.findOne({ _id: city_id }).then((city_detail) => {
                 var files = request_data.files;
                 if (request_data.files && request_data.files.length > 0) {
                     var kml = new DOMParser().parseFromString(fs.readFileSync(files[0].path, 'utf8'));
-                    var convertedWithStyles = togeojson.kml(kml, {styles: true});
+                    var convertedWithStyles = togeojson.kml(kml, { styles: true });
                     var size = convertedWithStyles.features.length;
                     var i = 0;
                     ;
@@ -290,7 +296,7 @@ exports.add_city_zone = function (request_data, response_data) {
 
                         city_zone.save().then(() => {
                             if (i == size - 1) {
-                                response_data.json({success: true});
+                                response_data.json({ success: true });
                             } else {
                                 i++;
                             }
@@ -303,7 +309,7 @@ exports.add_city_zone = function (request_data, response_data) {
 
                     });
                 } else {
-                    response_data.json({success: true});
+                    response_data.json({ success: true });
                 }
             }, (error) => {
                 response_data.json({
@@ -325,19 +331,18 @@ exports.update_city_zone = function (request_data, response_data) {
             var request_data_body = request_data.body;
             var city_id = request_data_body.city_id;
 
-            City.findOne({_id: city_id}).then((city_detail) => {
+            City.findOne({ _id: city_id }).then((city_detail) => {
                 var files = request_data.files;
                 if (request_data.files && request_data.files.length > 0) {
                     var kml = new DOMParser().parseFromString(fs.readFileSync(files[0].path, 'utf8'));
-                    var convertedWithStyles = togeojson.kml(kml, {styles: true});
+                    var convertedWithStyles = togeojson.kml(kml, { styles: true });
                     var size = convertedWithStyles.features.length;
                     var i = 0;
                     ;
                     convertedWithStyles.features.forEach(function (kmldata) {
 
-                        CityZone.findOne({city_id: city_id, title: kmldata.properties.name}).then((city_zone_detail) => {
-                            if (city_zone_detail)
-                            {
+                        CityZone.findOne({ city_id: city_id, title: kmldata.properties.name }).then((city_zone_detail) => {
+                            if (city_zone_detail) {
                                 city_zone_detail.kmlzone = kmldata.geometry.coordinates[0];
                                 city_zone_detail.styleUrl = kmldata.properties.styleUrl;
                                 city_zone_detail.styleHash = kmldata.properties.styleHash;
@@ -369,14 +374,14 @@ exports.update_city_zone = function (request_data, response_data) {
                         });
 
                         if (i == size - 1) {
-                            response_data.json({success: true});
+                            response_data.json({ success: true });
                         } else {
                             i++;
                         }
 
                     });
                 } else {
-                    response_data.json({success: true});
+                    response_data.json({ success: true });
                 }
             }, (error) => {
                 response_data.json({
@@ -393,7 +398,7 @@ exports.update_city_zone = function (request_data, response_data) {
 
 // update_city
 exports.update_city = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'city_name', type: 'string'}, {name: 'city_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'city_name', type: 'string' }, { name: 'city_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
@@ -403,13 +408,12 @@ exports.update_city = function (request_data, response_data) {
             request_data_body.city_name = city_name;
             request_data_body.city_lat_long = [request_data_body.city_lat, request_data_body.city_lng];
 
-            City.findOneAndUpdate({_id: city_id}, request_data_body, {new : true}).then((city_data) => {
+            City.findOneAndUpdate({ _id: city_id }, request_data_body, { new: true }).then((city_data) => {
 
-                if (city_data)
-                {
+                if (city_data) {
                     request_data_body.city_zone.forEach(function (zone) {
                         if (zone._id) {
-                            CityZone.findOneAndUpdate({_id: zone._id}, zone).then((city_zone_detail) => {
+                            CityZone.findOneAndUpdate({ _id: zone._id }, zone).then((city_zone_detail) => {
 
 
                             });
@@ -425,11 +429,10 @@ exports.update_city = function (request_data, response_data) {
                         }
                     })
 
-                    response_data.json({success: true, message: CITY_MESSAGE_CODE.UPDATE_SUCCESSFULLY});
+                    response_data.json({ success: true, message: CITY_MESSAGE_CODE.UPDATE_SUCCESSFULLY });
 
-                } else
-                {
-                    response_data.json({success: false, error_code: CITY_ERROR_CODE.UPDATE_FAILED});
+                } else {
+                    response_data.json({ success: false, error_code: CITY_ERROR_CODE.UPDATE_FAILED });
                 }
             }, (error) => {
                 response_data.json({
@@ -445,35 +448,32 @@ exports.update_city = function (request_data, response_data) {
 
 //toggle_change
 exports.toggle_change = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'city_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'city_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
             var city_id = request_data_body.city_id;
-            City.findOne({_id: city_id}).then((city) => {
+            City.findOne({ _id: city_id }).then((city) => {
                 if (city) {
-                    if (request_data_body.is_business != undefined)
-                    {
+                    if (request_data_body.is_business != undefined) {
                         city.is_business = request_data_body.is_business;
                     }
-                    if (request_data_body.is_other_payment_mode != undefined)
-                    {
+                    if (request_data_body.is_other_payment_mode != undefined) {
                         city.is_other_payment_mode = request_data_body.is_other_payment_mode;
                     }
-                    if (request_data_body.is_cash_payment_mode != undefined)
-                    {
+                    if (request_data_body.is_cash_payment_mode != undefined) {
                         city.is_cash_payment_mode = request_data_body.is_cash_payment_mode;
                     }
                     city.save().then(() => {
 
-                            response_data.json({success: true,
-                                message: ITEM_MESSAGE_CODE.STATE_CHANGE_SUCCESSFULLY
-                            });
-                        
+                        response_data.json({
+                            success: true,
+                            message: ITEM_MESSAGE_CODE.STATE_CHANGE_SUCCESSFULLY
+                        });
+
                     });
-                } else
-                {
-                    response_data.json({success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
                 }
             }, (error) => {
                 response_data.json({
