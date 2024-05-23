@@ -25,7 +25,7 @@ exports.add_product = function (request_data, response_data) {
     name = name.charAt(0).toUpperCase() + name.slice(1);
     request_data_body.name = name;
 
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail =>{
 
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
@@ -34,7 +34,7 @@ exports.add_product = function (request_data, response_data) {
 
             } else
             {         
-                FranchiseProduct.findOne({name:request_data_body.name,franchise_id:request_data_body.franchise_id}, function (error, franchise_product) {   
+                FranchiseProduct.findOne({name:request_data_body.name,franchise_id:request_data_body.franchise_id}).then(franchise_product => {   
                     if(franchise_product){
 
                     }else{
@@ -79,7 +79,7 @@ exports.add_product = function (request_data, response_data) {
 exports.get_product_list = function (request_data, response_data) {
     var request_data_body = request_data.body;
 
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
             {
@@ -101,7 +101,7 @@ exports.get_product_list = function (request_data, response_data) {
 
                 var condition = {"$match": {'franchise_id': {$eq: mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
                
-                FranchiseProduct.aggregate([condition, product_array], function (error, products) {
+                FranchiseProduct.aggregate([condition, product_array]).then(products => {
                     if (error || products.length == 0) {
                         response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
                     } else {
@@ -109,7 +109,7 @@ exports.get_product_list = function (request_data, response_data) {
                         /*var store_condition = {$match: {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
                         Item.aggregate([store_condition, {$project: {a: '$name', b: '$product_id'}}, {$unwind: '$a', $unwind: '$b'},
-                            {$group: {_id: 'a', item_name: {$addToSet: {item_name: '$a', product_id: '$b'}}}}], function (error, item_array) {
+                            {$group: {_id: 'a', item_name: {$addToSet: {item_name: '$a', product_id: '$b'}}}}]).then(item_array => {
                             if (error || item_array.length == 0)
                             {*/
                                 response_data.json({success: true,
@@ -144,7 +144,7 @@ exports.get_product_list = function (request_data, response_data) {
 exports.get_product_data = function (request_data, response_data) {
     var request_data_body = request_data.body;
 
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
             {
@@ -153,7 +153,7 @@ exports.get_product_data = function (request_data, response_data) {
             } else
             {
 
-                FranchiseProduct.findOne({_id: request_data_body.product_id}, function (error, product) {
+                FranchiseProduct.findOne({_id: request_data_body.product_id}).then(product => {
                     if (error || !product) {
                         response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
                     } else {
@@ -198,7 +198,7 @@ exports.get_product_data = function (request_data, response_data) {
 exports.get_product_data_old = function (request_data, response_data) {
     var request_data_body = request_data.body;
 
-    Store.findOne({_id: request_data_body.store_id}, function (error, store_detail) {
+    Store.findOne({_id: request_data_body.store_id}).then(store_detail => {
         if (store_detail) {
             if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
             {
@@ -207,7 +207,7 @@ exports.get_product_data_old = function (request_data, response_data) {
             } else
             {
 
-                Product.findOne({_id: request_data_body.product_id}, function (error, product) {
+                Product.findOne({_id: request_data_body.product_id}).then(product => {
                     if (error || !product) {
                         response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
                     } else {
@@ -234,7 +234,7 @@ exports.get_product_data_old = function (request_data, response_data) {
 exports.get_product_store_data = function (request_data, response_data) {
     var request_data_body = request_data.body;
 
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
             {
@@ -256,7 +256,7 @@ exports.get_product_store_data = function (request_data, response_data) {
 
                 var condition = {"$match": {'franchise_product_id': {$eq: mongoose.Types.ObjectId(request_data_body.product_id)}}};
                
-                Product.aggregate([condition, store_array, array_to_json_store_array], function (error, products) {
+                Product.aggregate([condition, store_array, array_to_json_store_array]).then(products => {
                     
                     if (error || products.length == 0) {
                         response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
@@ -288,7 +288,7 @@ exports.update_product = function (request_data, response_data) {
     if(request_data_body.store_id == ''){
         request_data_body.store_id = [];
     }
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
             {
@@ -301,7 +301,7 @@ exports.update_product = function (request_data, response_data) {
                 name = name.charAt(0).toUpperCase() + name.slice(1);
                 request_data_body.name = name;
 
-                FranchiseProduct.findOneAndUpdate({_id: product_id}, request_data_body, {new : true}, function (error, product_data) {
+                FranchiseProduct.findOneAndUpdate({_id: product_id}, request_data_body, {new : true}).then(product_data => {
 
                     if (product_data)
                     {

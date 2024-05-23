@@ -90,7 +90,7 @@ exports.apply_promo_code = function (request_data, response_data) {
                                                                                                             Order_payment.find({
                                                                                                                 user_id: user._id,
                                                                                                                 promo_id: promo_code._id
-                                                                                                            }, function (error, order_payments) {
+                                                                                                            }).then(order_payments => {
                                                                                                                 if (!promo_code.promo_unlimited_use && order_payments.length > 0) {
                                                                                                                     response_data.json({
                                                                                                                         success: false,

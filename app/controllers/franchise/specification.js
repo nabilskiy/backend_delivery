@@ -14,7 +14,7 @@ exports.add_specification = function (request_data, response_data) {
     var request_data_body = request_data.body;
     var store_id = [];
     console.log(request_data_body);
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
 
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
@@ -22,7 +22,7 @@ exports.add_specification = function (request_data, response_data) {
                 response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
             } else
             {
-                Product.find({franchise_product_id: request_data_body.product_id}, function (error, product_detail) {
+                Product.find({franchise_product_id: request_data_body.product_id}).then(product_detail => {
                     if (request_data_body.specification_group_id != undefined)
                     {
                         if(product_detail.length > 0){
@@ -43,7 +43,7 @@ exports.add_specification = function (request_data, response_data) {
                                         }
                                         if (i == (size - 1)) {
                                             specification.save(function (error) {
-                                                FranchiseSpecification.find({product_id: request_data_body.product_id, specification_group_id: request_data_body.specification_group_id}, function (error, specifications) {
+                                                FranchiseSpecification.find({product_id: request_data_body.product_id, specification_group_id: request_data_body.specification_group_id}).then(specifications => {
                                                     response_data.json({success: true, message: SPECIFICATION_MESSAGE_CODE.SPECIFICATION_ADD_SUCCESSFULLY
                                                         , specifications: specifications});
                                                 });
@@ -70,7 +70,7 @@ exports.add_specification = function (request_data, response_data) {
                                         }
                                         if (i == (size - 1)) {
                                             specification.save(function (error) {
-                                                FranchiseSpecification.find({product_id: request_data_body.product_id, specification_group_id: request_data_body.specification_group_id}, function (error, specifications) {
+                                                FranchiseSpecification.find({product_id: request_data_body.product_id, specification_group_id: request_data_body.specification_group_id}).then(specifications => {
                                                     response_data.json({success: true, message: SPECIFICATION_MESSAGE_CODE.SPECIFICATION_ADD_SUCCESSFULLY
                                                         , specifications: specifications});
                                                 });
@@ -100,7 +100,7 @@ exports.add_specification = function (request_data, response_data) {
 //// get specification list
 exports.get_specification_list = function (request_data, response_data) {
     var request_data_body = request_data.body;
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
 
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
@@ -108,7 +108,7 @@ exports.get_specification_list = function (request_data, response_data) {
                 response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
             } else
             {
-                FranchiseSpecification.find({product_id: request_data_body.product_id}, function (error, specifications) {
+                FranchiseSpecification.find({product_id: request_data_body.product_id}).then(specifications => {
                     if (error || specifications.length == 0) {
                         response_data.json({success: false, error_code: SPECIFICATION_ERROR_CODE.SPECIFICATION_DATA_NOT_FOUND});
                     } else {
@@ -131,7 +131,7 @@ exports.get_specification_list = function (request_data, response_data) {
 // delete specification
 exports.delete_specification = function (request_data, response_data) {
     var request_data_body = request_data.body;
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
 
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
@@ -144,12 +144,12 @@ exports.delete_specification = function (request_data, response_data) {
 
                 var specification_id_array = request_data_body.specification_id;
 
-                FranchiseSpecification.remove({_id: {$in: specification_id_array}, product_id: request_data_body.product_id, franchise_id: request_data_body.franchise_id,specification_group_id: request_data_body.specification_group_id}, function (error) {
-                    Specification.remove({franchise_specification_id: {$in: specification_id_array}}, function (error) {
+                FranchiseSpecification.remove({_id: {$in: specification_id_array}, product_id: request_data_body.product_id, franchise_id: request_data_body.franchise_id,specification_group_id: request_data_body.specification_group_id}).catch((error) => {
+                    Specification.remove({franchise_specification_id: {$in: specification_id_array}}).catch((error) =>{
                         if (error) {
                             response_data.json({success: false, error_code: SPECIFICATION_ERROR_CODE.SPECIFICATION_DATA_NOT_FOUND});
                         } else {
-                            FranchiseSpecification.find({product_id: request_data_body.product_id, franchise_id: request_data_body.franchise_id,specification_group_id: request_data_body.specification_group_id}, function (error, specification) {
+                            FranchiseSpecification.find({product_id: request_data_body.product_id, franchise_id: request_data_body.franchise_id,specification_group_id: request_data_body.specification_group_id}).then(specification => {
 
                                 response_data.json({success: true,
                                     message: SPECIFICATION_MESSAGE_CODE.SPECIFICATION_DELETE_SUCCESSFULLY,

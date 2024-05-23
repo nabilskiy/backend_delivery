@@ -40,38 +40,38 @@ exports.check_request_params = function (request_data_body, params_array, respon
     var is_invalid_param = false;
 
     params_array.forEach(function (param) {
-        if(request_data_body[param.name] == undefined){
+        if (request_data_body[param.name] == undefined) {
             missing_param = param.name;
             is_missing = true;
         } else {
-            if(param.type && typeof request_data_body[param.name] !== param.type){
+            if (param.type && typeof request_data_body[param.name] !== param.type) {
                 is_invalid_param = true;
                 invalid_param = param.name;
             }
         }
     });
 
-    if(is_missing){
-        console.log("missing_param: "+missing_param)
-        response({success: false, error_code:  ERROR_CODE.PARAMETER_MISSING , error_description: missing_param+' parameter missing'});
-    } else if(is_invalid_param){
-        console.log("invalid_param: "+invalid_param)
-        response({success: false, error_code:  ERROR_CODE.PARAMETER_INVALID, error_description: invalid_param+' parameter invalid'});
+    if (is_missing) {
+        console.log("missing_param: " + missing_param)
+        response({ success: false, error_code: ERROR_CODE.PARAMETER_MISSING, error_description: missing_param + ' parameter missing' });
+    } else if (is_invalid_param) {
+        console.log("invalid_param: " + invalid_param)
+        response({ success: false, error_code: ERROR_CODE.PARAMETER_INVALID, error_description: invalid_param + ' parameter invalid' });
     }
     else {
-        response({success: true});
+        response({ success: true });
     }
 }
 
 exports.updateWallet = function (request_data, response_data) {
-    Email.find({}).then(stores =>  {
+    Email.find({}).then(stores => {
         stores.forEach(function (data) {
             data.is_send = true;
             data.save();
         });
     });
 
-    SMS_Detail.find({}).then(stores =>  {
+    SMS_Detail.find({}).then(stores => {
         stores.forEach(function (data) {
             data.is_send = true;
             data.save();
@@ -124,14 +124,14 @@ exports.updateNewTable = function (request_data, response_data) {
     console.log("request_data_body--36");
 
 
-    Store.findOne({_id: present_store_id}).then(present_store_data => {
+    Store.findOne({ _id: present_store_id }).then(present_store_data => {
 
         if (present_store_data) {
-            Store.findOne({_id: new_store_id}).then(new_store_data => {
+            Store.findOne({ _id: new_store_id }).then(new_store_data => {
 
                 if (new_store_data) {
 
-                    Product.find({store_id: present_store_data._id}).then(products => {
+                    Product.find({ store_id: present_store_data._id }).then(products => {
 
                         if (products.length > 0) {
                             console.log("products.length : " + products.length);
@@ -144,7 +144,7 @@ exports.updateNewTable = function (request_data, response_data) {
                         }
                     });
 
-                    Specification_group.find({store_id: present_store_data._id}).then(specification_groups =>  {
+                    Specification_group.find({ store_id: present_store_data._id }).then(specification_groups => {
 
                         if (specification_groups.length > 0) {
                             console.log("specification_groups.length : " + specification_groups.length);
@@ -190,7 +190,7 @@ exports.copy_products = function (present_store_id, new_store_id, product) {
 
 
             // Add Items
-            Item.find({store_id: product.store_id, product_id: product._id}).then(items => {
+            Item.find({ store_id: product.store_id, product_id: product._id }).then(items => {
 
                 if (items.length > 0) {
                     console.log("items.length : " + items.length);
@@ -220,7 +220,7 @@ exports.copy_specification_groups = function (new_store_id, specification_group)
     new_specification_group_data.save(function (error) {
         if (!error) {
 
-            Specification.find({store_id: specification_group.store_id, specification_group_id: specification_group._id}, function (error, specifications) {
+            Specification.find({ store_id: specification_group.store_id, specification_group_id: specification_group._id }).then(specifications => {
 
                 if (specifications.length > 0) {
 
@@ -305,21 +305,21 @@ exports.updateItemNewTable = function (request_data, response_data) {
     var new_store_id = request_data_body.new_store_id;
     var type = 1;
 
-    Store.findOne({_id: present_store_id}, function (error, present_store_data) {
+    Store.findOne({ _id: present_store_id }).then(present_store_data => {
 
         if (present_store_data) {
-            Store.findOne({_id: new_store_id}, function (error, new_store_data) {
+            Store.findOne({ _id: new_store_id }).then(new_store_data => {
 
                 if (new_store_data) {
 
                     // Add Items
-                    Item.find({store_id: new_store_data._id}, function (error, items) {
+                    Item.find({ store_id: new_store_data._id }).then(items => {
 
                         if (items.length > 0) {
 
                             items.forEach(function (new_item) {
 
-                                Item.findOne({store_id: present_store_data._id, name: new_item.name}, function (error, item) {
+                                Item.findOne({ store_id: present_store_data._id, name: new_item.name }).then(item => {
                                     if (item) {
                                         myUtils.copy_specifications_for_group(item, new_item);
                                     }
@@ -348,9 +348,9 @@ exports.updateItemNewTable = function (request_data, response_data) {
 
 exports.copy_specifications_in_items = function (item_id, new_item_id) {
     console.log("copy_specifications_in_items");
-    Item.findOne({_id: item_id}, function (error, item) {
+    Item.findOne({ _id: item_id }).then(item => {
         if (item) {
-            Item.findOne({_id: new_item_id}, function (error, new_item) {
+            Item.findOne({ _id: new_item_id }).then(new_item => {
                 if (new_item) {
                     myUtils.copy_specifications_for_group(item, new_item);
                 }
@@ -381,20 +381,22 @@ exports.copy_specifications = function (specification_group_in_item, specificati
 
     console.log("copy_specifications");
 
-    Specification_group.findOne({name: specification_group_in_item.name}, function (error, new_specification_group) {
+    Specification_group.findOne({ name: specification_group_in_item.name }).then(new_specification_group => {
 
         if (new_specification_group) {
 
 
-            Specification.find({specification_group_id: new_specification_group._id}, function (error, new_specification_list) {
+            Specification.find({ specification_group_id: new_specification_group._id }).then(new_specification_list => {
                 console.log("-- 257 --new_specification_list.length :" + new_specification_list.length)
                 if (new_specification_list.length > 0) {
 
                     console.log("new_specification_list.length :" + new_specification_list.length)
 
-                    var create_new_specification_group_for_item = {'unique_id': specification_group_in_item.unique_id,
+                    var create_new_specification_group_for_item = {
+                        'unique_id': specification_group_in_item.unique_id,
                         'type': specification_group_in_item.type, 'name': new_specification_group.name,
-                        'is_required': specification_group_in_item.is_required, '_id': new_specification_group._id.toString(), 'list': []};
+                        'is_required': specification_group_in_item.is_required, '_id': new_specification_group._id.toString(), 'list': []
+                    };
                     console.log("create_new_specification_group_for_item :" + create_new_specification_group_for_item)
 
 
@@ -420,14 +422,14 @@ exports.add_new_specifications_and_group_into_item = function (specification_lis
             var sep = specification_list[j];
 
             if (new_sep.name == sep.name) {
-                var new_list = {specification_group_id: create_new_specification_group_for_item._id.toString(), _id: new_sep._id.toString(), is_user_selected: sep.is_user_selected, is_default_selected: sep.is_default_selected, price: sep.price, name: new_sep.name, unique_id: new_sep.unique_id};
+                var new_list = { specification_group_id: create_new_specification_group_for_item._id.toString(), _id: new_sep._id.toString(), is_user_selected: sep.is_user_selected, is_default_selected: sep.is_default_selected, price: sep.price, name: new_sep.name, unique_id: new_sep.unique_id };
                 list.push(new_list);
                 break;
             }
         }
     }
     create_new_specification_group_for_item.list = list;
-    Item.findOne({_id: new_item._id}, function (error, item) {
+    Item.findOne({ _id: new_item._id }).then(item => {
         item.specifications.push(create_new_specification_group_for_item);
         item.save();
     });
@@ -441,7 +443,7 @@ exports.add_new_specifications_and_group_into_item = function (specification_lis
 // mail_notification main
 
 exports.mail_notification = function (to, sub, text, html) {
-    Setting.findOne({}, function (error, setting_detail) {
+    Setting.findOne({}).then(setting_detail => {
         var email = setting_detail.email;
         var password = setting_detail.password;
         try {
@@ -487,18 +489,16 @@ exports.mail_notification = function (to, sub, text, html) {
 
 // sms_notification main
 exports.sendSMS = function (to, msg) {
-    Setting.findOne({}, function (error, setting_detail) {
+    Setting.findOne({}).then(setting_detail => {
         var sms_gateway_id = setting_detail.sms_gateway_id;
-        Sms_gateway.findOne({_id: sms_gateway_id}, function (err, sms_gateway_detail) {
-            if (sms_gateway_detail)
-            {
+        Sms_gateway.findOne({ _id: sms_gateway_id }, function (err, sms_gateway_detail) {
+            if (sms_gateway_detail) {
 
                 var sms_auth_id = sms_gateway_detail.sms_auth_id;
                 var sms_auth_token = sms_gateway_detail.sms_auth_token;
                 var sms_number = sms_gateway_detail.sms_number;
 
-                if (sms_auth_id != "" && sms_auth_token != "" && sms_number != "")
-                {
+                if (sms_auth_id != "" && sms_auth_token != "" && sms_number != "") {
                     var client = twilio(sms_auth_id, sms_auth_token, sms_number);
 
                     try {
@@ -598,7 +598,7 @@ exports.generateReferralCode = function (user_type, country_code, first_name, la
 exports.encryptPassword = function (password) {
     var crypto = require('crypto');
     try {
-        return  crypto.createHash('md5').update(password).digest('hex');
+        return crypto.createHash('md5').update(password).digest('hex');
     } catch (error) {
         console.error(error);
     }
@@ -621,8 +621,7 @@ exports.generateServerToken = function (length) {
 };
 
 exports.generatorRandomChar = function (length) {
-    try
-    {
+    try {
         if (typeof length === "undefined")
             length = 2;
         var token = "";
@@ -790,7 +789,7 @@ exports.storeImageToFolderForLogo = function (local_image_path, image_name, id) 
 
 
 exports.getSaveImageFolderPath = function (id) {
-    if(setting_detail.is_use_aws_bucket){
+    if (setting_detail.is_use_aws_bucket) {
         return myUtils.getImageFolderName(id);
     } else {
         return './uploads/' + myUtils.getImageFolderName(id);
@@ -802,8 +801,8 @@ exports.storeImageToFolder = function (local_image_path, image_name, id) {
 
     var file_new_path = myUtils.getSaveImageFolderPath(id) + image_name;
 
-    if(setting_detail.is_use_aws_bucket) {
-        AWS.config.update({accessKeyId: setting_detail.access_key_id, secretAccessKey: setting_detail.secret_key_id});
+    if (setting_detail.is_use_aws_bucket) {
+        AWS.config.update({ accessKeyId: setting_detail.access_key_id, secretAccessKey: setting_detail.secret_key_id });
         fs.readFile(local_image_path, function (err, data) {
             var s3 = new AWS.S3();
             var base64data = new Buffer(data, 'binary');
@@ -829,16 +828,14 @@ exports.storeImageToFolder = function (local_image_path, image_name, id) {
                     var compress_images = require('compress-images'), INPUT_path_to_your_images, OUTPUT_path;
                     INPUT_path_to_your_images = './temp/' + myUtils.getImageFolderName(id) + image_name;
                     OUTPUT_path = 'uploads/' + myUtils.getImageFolderName(id);
-                    compress_images(INPUT_path_to_your_images, OUTPUT_path, {compress_force: false, statistic: true, autoupdate: true}, false,
-                        {jpg: {engine: 'mozjpeg', command: ['-quality', '60']}},
-                        {png: {engine: 'pngquant', command: ['--quality=20-50']}},
-                        {svg: {engine: 'svgo', command: '--multipass'}},
-                        {gif: {engine: 'gifsicle', command: ['--colors', '64', '--use-col=web']}}, function (error, data) {
-                            if (error)
-                            {
+                    compress_images(INPUT_path_to_your_images, OUTPUT_path, { compress_force: false, statistic: true, autoupdate: true }, false,
+                        { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
+                        { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
+                        { svg: { engine: 'svgo', command: '--multipass' } },
+                        { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } }, function (error, data) {
+                            if (error) {
                                 console.log(error);
-                            } else
-                            {
+                            } else {
                                 fs.unlink(file_new_path, function (error) {
                                     if (error) {
                                         throw error;
@@ -870,13 +867,13 @@ exports.deleteImageFromFolder = function (old_img_path, id) {
 
         var old_file_path = myUtils.getSaveImageFolderPath(id) + old_file_name[1];
 
-        if(setting_detail.is_use_aws_bucket){
-            AWS.config.update({accessKeyId: setting_detail.access_key_id, secretAccessKey: setting_detail.secret_key_id});
+        if (setting_detail.is_use_aws_bucket) {
+            AWS.config.update({ accessKeyId: setting_detail.access_key_id, secretAccessKey: setting_detail.secret_key_id });
             var s3 = new AWS.S3();
             s3.deleteObject({
                 Bucket: setting_detail.aws_bucket_name,
                 Key: old_file_path
-            },function (err,data){})
+            }, function (err, data) { })
         } else {
             fs.unlink(old_file_path, function (error, file) {
                 if (error) {
@@ -919,19 +916,18 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
             var sender = new gcm.Sender(sender_key);
             /// Now the sender can be used to send messages
             try {
-                sender.send(message, {registrationTokens: regTokens}, function (error, response) {
+                sender.send(message, { registrationTokens: regTokens }, function (error, response) {
                     if (error) {
                         console.error(error);
                     } else {
                         console.log(response);
                     }
                 });
-                sender.sendNoRetry(message, {topic: '/topics/global'}, function (error, response) {
+                sender.sendNoRetry(message, { topic: '/topics/global' }, function (error, response) {
                     console.log(message);
                     if (err)
                         console.error(error);
-                    else
-                    {
+                    else {
                         console.log(response);
                     }
 
@@ -960,7 +956,7 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
             var ios_passphrase;
 
 
-            Installation_setting.findOne({}, function (error, installation_setting) {
+            Installation_setting.findOne({}).then(installation_setting => {
 
                 // var provider_passphrase = installation_setting.provider_passphrase;
                 // var user_passphrase = installation_setting.user_passphrase;
@@ -1002,26 +998,23 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
                 // cert_file_name = path.join(ios_push_certificate_path, cert_file_name);
                 // ios_key_name = path.join(ios_push_certificate_path, ios_key_name);
 
-                try
-                {
+                try {
                     var is_production = false;
-                    if (ios_certificate_mode == "production")
-                    {
+                    if (ios_certificate_mode == "production") {
                         // gateway = "gateway.push.apple.com";
                         is_production = true;
-                    } else
-                    {
+                    } else {
                         // gateway = "gateway.sandbox.push.apple.com";
                         is_production = false;
                     }
 
                     var options = {
-                      token: {
-                        key: cert_file_name,
-                        keyId: keyId,
-                        teamId: teamId
-                      },
-                      production: is_production
+                        token: {
+                            key: cert_file_name,
+                            keyId: keyId,
+                            teamId: teamId
+                        },
+                        production: is_production
                     };
 
                     var apnProvider = new apn.Provider(options);
@@ -1029,12 +1022,12 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
                     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
                     note.badge = 1;
                     note.sound = 'default';
-                    note.alert = {"loc-key": messageCode, "id": messageCode};
-                    note.payload = {'messageFrom': 'Caroline'};
+                    note.alert = { "loc-key": messageCode, "id": messageCode };
+                    note.payload = { 'messageFrom': 'Caroline' };
                     note.topic = bundle_id;
                     console.log(note)
                     apnProvider.send(note, device_token).then((result) => {
-                      console.log(result)
+                        console.log(result)
                     });
 
                     // var options = {
@@ -1058,8 +1051,7 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
                     // note.payload = {'messageFrom': 'Caroline'};
                     // apnConnection.pushNotification(note, myDevice);
                     //});
-                } catch (err)
-                {
+                } catch (err) {
                     console.log(err);
                 }
 
@@ -1100,19 +1092,18 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
             var sender = new gcm.Sender(sender_key);
             /// Now the sender can be used to send messages
             try {
-                sender.send(message, {registrationTokens: regTokens}, function (error, response) {
+                sender.send(message, { registrationTokens: regTokens }, function (error, response) {
                     if (error) {
                         console.error(error);
                     } else {
                         console.log(response);
                     }
                 });
-                sender.sendNoRetry(message, {topic: '/topics/global'}, function (error, response) {
+                sender.sendNoRetry(message, { topic: '/topics/global' }, function (error, response) {
                     console.log(message);
                     if (err)
                         console.error(error);
-                    else
-                    {
+                    else {
                         //console.log(response);
                     }
 
@@ -1132,7 +1123,7 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
             console.log("IOS PUSH NOTIFICATION");
             var ios_passphrase;
 
-            Installation_setting.findOne({}, function (error, installation_setting) {
+            Installation_setting.findOne({}).then(installation_setting => {
 
                 // var provider_passphrase = installation_setting.provider_passphrase;
                 // var user_passphrase = installation_setting.user_passphrase;
@@ -1161,25 +1152,22 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
                     bundle_id = installation_setting.store_bundle_id;
                 }
 
-                try
-                {
+                try {
 
                     var is_production = false
-                    if (ios_certificate_mode == "production")
-                    {
+                    if (ios_certificate_mode == "production") {
                         is_production = true;
-                    } else
-                    {
+                    } else {
                         is_production = false;
                     }
 
                     var options = {
-                      token: {
-                        key: cert_file_name,
-                        keyId: keyId,
-                        teamId: teamId
-                      },
-                      production: is_production
+                        token: {
+                            key: cert_file_name,
+                            keyId: keyId,
+                            teamId: teamId
+                        },
+                        production: is_production
                     };
 
                     var apnProvider = new apn.Provider(options);
@@ -1187,15 +1175,14 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
                     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
                     note.badge = 1;
                     note.sound = 'default';
-                    note.alert = {"loc-key": messageCode, "id": messageCode, "push_data1": push_data1, "push_data2": push_data2};
-                    note.payload = {'messageFrom': 'Caroline'};
+                    note.alert = { "loc-key": messageCode, "id": messageCode, "push_data1": push_data1, "push_data2": push_data2 };
+                    note.payload = { 'messageFrom': 'Caroline' };
                     note.topic = bundle_id;
                     console.log(note)
                     apnProvider.send(note, device_token).then((result) => {
-                      console.log(result)
+                        console.log(result)
                     });
-                } catch (err)
-                {
+                } catch (err) {
                     console.log(err);
                 }
 
@@ -1220,7 +1207,7 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
     //         var ios_key_name;
     //         var ios_passphrase;
 
-    //         Installation_setting.findOne({}, function (error, installation_setting) {
+    //         Installation_setting.findOne({}).then(installation_setting => {
 
     //             var provider_passphrase = installation_setting.provider_passphrase;
     //             var user_passphrase = installation_setting.user_passphrase;
@@ -1323,9 +1310,9 @@ exports.get_date_in_citytimezone = function (request_data, response_data) {
 };
 
 exports.get_date_in_city_timezone = function (date, timezone) {
-//    console.log("*   *   *   *   *   *");
-//    console.log("Date                        : " + date);
-//    console.log("Timezone                    : " + timezone);
+    //    console.log("*   *   *   *   *   *");
+    //    console.log("Date                        : " + date);
+    //    console.log("Timezone                    : " + timezone);
 
     var convert_date = new Date(date);
     var zone_time_diff = moment_timezone.tz.zone(timezone).utcOffset(moment_timezone.utc());
@@ -1337,9 +1324,9 @@ exports.get_date_in_city_timezone = function (date, timezone) {
 };
 
 exports.get_next_date_in_city_timezone = function (date, timezone) {
-//    console.log("*   *   *   *   *   *");
-//    console.log("Date                        : " + date);
-//    console.log("Timezone                    : " + timezone);
+    //    console.log("*   *   *   *   *   *");
+    //    console.log("Date                        : " + date);
+    //    console.log("Timezone                    : " + timezone);
 
     var convert_date = new Date(date);
     var zone_time_diff = moment_timezone.tz.zone(timezone).utcOffset(moment_timezone.utc());
@@ -1376,8 +1363,7 @@ exports.getNewPhoneNumberFromOldNumber = function (phone) {
         max = phone_length;
     }
 
-    for (var i = 0; i < max; i++)
-    {
+    for (var i = 0; i < max; i++) {
         new_phone = new_phone + "0";
     }
 
@@ -1405,8 +1391,7 @@ exports.getEmailTokenUsingID = function (id) {
     // ADD MILLI IN TOKEN
     var email_token = "";
     var l = milli_seconds.length;
-    for (var i = 0; i < milli_length; i++)
-    {
+    for (var i = 0; i < milli_length; i++) {
         if (i < l) {
             email_token = email_token + milli_seconds.charAt(i) + server_token.charAt(i);
         } else {
@@ -1414,12 +1399,11 @@ exports.getEmailTokenUsingID = function (id) {
         }
     }
 
-    for (var i = 0; i < id_length; i++)
-    {
+    for (var i = 0; i < id_length; i++) {
         email_token = email_token + id.charAt(i) + server_token.charAt(i + milli_length);
     }
 
-    return {server_token: server_token, email_token: email_token};
+    return { server_token: server_token, email_token: email_token };
 }
 
 // Get id from Email Token (length = 300)
@@ -1428,8 +1412,7 @@ exports.getIDFromEmailToken = function (token) {
     var token_size = parseInt(token.substr(token.length - 2));
     var count = 1;
     var id = "";
-    for (i = 0; i < token_size; i++)
-    {
+    for (i = 0; i < token_size; i++) {
         count = count + i;
         id = id + token[count];
     }
@@ -1439,9 +1422,8 @@ exports.getIDFromEmailToken = function (token) {
 exports.getCurrencyConvertRate = function (from_amount, from_currency, to_currency, return_data) {
 
     var request = require('request');
-    if (from_currency == to_currency)
-    {
-        return_data({success: true, current_rate: 1});
+    if (from_currency == to_currency) {
+        return_data({ success: true, current_rate: 1 });
         return;
     }
     var base_url = "http://free.currencyconverterapi.com/api/v5/convert?";
@@ -1456,14 +1438,13 @@ exports.getCurrencyConvertRate = function (from_amount, from_currency, to_curren
                 if (from_amount != 1) {
                     value = value * from_amount;
                 }
-                return_data({success: true, current_rate: myUtils.precisionRound(Number(value), 4)});
-            } catch (err)
-            {
-                return_data({success: true, current_rate: 1});
+                return_data({ success: true, current_rate: myUtils.precisionRound(Number(value), 4) });
+            } catch (err) {
+                return_data({ success: true, current_rate: 1 });
             }
 
         } else {
-            return_data({success: false});
+            return_data({ success: false });
 
         }
     });
@@ -1473,9 +1454,8 @@ exports.getCurrencyConvertRate = function (from_amount, from_currency, to_curren
 exports.getCurrencyConvertRate_old = function (from_amount, from_currency, to_currency, return_data) {
     var cheerio = require('cheerio');
     var request = require('request');
-    if (from_currency == to_currency)
-    {
-        return_data({success: true, current_rate: 1});
+    if (from_currency == to_currency) {
+        return_data({ success: true, current_rate: 1 });
         return;
     }
     var base_url = "https://finance.google.com/finance/converter?";
@@ -1487,14 +1467,13 @@ exports.getCurrencyConvertRate_old = function (from_amount, from_currency, to_cu
                 var value = $('span[class=bld]').html();
                 var parts = value.split(' ');
                 console.log(parts[0]);
-                return_data({success: true, current_rate: myUtils.precisionRound(Number(parts[0]), 4)});
+                return_data({ success: true, current_rate: myUtils.precisionRound(Number(parts[0]), 4) });
 
-            } catch (err)
-            {
-                return_data({success: true, current_rate: 1});
+            } catch (err) {
+                return_data({ success: true, current_rate: 1 });
             }
         } else {
-            return_data({success: false});
+            return_data({ success: false });
             console.log("ERROR");
         }
     });
@@ -1526,7 +1505,7 @@ exports.getCurrencyConvertRate_old = function (from_currency, to_currency) {
 
 exports.insert_documets_for_new_users = function (new_user_data, user_type_id, document_for, country_id, response) {
 
-    Document.find({country_id: country_id, document_for: document_for}, function (error, documents) {
+    Document.find({ country_id: country_id, document_for: document_for }).then(documents => {
 
         var is_document_uploaded = true;
 
@@ -1534,13 +1513,12 @@ exports.insert_documets_for_new_users = function (new_user_data, user_type_id, d
             is_document_uploaded = true;
             new_user_data.is_document_uploaded = is_document_uploaded;
             new_user_data.save();
-            if(response){
-                response({is_document_uploaded: is_document_uploaded})
+            if (response) {
+                response({ is_document_uploaded: is_document_uploaded })
             }
         } else {
             documents.forEach(function (document) {
-                if (document.is_mandatory && is_document_uploaded && document.is_show)
-                {
+                if (document.is_mandatory && is_document_uploaded && document.is_show) {
                     is_document_uploaded = false;
                     new_user_data.is_document_uploaded = is_document_uploaded;
                     new_user_data.save();
@@ -1558,8 +1536,8 @@ exports.insert_documets_for_new_users = function (new_user_data, user_type_id, d
 
                 });
             });
-            if(response){
-                response({is_document_uploaded: is_document_uploaded})
+            if (response) {
+                response({ is_document_uploaded: is_document_uploaded })
             }
 
         }
@@ -1567,11 +1545,11 @@ exports.insert_documets_for_new_users = function (new_user_data, user_type_id, d
 };
 
 exports.pay_payment_for_selected_payment_gateway = function (user_type, user_id, statement_descriptor, payment_id, pay_amount, currency_code, return_data) {
-    Payment_gateway.findOne({_id: payment_id}, function (error, payment_gateway) {
-        if (payment_gateway){
+    Payment_gateway.findOne({ _id: payment_id }).then(payment_gateway => {
+        if (payment_gateway) {
             var payment_gateway_name = payment_gateway.name;
-            Card.findOne({ payment_id: payment_id, user_id: user_id, is_default: true}, function (error, card) {
-                if (card){
+            Card.findOne({ payment_id: payment_id, user_id: user_id, is_default: true }).then(card => {
+                if (card) {
                     console.log("card")
 
                     var stripe_key = payment_gateway.payment_key;
@@ -1580,12 +1558,12 @@ exports.pay_payment_for_selected_payment_gateway = function (user_type, user_id,
                     var charge_amount = Math.ceil(pay_amount * 100);
 
                     var statementdescriptor = "DeliveryLime"
-                    if(statement_descriptor != undefined && statement_descriptor != null && statement_descriptor != '' &&
-                        statement_descriptor.length < 22 ){
+                    if (statement_descriptor != undefined && statement_descriptor != null && statement_descriptor != '' &&
+                        statement_descriptor.length < 22) {
                         statementdescriptor = statement_descriptor
                     }
 
-                    var application_fee_amount = Math.ceil((charge_amount * 4) /100);
+                    var application_fee_amount = Math.ceil((charge_amount * 4) / 100);
 
                     stripe.paymentIntents.create({
                         amount: charge_amount,
@@ -1597,7 +1575,7 @@ exports.pay_payment_for_selected_payment_gateway = function (user_type, user_id,
                     }, function (error, paymentIntent) {
                         if (paymentIntent) {
                             console.log(paymentIntent)
-                            var payment_response = {card_number: card.last_four};
+                            var payment_response = { card_number: card.last_four };
                             return_data(payment_response);
                         } else {
                             return_data(null);
@@ -1615,37 +1593,35 @@ exports.pay_payment_for_selected_payment_gateway = function (user_type, user_id,
 
 exports.pay_payment_for_selected_payment_gateway_old = function (user_type, user_id, payment_id, pay_amount, currency_code, return_data) {
 
-    Payment_gateway.findOne({_id: payment_id}, function (error, payment_gateway) {
-        if (payment_gateway)
-        {
+    Payment_gateway.findOne({ _id: payment_id }).then(payment_gateway => {
+        if (payment_gateway) {
             var payment_gateway_name = payment_gateway.name;
             // if (payment_gateway_name === 'Stripe')
             // {
-                Card.findOne({payment_id: payment_id, user_id: user_id, is_default: true}, function (error, card) {
-                    if (card)
-                    {
-                        var stripe_key = payment_gateway.payment_key;
-                        var stripe = require("stripe")(stripe_key);
-                        var customer_id = card.customer_id;
-                        var charge_amount = Math.ceil(pay_amount * 100);
+            Card.findOne({ payment_id: payment_id, user_id: user_id, is_default: true }).then(card => {
+                if (card) {
+                    var stripe_key = payment_gateway.payment_key;
+                    var stripe = require("stripe")(stripe_key);
+                    var customer_id = card.customer_id;
+                    var charge_amount = Math.ceil(pay_amount * 100);
 
-                        stripe.charges.create({
-                            amount: charge_amount,
-                            currency: currency_code,
-                            customer: customer_id
-                        }, function (error, charge) {
-                            console.log(error);
-                            if (charge) {
-                                var payment_response = {card_number: card.last_four};
-                                return_data(payment_response);
-                            } else {
-                                return_data(null);
-                            }
-                        });
-                    } else {
-                        return_data(null);
-                    }
-                });
+                    stripe.charges.create({
+                        amount: charge_amount,
+                        currency: currency_code,
+                        customer: customer_id
+                    }, function (error, charge) {
+                        console.log(error);
+                        if (charge) {
+                            var payment_response = { card_number: card.last_four };
+                            return_data(payment_response);
+                        } else {
+                            return_data(null);
+                        }
+                    });
+                } else {
+                    return_data(null);
+                }
+            });
             // } else {
             //     return_data(null);
             // }
@@ -1680,13 +1656,13 @@ exports.transfer_amount_to_employee = function (amount, account_id, currencycode
         currency: currencycode,
         destination: account_id
     },
-    function (err, transfer) {
-        if (err) {
-            return_data({success: false, error: err});
-        } else {
-            return_data({success: true, transfer_id: transfer.id})
-        }
-    });
+        function (err, transfer) {
+            if (err) {
+                return_data({ success: false, error: err });
+            } else {
+                return_data({ success: true, transfer_id: transfer.id })
+            }
+        });
 }
 
 
@@ -1708,12 +1684,12 @@ exports.add_bank_detail = function (request_data, response_data) {
             break;
     }
 
-    Table.findOne({_id: request_data_body.id}, function (error, detail) {
+    Table.findOne({ _id: request_data_body.id }).then(detail => {
         if (detail) {
 
-            Country.findOne({_id: detail.country_id}, function (error, country_detail) {
+            Country.findOne({ _id: detail.country_id }).then(country_detail => {
                 if (country_detail) {
-                    Payment_gateway.findOne({name: "Stripe"}, function (error, payment_gateway) {
+                    Payment_gateway.findOne({ name: "Stripe" }).then(payment_gateway => {
                         if (payment_gateway) {
 
                             var stripe_key = payment_gateway.payment_key;
@@ -1783,7 +1759,8 @@ exports.add_bank_detail = function (request_data, response_data) {
 
                                                 } else {
                                                     stripe.accounts.createExternalAccount(account.id,
-                                                        {external_account: token.id,
+                                                        {
+                                                            external_account: token.id,
                                                             default_for_currency: true
                                                         },
                                                         function (bank_account_error, bank_account) {
@@ -1793,7 +1770,7 @@ exports.add_bank_detail = function (request_data, response_data) {
                                                                 detail.account_id = account.id;
                                                                 detail.bank_id = bank_account.id;
                                                                 detail.save();
-                                                                response_data.json({success: true});
+                                                                response_data.json({ success: true });
                                                             }
                                                         });
 
@@ -1842,10 +1819,10 @@ exports.get_bank_detail = function (request_data, response_data) {
     }
 
 
-    Table.findOne({_id: request_data_body.id}, function (error, detail) {
+    Table.findOne({ _id: request_data_body.id }).then(detail => {
         if (detail) {
 
-            Payment_gateway.findOne({name: "Stripe"}, function (error, payment_gateway) {
+            Payment_gateway.findOne({ name: "Stripe" }).then(payment_gateway => {
                 if (payment_gateway) {
 
                     var stripe_key = payment_gateway.payment_key;
@@ -1854,12 +1831,11 @@ exports.get_bank_detail = function (request_data, response_data) {
                         detail.account_id,
                         detail.bank_id,
                         function (error, external_account) {
-                            if (error || !external_account)
-                            {
-                                response_data.json({success: false});
-                            } else
-                            {
-                                response_data.json({success: true,
+                            if (error || !external_account) {
+                                response_data.json({ success: false });
+                            } else {
+                                response_data.json({
+                                    success: true,
                                     account_holder_name: external_account.account_holder_name,
                                     account_holder_type: external_account.account_holder_type,
                                     routing_number: external_account.routing_number,
@@ -1896,25 +1872,23 @@ exports.delete_bank_detail = function (request_data, response_data) {
     }
 
 
-    Table.findOne({_id: request_data_body.id}, function (error, detail) {
+    Table.findOne({ _id: request_data_body.id }).then(detail => {
         if (detail) {
 
-            Payment_gateway.findOne({name: "Stripe"}, function (error, payment_gateway) {
+            Payment_gateway.findOne({ name: "Stripe" }).then(payment_gateway => {
                 if (payment_gateway) {
 
                     var stripe_key = payment_gateway.payment_key;
                     var stripe = require("stripe")(stripe_key);
                     stripe.accounts.del(detail.account_id, function (error, external_account) {
 
-                        if (error)
-                        {
-                            response_data.json({success: false});
-                        } else
-                        {
+                        if (error) {
+                            response_data.json({ success: false });
+                        } else {
                             detail.account_id = "";
                             detail.bank_id = "";
                             detail.save();
-                            response_data.json({success: true});
+                            response_data.json({ success: true });
                         }
 
                     });
@@ -1936,18 +1910,18 @@ exports.check_promo_for = function (promo_code, cart, store, return_data) {
 
         var index = promo_code.promo_apply_on.indexOf(store.store_delivery_id);
         if (index != -1) {
-            return_data({success: true});
+            return_data({ success: true });
         } else {
-            return_data({success: false});
+            return_data({ success: false });
         }
 
     } else if (promo_code.promo_for == PROMO_FOR.STORE) {
 
         var index = promo_code.promo_apply_on.indexOf(store._id);
         if (index != -1) {
-            return_data({success: true});
+            return_data({ success: true });
         } else {
-            return_data({success: false});
+            return_data({ success: false });
         }
 
     } else if (promo_code.promo_for == PROMO_FOR.PRODUCT) {
@@ -1960,7 +1934,7 @@ exports.check_promo_for = function (promo_code, cart, store, return_data) {
                 price_for_promo = price_for_promo + product.total_item_price;
             }
         });
-        return_data({success: bool, price_for_promo: price_for_promo});
+        return_data({ success: bool, price_for_promo: price_for_promo });
 
     } else if (promo_code.promo_for == PROMO_FOR.ITEM) {
         var bool = false;
@@ -1974,17 +1948,16 @@ exports.check_promo_for = function (promo_code, cart, store, return_data) {
                 }
             })
         });
-        return_data({success: bool, price_for_promo: price_for_promo});
-    } else
-    {
-        return_data({success: true})
+        return_data({ success: bool, price_for_promo: price_for_promo });
+    } else {
+        return_data({ success: true })
     }
 };
 
 exports.check_promo_recursion = function (promo_code, timezone, return_data) {
 
     var date = new Date();
-    date = new Date(date).toLocaleString("en-US", {timeZone: timezone})
+    date = new Date(date).toLocaleString("en-US", { timeZone: timezone })
     date = new Date(date);
     var weekday = date.getDay();
     var current_time = date.getTime();
@@ -2083,7 +2056,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
     }
 
     if (zone_business) {
-        CityZone.find({city_id: city_id}, function (error, cityzone) {
+        CityZone.find({ city_id: city_id }).then(cityzone => {
             cityzone.sort(function (a, b) {
                 if (a.unique_id > b.unique_id) {
                     return 1;
@@ -2094,7 +2067,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
 
 
             if (cityzone.length == 0) {
-                return_data({success: false});
+                return_data({ success: false });
             } else {
                 var bool = false;
                 var i = 1;
@@ -2105,14 +2078,14 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                 // console.log('=========================== end')
                 cityzone.forEach(function (zone_data) {
                     var store_zone = geolib.isPointInside(
-                        {latitude: store_location[0], longitude: store_location[1]},
+                        { latitude: store_location[0], longitude: store_location[1] },
                         zone_data.kmlzone
                     );
                     if (store_zone) {
                         store_zone_id = zone_data._id;
                     }
                     var destination_zone = geolib.isPointInside(
-                        {latitude: destination_location[0], longitude: destination_location[1]},
+                        { latitude: destination_location[0], longitude: destination_location[1] },
                         zone_data.kmlzone
                     );
 
@@ -2122,25 +2095,25 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                     // console.log("destination_zone_id: "+destination_zone_id)
                     // console.log("store_zone_id: "+store_zone_id)
                     if (destination_zone_id && store_zone_id && !bool) {
-                            // console.log("zonevalue")
+                        // console.log("zonevalue")
                         bool = true;
-                        ZoneValue.findOne({$or: [{from_zone_id: store_zone_id, to_zone_id: destination_zone_id}, {from_zone_id: destination_zone_id, to_zone_id: store_zone_id}], type_id: type_id, vehicle_id: vehicle_id, delivery_type: delivery_type}, function (err, zonevalue) {
+                        ZoneValue.findOne({ $or: [{ from_zone_id: store_zone_id, to_zone_id: destination_zone_id }, { from_zone_id: destination_zone_id, to_zone_id: store_zone_id }], type_id: type_id, vehicle_id: vehicle_id, delivery_type: delivery_type }, function (err, zonevalue) {
                             if (zonevalue && zonevalue.price >= 0) {
                                 // console.log('=================== zone value')
                                 // console.log(zonevalue)
                                 // console.log('typeId ===> ')
                                 // console.log(type_id)
                                 if (!car_calling) {
-                                    return_data({success: true, zone_price: zonevalue.price});
+                                    return_data({ success: true, zone_price: zonevalue.price });
                                 } else {
-                                    ZoneValue.find({type_id: type_id}, function (err, zones) {
+                                    ZoneValue.find({ type_id: type_id }, function (err, zones) {
                                         // console.log('All zones with type id ============>')
                                         // console.log(zones)
                                         let zone_price_for_car_calling = 0;
 
                                         zones.forEach((zone, index) => {
                                             if (zone.price === zonevalue.price && index !== 0) {
-                                                zone_price_for_car_calling = zone.price - zones[index-1].price;
+                                                zone_price_for_car_calling = zone.price - zones[index - 1].price;
                                             }
                                         });
 
@@ -2148,16 +2121,16 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                                             zone_price_for_car_calling = 0;
                                         }
 
-                                        return_data({success: true, zone_price: zone_price_for_car_calling});
+                                        return_data({ success: true, zone_price: zone_price_for_car_calling });
                                     });
                                 }
                             } else {
-                                return_data({success: false});
+                                return_data({ success: false });
                             }
                         });
                     } else {
                         if (i == cityzone.length && !bool) {
-                            return_data({success: false});
+                            return_data({ success: false });
                         } else {
                             i++;
                         }
@@ -2167,13 +2140,13 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
             }
         })
     } else {
-        return_data({success: false});
+        return_data({ success: false });
     }
 }
 
 exports.insert_daily_store_analytics = function (tag_date, store_id, order_status, item_count, is_store_cancelled) {
 
-    Store_analytic_daily.findOne({store_id: store_id, date_tag: tag_date}, function (error, store_analytic_daily) {
+    Store_analytic_daily.findOne({ store_id: store_id, date_tag: tag_date }, function (error, store_analytic_daily) {
         var completed_ratio = 0, cancellation_ratio = 0, rejection_ratio = 0, acception_ratio = 0, order_ready_ratio = 0;
         var order_ready = 0, accepted = 0, received = 0, total_orders = 0, completed = 0, cancelled = 0, total_items = 0, total_cancelled_items = 0, rejected = 0;
 
@@ -2283,7 +2256,7 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
     var tag_date = moment(new Date(today)).format(DATE_FORMATE.DDMMYYYY);
 
 
-    Provider_analytic_daily.findOne({provider_id: provider_id, date_tag: tag_date}, function (error, provider_analytic_daily) {
+    Provider_analytic_daily.findOne({ provider_id: provider_id, date_tag: tag_date }, function (error, provider_analytic_daily) {
         console.log(provider_analytic_daily)
         var received = 0, accepted = 0, rejected = 0, not_answered = 0, cancelled = 0, completed = 0;
         var acception_ratio = 0, cancellation_ratio = 0, rejection_ratio = 0, completed_ratio = 0;
@@ -2333,7 +2306,7 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
                 case ORDER_STATE.NOT_ANSWERED:
                     not_answered++;
                     break;
-                default :
+                default:
                     break;
             }
 
@@ -2346,7 +2319,7 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
         } else {
             console.log("is_online_time :" + is_online_time);
             if (is_online_time) {
-                var time = {is_start_time: true, time: date_now};
+                var time = { is_start_time: true, time: date_now };
                 if (start_time != null) {
                     time.is_start_time = false;
                     time_diff_in_sec = myUtils.getTimeDifferenceInSecond(date_now, start_time);
@@ -2357,7 +2330,7 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
             }
 
             if (is_active_time) {
-                var time = {is_start_time: true, time: date_now};
+                var time = { is_start_time: true, time: date_now };
                 if (start_active_time != null) {
                     time.is_start_time = false;
                     time_diff_in_sec = myUtils.getTimeDifferenceInSecond(date_now, start_active_time);
@@ -2397,11 +2370,9 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
 
             }
             provider_analytic_daily.save(function (error) {
-                if (error)
-                {
+                if (error) {
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
-                } else
-                {
+                } else {
                     console.log("provider_analytic_daily saved.");
                 }
 
@@ -2425,11 +2396,9 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
                 total_online_time: total_online_time
             });
             provider_analytic_daily.save(function (error) {
-                if (error)
-                {
+                if (error) {
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
-                } else
-                {
+                } else {
 
                     console.log("provider_analytic_daily saved.");
 
@@ -2446,7 +2415,7 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
 
     var tag_date = moment(new Date(today)).format(DATE_FORMATE.DDMMYYYY);
 
-    Provider_analytic_daily.findOne({provider_id: provider_id, date_tag: tag_date}, function (error, provider_analytic_daily) {
+    Provider_analytic_daily.findOne({ provider_id: provider_id, date_tag: tag_date }).then(provider_analytic_daily => {
         var received = 0, accepted = 0, rejected = 0, not_answered = 0, cancelled = 0, completed = 0;
         var acception_ratio = 0, cancellation_ratio = 0, rejection_ratio = 0, completed_ratio = 0;
         var total_active_job_time = 0, total_online_time = 0;
@@ -2494,7 +2463,7 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
                 case ORDER_STATE.NOT_ANSWERED:
                     not_answered++;
                     break;
-                default :
+                default:
                     break;
             }
 
@@ -2514,13 +2483,13 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
             if (is_online_time) {
 
 
-                var time = {is_start_time: true, time: date_now};
+                var time = { is_start_time: true, time: date_now };
                 if (start_time != null) {
                     if (start_time.getTime() < date_now_start_of_date.getTime()) {
-                        time = {is_start_time: true, time: date_now_start_of_date};
+                        time = { is_start_time: true, time: date_now_start_of_date };
                         online_times.push(time);
 
-                        time = {is_start_time: false, time: date_now};
+                        time = { is_start_time: false, time: date_now };
                         time_diff_in_sec = myUtils.getTimeDifferenceInSecond(date_now, date_now_start_of_date);
                         total_online_time = +total_online_time + +time_diff_in_sec;
                     } else {
@@ -2535,13 +2504,13 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
 
             if (is_active_time) {
 
-                var time = {is_start_time: true, time: date_now};
+                var time = { is_start_time: true, time: date_now };
                 if (start_active_time != null) {
                     if (start_active_time.getTime() < date_now_start_of_date.getTime()) {
-                        time = {is_start_time: true, time: date_now_start_of_date};
+                        time = { is_start_time: true, time: date_now_start_of_date };
                         active_job_times.push(time);
 
-                        time = {is_start_time: false, time: date_now};
+                        time = { is_start_time: false, time: date_now };
 
                         time_diff_in_sec = myUtils.getTimeDifferenceInSecond(date_now, date_now_start_of_date);
                         total_active_job_time = +total_active_job_time + +time_diff_in_sec;
@@ -2585,8 +2554,7 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
 
             }
             provider_analytic_daily.save(function (error) {
-                if (error)
-                {
+                if (error) {
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
                 }
             });
@@ -2612,8 +2580,7 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
             });
             provider_analytic_daily.save(function (error) {
                 console.log(error)
-                if (error)
-                {
+                if (error) {
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
                 }
             });
@@ -2629,7 +2596,7 @@ exports.insert_daily_provider_analytics = function (city_timezone, provider_id, 
 
 //sendMassNotification
 exports.sendMassNotification = function (push_data) {
-    Installation_setting.findOne({}, function (error, installation_setting) {
+    Installation_setting.findOne({}).then(installation_setting => {
         if (push_data.device_type == DEVICE_TYPE.ANDROID) {
             var android_provider_app_gcm_key = installation_setting.android_provider_app_gcm_key;
             var android_user_app_gcm_key = installation_setting.android_user_app_gcm_key;
@@ -2652,7 +2619,7 @@ exports.sendMassNotification = function (push_data) {
             var sender = new gcm.Sender(sender_key);
 
             try {
-                sender.send(message, {registrationTokens: regTokens}, function (error, response) {
+                sender.send(message, { registrationTokens: regTokens }, function (error, response) {
                     if (error) {
                         console.error(error);
 
@@ -2661,12 +2628,11 @@ exports.sendMassNotification = function (push_data) {
                         console.log(response);
                     }
                 });
-                sender.sendNoRetry(message, {topic: '/topics/global'}, function (error, response) {
+                sender.sendNoRetry(message, { topic: '/topics/global' }, function (error, response) {
                     if (error) {
                         console.error(error);
 
-                    } else
-                    {
+                    } else {
 
                         console.log(response);
                     }
@@ -2684,7 +2650,7 @@ exports.sendMassNotification = function (push_data) {
                 console.log("IOS PUSH NOTIFICATION");
                 var ios_passphrase;
 
-                Installation_setting.findOne({}, function (error, installation_setting) {
+                Installation_setting.findOne({}).then(installation_setting => {
 
                     // var provider_passphrase = installation_setting.provider_passphrase;
                     // var user_passphrase = installation_setting.user_passphrase;
@@ -2713,39 +2679,35 @@ exports.sendMassNotification = function (push_data) {
                         bundle_id = installation_setting.store_bundle_id;
                     }
 
-                    try
-                    {
+                    try {
 
                         var is_production = false
-                        if (ios_certificate_mode == "production")
-                        {
+                        if (ios_certificate_mode == "production") {
                             is_production = true;
-                        } else
-                        {
+                        } else {
                             is_production = false;
                         }
 
                         var options = {
-                          token: {
-                            key: cert_file_name,
-                            keyId: keyId,
-                            teamId: teamId
-                          },
-                          production: is_production
+                            token: {
+                                key: cert_file_name,
+                                keyId: keyId,
+                                teamId: teamId
+                            },
+                            production: is_production
                         };
                         var apnProvider = new apn.Provider(options);
                         var note = new apn.Notification();
                         note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
                         note.badge = 1;
                         note.sound = 'default';
-                        note.alert = {"loc-key": push_data.message, "id": push_data.message};
-                        note.payload = {'messageFrom': 'Caroline'};
+                        note.alert = { "loc-key": push_data.message, "id": push_data.message };
+                        note.payload = { 'messageFrom': 'Caroline' };
                         note.topic = bundle_id;
                         apnProvider.send(note, push_data.device_token).then((result) => {
-                          console.log(result)
+                            console.log(result)
                         });
-                    } catch (err)
-                    {
+                    } catch (err) {
                         console.log(err);
                     }
 

@@ -220,9 +220,7 @@ function transfer_payment_to_provider(provider_detail, currencycode, country_id)
                 if(response_data){
                     utils.add_transfered_history(ADMIN_DATA_ID.PROVIDER, provider_detail._id, country_id,
                         amount, currencycode, 1, response_data.transfer_id, ADMIN_DATA_ID.ADMIN, null);
-                    Order_payment.update({is_provider_income_set_in_wallet: false, is_transfered_to_provider: false, provider_id: provider_detail._id}, {is_transfered_to_provider: true}, {multi: true}, function (error, order_payment_detail) {
-                        
-                    });
+                    Order_payment.update({is_provider_income_set_in_wallet: false, is_transfered_to_provider: false, provider_id: provider_detail._id}, {is_transfered_to_provider: true}, {multi: true});
                     provider_detail.last_transferred_date = new Date();
                     provider_detail.save();
                 } else {
@@ -280,9 +278,7 @@ function transfer_payment_to_store(store_detail, currencycode,country_id) {
                 if(response_data){
                     utils.add_transfered_history(ADMIN_DATA_ID.STORE, store_detail._id, country_id,
                         amount, currencycode, 1, response_data.transfer_id, ADMIN_DATA_ID.ADMIN, null);
-                    Order_payment.update({is_provider_income_set_in_wallet: false, is_transfered_to_provider: false, store_id: store_detail._id}, {is_transfered_to_provider: true}, {multi: true}, function (error, order_payment_detail) {
-
-                    })
+                    Order_payment.update({is_provider_income_set_in_wallet: false, is_transfered_to_provider: false, store_id: store_detail._id}, {is_transfered_to_provider: true}, {multi: true});
                     store_detail.last_transferred_date = new Date();
                     store_detail.save();
                 } else {

@@ -60,7 +60,7 @@ module.exports = function () {
             Document_uploaded_list.findById(id).then(document => {
 
                 if (document) {
-                    Store.findById(document.user_id, function (error, store) {
+                    Store.findById(document.user_id).then(store => {
                         if (store) {
                             if (store.server_token == request_data.headers.token) {
                                 next();
@@ -82,7 +82,7 @@ module.exports = function () {
     app.all('/provider_documents/*', function (request_data, response_data, next) {
 
         if (request_data.headers.type == "admin") {
-            Admin.findOne({ server_token: request_data.headers.token }, function (error, admin) {
+            Admin.findOne({ server_token: request_data.headers.token }).then(admin => {
                 if (admin) {
                     next();
                 } else {
@@ -94,10 +94,10 @@ module.exports = function () {
             id = id.split('/');
             id = id[2].split('.')
             id = id[0].slice(0, -4);
-            Document_uploaded_list.findById(id, function (error, document) {
+            Document_uploaded_list.findById(id).then(document => {
 
                 if (document) {
-                    Provider.findById(document.user_id, function (error, provider) {
+                    Provider.findById(document.user_id).then(provider => {
                         if (provider) {
                             if (provider.server_token == request_data.headers.token) {
                                 next();
@@ -118,7 +118,7 @@ module.exports = function () {
     app.all('/user_documents/*', function (request_data, response_data, next) {
 
         if (request_data.headers.type == "admin") {
-            Admin.findOne({ server_token: request_data.headers.token }, function (error, admin) {
+            Admin.findOne({ server_token: request_data.headers.token }).then(admin => {
                 if (admin) {
                     next();
                 } else {
@@ -130,10 +130,10 @@ module.exports = function () {
             id = id.split('/');
             id = id[2].split('.')
             id = id[0].slice(0, -4);
-            Document_uploaded_list.findById(id, function (error, document) {
+            Document_uploaded_list.findById(id).then(document => {
 
                 if (document) {
-                    User.findById(document.user_id, function (error, user) {
+                    User.findById(document.user_id).then(user => {
                         if (user) {
                             if (user.server_token == request_data.headers.token) {
                                 next();
