@@ -28,7 +28,7 @@ exports.sendEmail = function (request_data, provider, user, store, email_id, ext
     var ejs = require("ejs");
     try {
         if (email != "") {
-            Email.findOne({unique_id: email_id}, function (error, email_data) {
+            Email.findOne({ unique_id: email_id }).then(email_data => {
                 var template_string = EMAIL_STRING.template_string;
                 var app_name_string = EMAIL_STRING.app_name_string;
                 var title = email_data.email_title;
@@ -47,14 +47,16 @@ exports.sendEmail = function (request_data, provider, user, store, email_id, ext
                         if (error) {
                             return error;
                         } else {
-                            var compiledTmpl = ejs.compile(file, {filename: template});
+                            var compiledTmpl = ejs.compile(file, { filename: template });
                             var logo_image_url = request_data.protocol + '://' + request_data.get('host') + "/email_images/mail_logo.png";
                             var background_image_url = request_data.protocol + '://' + request_data.get('host') + "/email_images/email_vector.png";
-                            var context = {title: title, name: name,
+                            var context = {
+                                title: title, name: name,
                                 app_name_string: app_name_string, template_string: template_string,
                                 email_content: email_content, email_admin_info: email_admin_info,
                                 logo_image_url: logo_image_url, background_image_url: background_image_url,
-                                date: date};
+                                date: date
+                            };
                             var htmls = compiledTmpl(context);
                             htmls = htmls.replace(/&lt;/g, "<");
                             htmls = htmls.replace(/&gt;/g, ">");
@@ -212,7 +214,7 @@ exports.emailForOTPVerification = function (request_data, email, otp_for_email, 
     var email = request_data_body.email;
     try {
         if (email != "") {
-            Email.findOne({unique_id: email_id}, function (error, email_data) {
+            Email.findOne({ unique_id: email_id }).then(email_data => {
                 var template_string = EMAIL_STRING.template_string;
                 var app_name_string = EMAIL_STRING.app_name_string;
                 var title = email_data.email_title;
@@ -230,12 +232,14 @@ exports.emailForOTPVerification = function (request_data, email, otp_for_email, 
                             console.log('ERROR!');
                             return error;
                         } else {
-                            var compiledTmpl = ejs.compile(file, {filename: template});
+                            var compiledTmpl = ejs.compile(file, { filename: template });
                             var logo_image_url = request_data.protocol + '://' + request_data.get('host') + "/email_images/mail_logo.png";
                             var background_image_url = request_data.protocol + '://' + request_data.get('host') + "/email_images/email_vector.png";
-                            var context = {title: title, template_string: template_string,
+                            var context = {
+                                title: title, template_string: template_string,
                                 app_name_string: app_name_string,
-                                email_content: email_content, email_admin_info: email_admin_info, logo_image_url: logo_image_url, background_image_url: background_image_url};
+                                email_content: email_content, email_admin_info: email_admin_info, logo_image_url: logo_image_url, background_image_url: background_image_url
+                            };
                             var htmls = compiledTmpl(context);
                             htmls = htmls.replace(/&lt;/g, "<");
                             htmls = htmls.replace(/&gt;/g, ">");
@@ -592,24 +596,20 @@ exports.sendUserInvoiceEmail = function (request_data, user, provider, store, or
                     return error;
                 } else {
 
-                    if (order_payment.is_payment_mode_cash == true)
-                    {
+                    if (order_payment.is_payment_mode_cash == true) {
                         payment_mode = "Cash";
                         payment = order_payment.cash_payment;
-                    } else
-                    {
+                    } else {
                         payment_mode = "Card";
                         payment = order_payment.card_payment;
                     }
 
-                    if (order_payment.is_distance_unit_mile == true)
-                    {
+                    if (order_payment.is_distance_unit_mile == true) {
                         distance_unit = "mile";
-                    } else
-                    {
+                    } else {
                         distance_unit = "km";
                     }
-                    var compiledTmpl = ejs.compile(file, {filename: template});
+                    var compiledTmpl = ejs.compile(file, { filename: template });
 
                     var hour_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/time.png";
                     var distance_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/distance.png";
@@ -618,7 +618,8 @@ exports.sendUserInvoiceEmail = function (request_data, user, provider, store, or
                     var calendar_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/calendar.png";
                     var main_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/user_icon.png";
 
-                    var context = {date: date,
+                    var context = {
+                        date: date,
                         title: title,
                         template_string: template_string,
                         calendar_icon: calendar_icon,
@@ -688,8 +689,7 @@ exports.sendProviderInvoiceEmail = function (request_data, user, provider, store
     var store_name = "";
     var store_address = "";
 
-    if (store)
-    {
+    if (store) {
         store_unique_id = store.unique_id;
         store_name = store.name;
         store_address = store.address;
@@ -718,22 +718,18 @@ exports.sendProviderInvoiceEmail = function (request_data, user, provider, store
                     return error;
                 } else {
 
-                    if (order_payment.is_payment_mode_cash == true)
-                    {
+                    if (order_payment.is_payment_mode_cash == true) {
                         payment_mode = "Cash";
-                    } else
-                    {
+                    } else {
                         payment_mode = "Card";
                     }
 
-                    if (order_payment.is_distance_unit_mile == true)
-                    {
+                    if (order_payment.is_distance_unit_mile == true) {
                         distance_unit = "mile";
-                    } else
-                    {
+                    } else {
                         distance_unit = "km";
                     }
-                    var compiledTmpl = ejs.compile(file, {filename: template});
+                    var compiledTmpl = ejs.compile(file, { filename: template });
 
                     var hour_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/time.png";
                     var distance_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/distance.png";
@@ -743,7 +739,8 @@ exports.sendProviderInvoiceEmail = function (request_data, user, provider, store
                     var main_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/delivery_icon.png";
                     var template_string = EMAIL_STRING.template_string;
 
-                    var context = {date: date,
+                    var context = {
+                        date: date,
                         template_string: template_string,
                         title: title,
                         calendar_icon: calendar_icon,
@@ -843,24 +840,20 @@ exports.sendStoreInvoiceEmail = function (request_data, user, provider, store, o
                     return error;
                 } else {
 
-                    if (order_payment.is_payment_mode_cash == true)
-                    {
+                    if (order_payment.is_payment_mode_cash == true) {
                         payment_mode = "Cash";
                         payment = order_payment.cash_payment;
-                    } else
-                    {
+                    } else {
                         payment_mode = "Card";
                         payment = order_payment.card_payment;
                     }
 
-                    if (order_payment.is_distance_unit_mile == true)
-                    {
+                    if (order_payment.is_distance_unit_mile == true) {
                         distance_unit = "mile";
-                    } else
-                    {
+                    } else {
                         distance_unit = "km";
                     }
-                    var compiledTmpl = ejs.compile(file, {filename: template});
+                    var compiledTmpl = ejs.compile(file, { filename: template });
 
                     var hour_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/time.png";
                     var distance_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/distance.png";
@@ -869,7 +862,8 @@ exports.sendStoreInvoiceEmail = function (request_data, user, provider, store, o
                     var calendar_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/calendar.png";
                     var main_icon = request_data.protocol + '://' + request_data.get('host') + "/email_images/invoice/store_icon.png";
 
-                    var context = {date: date,
+                    var context = {
+                        date: date,
                         title: title,
                         template_string: template_string,
 
@@ -973,7 +967,7 @@ exports.sendProviderWeeklyInvoiceEmail = function (request_data, provider, provi
                     return error;
                 } else {
 
-                    var compiledTmpl = ejs.compile(file, {filename: template});
+                    var compiledTmpl = ejs.compile(file, { filename: template });
                     //console.log(request_data.protocol);
                     //console.log(request_data.get('host'));
 
@@ -985,7 +979,8 @@ exports.sendProviderWeeklyInvoiceEmail = function (request_data, provider, provi
                     var main_icon = "https://edelivery.elluminatiinc.com/email_images/invoice/delivery_icon.png";
 
 
-                    var context = {date: date,
+                    var context = {
+                        date: date,
                         title: title,
                         template_string: template_string,
                         calendar_icon: calendar_icon,
@@ -1067,15 +1062,14 @@ exports.sendStoreWeeklyInvoiceEmail = function (request_data, store, store_weekl
 
     try {
 
-        if (store_email != "")
-        {
+        if (store_email != "") {
             var template = process.cwd() + '/app/email_template/store_weekly_invoice_email.html';
             fs.readFile(template, 'utf8', function (error, file) {
                 if (error) {
                     return error;
                 } else {
 
-                    var compiledTmpl = ejs.compile(file, {filename: template});
+                    var compiledTmpl = ejs.compile(file, { filename: template });
                     var hour_icon = "https://edelivery.elluminatiinc.com/email_images/invoice/time.png";
                     var distance_icon = "https://edelivery.elluminatiinc.com/email_images/invoice/distance.png";
                     var credit_card = "https://edelivery.elluminatiinc.com/email_images/invoice/cash.png";
@@ -1084,7 +1078,8 @@ exports.sendStoreWeeklyInvoiceEmail = function (request_data, store, store_weekl
                     var main_icon = "https://edelivery.elluminatiinc.com/email_images/invoice/delivery_icon.png";
 
 
-                    var context = {date: date,
+                    var context = {
+                        date: date,
                         title: title,
                         template_string: template_string,
                         calendar_icon: calendar_icon,

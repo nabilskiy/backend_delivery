@@ -124,14 +124,14 @@ exports.updateNewTable = function (request_data, response_data) {
     console.log("request_data_body--36");
 
 
-    Store.findOne({_id: present_store_id}, function (error, present_store_data) {
+    Store.findOne({_id: present_store_id}).then(present_store_data => {
 
         if (present_store_data) {
-            Store.findOne({_id: new_store_id}, function (error, new_store_data) {
+            Store.findOne({_id: new_store_id}).then(new_store_data => {
 
                 if (new_store_data) {
 
-                    Product.find({store_id: present_store_data._id}, function (error, products) {
+                    Product.find({store_id: present_store_data._id}).then(products => {
 
                         if (products.length > 0) {
                             console.log("products.length : " + products.length);
@@ -144,7 +144,7 @@ exports.updateNewTable = function (request_data, response_data) {
                         }
                     });
 
-                    Specification_group.find({store_id: present_store_data._id}, function (error, specification_groups) {
+                    Specification_group.find({store_id: present_store_data._id}).then(specification_groups =>  {
 
                         if (specification_groups.length > 0) {
                             console.log("specification_groups.length : " + specification_groups.length);
@@ -190,7 +190,7 @@ exports.copy_products = function (present_store_id, new_store_id, product) {
 
 
             // Add Items
-            Item.find({store_id: product.store_id, product_id: product._id}, function (error, items) {
+            Item.find({store_id: product.store_id, product_id: product._id}).then(items => {
 
                 if (items.length > 0) {
                     console.log("items.length : " + items.length);

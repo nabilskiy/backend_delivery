@@ -176,7 +176,7 @@ exports.provider_weekly_earning = function (request_data, response_data) {
                         }
                         else
                         {
-                            Order_payment.aggregate([provider_query, array_to_json_provider_query, country_query, filter, search], function (error, provider_weekly_earnings) {
+                            Order_payment.aggregate([provider_query, array_to_json_provider_query, country_query, filter, search]).then(provider_weekly_earnings => {
 
                                 response_data.json({success: true,
                                     message: ORDER_MESSAGE_CODE.ORDER_LIST_SUCCESSFULLY, pages: pages,

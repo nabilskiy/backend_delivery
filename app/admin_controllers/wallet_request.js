@@ -151,7 +151,7 @@ exports.get_wallet_request_list = function (request_data, response_data) {
                     {
                         Wallet_request.find({user_id: request_data_body.id, user_type: type}, null, {sort: {'unique_id': -1}}).then((wallet_request_detail) => {
 
-                            //Wallet_request.find({user_id: request_data_body.id, user_type: type}, function (error, wallet_request_detail) {
+                           
                             if (wallet_request_detail.length == 0) {
                                 response_data.json({success: false, error_code: WALLET_REQUEST_ERROR_CODE.WALLET_REQUEST_DETAILS_NOT_FOUND});
                             } else {

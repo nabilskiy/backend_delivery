@@ -21,11 +21,11 @@ exports.add_new_user = function (request_data, response_data) {
             var city_id = request_data_body.city_id;
             var type = 7;
 
-            City.findOne({_id: city_id}, function (error, city_detail) {
+            City.findOne({ _id: city_id }).then(city_detail => {
                 if (city_detail) {
-                    Country.findOne({_id: country_id}, function (error, country) {
+                    Country.findOne({ _id: country_id }).then(country => {
                         if (country) {
-                            User.find({country_id: country_id}, function (error, users) {
+                            User.find({ country_id: country_id }).then(users => {
                                 var count = users.length;
                                 count = count + 1;
 
@@ -52,11 +52,11 @@ exports.add_new_user = function (request_data, response_data) {
                                 User_File_Obj.user_register(request_data, response_data);
                             });
                         } else {
-                            response_data.json({success: false, error_code: 0});
+                            response_data.json({ success: false, error_code: 0 });
                         }
                     });
                 } else {
-                    response_data.json({success: false, error_code: 0});
+                    response_data.json({ success: false, error_code: 0 });
                 }
             });
         } else {
@@ -73,12 +73,12 @@ exports.add_new_provider = function (request_data, response_data) {
             var country_id = request_data_body.country_id;
             var city_id = request_data_body.city_id;
             var type = 8;
-            Country.findOne({_id: country_id}, function (error, country) {
-                City.findOne({_id: city_id}, function (error, city_detail) {
+            Country.findOne({ _id: country_id }).then(country => {
+                City.findOne({ _id: city_id }).then(city_detail => {
 
                     if (city_detail && country) {
 
-                        Provider.find({country_id: country_id}, function (error, providers) {
+                        Provider.find({ country_id: country_id }).then(providers => {
                             var count = providers.length;
                             count = count + 1;
 
@@ -95,8 +95,8 @@ exports.add_new_provider = function (request_data, response_data) {
                             request_data_body.device_type = "";
                             request_data_body.app_version = "";
                             var city_code = city_detail.city_code;
-                                city_code = city_code.replace(/[^a-zA-Z ]/g, "");
-                                city_code = city_code.replace(/\s+/g, '');
+                            city_code = city_code.replace(/[^a-zA-Z ]/g, "");
+                            city_code = city_code.replace(/\s+/g, '');
                             request_data_body.email = ("deliveryman" + count + "_" + city_code + "@gmail.com").toLowerCase();
                             request_data_body.country_phone_code = country.country_phone_code;
                             request_data_body.is_email_verified = false;
@@ -108,7 +108,7 @@ exports.add_new_provider = function (request_data, response_data) {
 
                         });
                     } else {
-                        response_data.json({success: false, error_code: 0});
+                        response_data.json({ success: false, error_code: 0 });
                     }
                 });
 
@@ -129,13 +129,13 @@ exports.add_new_store = function (request_data, response_data) {
             var store_delivery_id = request_data_body.store_delivery_id;
             var type = 2;
 
-            Country.findOne({_id: country_id}, function (error, country) {
-                City.findOne({_id: city_id}, function (error, city_detail) {
-                    Delivery.findOne({_id: store_delivery_id}, function (error, delivery_detail) {
+            Country.findOne({ _id: country_id }).then(country => {
+                City.findOne({ _id: city_id }).then(city_detail => {
+                    Delivery.findOne({ _id: store_delivery_id }).then(delivery_detail => {
 
                         if (city_detail && country) {
 
-                            Store.find({country_id: country_id}, function (error, stores) {
+                            Store.find({ country_id: country_id }).then(stores => {
                                 var count = stores.length;
                                 count = count + 1;
 
@@ -173,7 +173,7 @@ exports.add_new_store = function (request_data, response_data) {
                                 Store_File_Obj.store_register(request_data, response_data);
                             });
                         } else {
-                            response_data.json({success: false, error_code: 0});
+                            response_data.json({ success: false, error_code: 0 });
                         }
                     });
                 });
@@ -190,11 +190,12 @@ exports.add_new_store = function (request_data, response_data) {
 exports.get_store_list = function (request_data, response_data) {
     utils.check_request_params(request_data.body, [], function (response) {
         if (response.success) {
-            Store.find({}, function (error, stores) {
+            Store.find({}).then(stores => {
                 if (error || stores.length == 0) {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 } else {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: STORE_MESSAGE_CODE.STORE_DATA_SUCCESSFULLY,
                         stores: stores
                     });
@@ -210,11 +211,12 @@ exports.get_store_list = function (request_data, response_data) {
 exports.get_providers = function (request_data, response_data) {
     utils.check_request_params(request_data.body, [], function (response) {
         if (response.success) {
-            Provider.find({}, function (error, providers) {
+            Provider.find({}).then(providers => {
                 if (error || providers.length == 0) {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 } else {
-                    response_data.json({success: true,
+                    response_data.json({
+                        success: true,
                         message: STORE_MESSAGE_CODE.STORE_DATA_SUCCESSFULLY,
                         providers: providers
                     });
@@ -233,7 +235,7 @@ exports.add_provider_vehicle_data = function (request_data, response_data) {
 
             var request_data_body = request_data.body;
             console.log(request_data_body)
-            Provider.findOne({_id: request_data_body.provider_id}, function (error, provider) {
+            Provider.findOne({ _id: request_data_body.provider_id }).then(provider => {
                 console.log(request_data_body.provider_id);
                 var provider_vehicle = new Provider_vehicle({
                     country_id: provider.country_id,
@@ -261,7 +263,8 @@ exports.add_provider_vehicle_data = function (request_data, response_data) {
                     if (error) {
                         throw error;
                     } else {
-                        response_data.json({success: true,
+                        response_data.json({
+                            success: true,
                             message: STORE_MESSAGE_CODE.STORE_DATA_SUCCESSFULLY
                         });
                     }

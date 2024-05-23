@@ -29,69 +29,40 @@ var console = require('../../utils/console');
 var Service = require('mongoose').model('service');
 // store register api
 exports.store_register = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'name', type: 'string'}, {name: 'city_id', type: 'string'}, {name: 'country_id', type: 'string'},
-        {name: 'email', type: 'string'}, {name: 'store_delivery_id', type: 'string'}, {name: 'phone', type: 'string'}, {name: 'country_phone_code', type: 'string'}
-        , {name: 'latitude'}, {name: 'longitude'}], function (response) {
-        if (response.success) {
-            if(request_data.body.latitude == 0 && request_data.body.longitude == 0)
-            {
-                response_data.json({
-                    success: false,
-                    error_code: ERROR_CODE.SOMETHING_WENT_WRONG
-                });
-            }else {
-            var request_data_body = request_data.body;
-            var social_id = request_data_body.social_id;
-            var social_id_array = [];
+    utils.check_request_params(request_data.body, [{ name: 'name', type: 'string' }, { name: 'city_id', type: 'string' }, { name: 'country_id', type: 'string' },
+    { name: 'email', type: 'string' }, { name: 'store_delivery_id', type: 'string' }, { name: 'phone', type: 'string' }, { name: 'country_phone_code', type: 'string' }
+        , { name: 'latitude' }, { name: 'longitude' }], function (response) {
+            if (response.success) {
+                if (request_data.body.latitude == 0 && request_data.body.longitude == 0) {
+                    response_data.json({
+                        success: false,
+                        error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                    });
+                } else {
+                    var request_data_body = request_data.body;
+                    var social_id = request_data_body.social_id;
+                    var social_id_array = [];
 
-            if (social_id == undefined || social_id == null || social_id == "")
-            {
-                social_id = null;
-            } else
-            {
-                social_id_array.push(social_id);
-            }
-            Installation_setting.findOne({}).then((installation_setting) => {
+                    if (social_id == undefined || social_id == null || social_id == "") {
+                        social_id = null;
+                    } else {
+                        social_id_array.push(social_id);
+                    }
+                    Installation_setting.findOne({}).then((installation_setting) => {
 
-                Country.findOne({_id: request_data_body.country_id}).then((country) => {
-                    if (country) {
-                        City.findOne({_id: request_data_body.city_id}).then((city) => {
-                            if (city) {
-                                var timezone = city.timezone;
-                                Store.findOne({social_ids: {$all: social_id_array}}).then((store_data) => {
-                                    if (store_data) {
-                                        response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_ALREADY_REGISTER_WITH_SOCIAL});
-                                    } else {
-                                        Store.findOne({email: request_data_body.email}).then((store_data) => {
-
+                        Country.findOne({ _id: request_data_body.country_id }).then((country) => {
+                            if (country) {
+                                City.findOne({ _id: request_data_body.city_id }).then((city) => {
+                                    if (city) {
+                                        var timezone = city.timezone;
+                                        Store.findOne({ social_ids: { $all: social_id_array } }).then((store_data) => {
                                             if (store_data) {
-                                                if (social_id != null && store_data.social_ids.indexOf(social_id) < 0)
-                                                {
-                                                    store_data.social_ids.push(social_id);
-                                                    store_data.save();
-                                                    response_data.json({
-                                                        success: true,
-                                                        message: STORE_MESSAGE_CODE.REGISTER_SUCCESSFULLY,
-                                                        timezone: timezone,
-                                                        currency: country.currency_sign,
-                                                        minimum_phone_number_length: country.minimum_phone_number_length,
-                                                        maximum_phone_number_length: country.maximum_phone_number_length,
-                                                        store: store_data
-                                                    });
-
-                                                } else
-                                                {
-
-                                                    response_data.json({success: false, error_code: STORE_ERROR_CODE.EMAIL_ALREADY_REGISTRED});
-                                                }
+                                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_ALREADY_REGISTER_WITH_SOCIAL });
                                             } else {
-
-                                                Store.findOne({phone: request_data_body.phone}).then((store_data) => {
+                                                Store.findOne({ email: request_data_body.email }).then((store_data) => {
 
                                                     if (store_data) {
-                                                        if (social_id != null && store_data.social_ids.indexOf(social_id) < 0)
-                                                        {
-
+                                                        if (social_id != null && store_data.social_ids.indexOf(social_id) < 0) {
                                                             store_data.social_ids.push(social_id);
                                                             store_data.save();
                                                             response_data.json({
@@ -104,183 +75,19 @@ exports.store_register = function (request_data, response_data) {
                                                                 store: store_data
                                                             });
 
-                                                        } else
-                                                        {
+                                                        } else {
 
-                                                            response_data.json({success: false, error_code: STORE_ERROR_CODE.PHONE_NUMBER_ALREADY_REGISTRED});
-
+                                                            response_data.json({ success: false, error_code: STORE_ERROR_CODE.EMAIL_ALREADY_REGISTRED });
                                                         }
-
-
-
                                                     } else {
-                                                        var name = (request_data_body.name).trim();
-                                                        name = name.charAt(0).toUpperCase() + name.slice(1);
 
+                                                        Store.findOne({ phone: request_data_body.phone }).then((store_data) => {
 
-                                                        var server_token = utils.generateServerToken(32);
+                                                            if (store_data) {
+                                                                if (social_id != null && store_data.social_ids.indexOf(social_id) < 0) {
 
-
-                                                        var store_data = new Store({
-                                                            store_type: ADMIN_DATA_ID.ADMIN,
-                                                            admin_type: ADMIN_DATA_ID.STORE,
-                                                            store_type_id: null,
-                                                            store_delivery_id: request_data_body.store_delivery_id,
-                                                            name: name,
-                                                            email: ((request_data_body.email).trim()).toLowerCase(),
-                                                            password: request_data_body.password,
-                                                            country_phone_code: request_data_body.country_phone_code,
-                                                            website_url: request_data_body.website_url,
-                                                            slogan: request_data_body.slogan,
-                                                            country_id: request_data_body.country_id,
-                                                            city_id: request_data_body.city_id,
-                                                            phone: request_data_body.phone,
-                                                            address: request_data_body.address,
-                                                            famous_for: request_data_body.famous_for,
-                                                            app_version: request_data_body.app_version,
-                                                            image_url: "",
-                                                            device_token: request_data_body.device_token,
-                                                            device_type: request_data_body.device_type,
-                                                            server_token: server_token,
-                                                            is_email_verified: request_data_body.is_email_verified,
-                                                            is_phone_number_verified: request_data_body.is_phone_number_verified,
-                                                            is_business: request_data_body.is_business,
-                                                            is_approved: request_data_body.is_approved,
-                                                            offer: request_data_body.offer,
-                                                            price_rating: 1,
-                                                            social_ids: social_id_array,
-                                                            login_by: request_data_body.login_by,
-                                                            free_delivery_for_above_order_price: request_data_body.free_delivery_for_above_order_price,
-                                                            location: [request_data_body.latitude, request_data_body.longitude]
-                                                        });
-
-                                                        var image_file = request_data.files;
-
-                                                        if (image_file != undefined && image_file.length > 0) {
-                                                            var image_name = store_data._id + utils.generateServerToken(4);
-                                                            var url = utils.getStoreImageFolderPath(FOLDER_NAME.STORE_PROFILES) + image_name + FILE_EXTENSION.STORE;
-
-                                                            store_data.image_url = url;
-                                                            utils.storeImageToFolder(image_file[0].path, image_name + FILE_EXTENSION.STORE, FOLDER_NAME.STORE_PROFILES);
-
-                                                        }
-
-                                                        if (social_id == undefined || social_id == null || social_id == "")
-                                                        {
-                                                            store_data.password = utils.encryptPassword(request_data_body.password);
-                                                        }
-
-
-                                                        var timezone = city.timezone;
-
-                                                        if (country && setting_detail) {
-
-                                                            var referral_code = utils.generateReferralCode(ADMIN_DATA_ID.ADMIN, country.country_code, name, name);
-                                                            store_data.referral_code = referral_code;
-
-                                                            var wallet_currency_code = country.currency_code;
-
-                                                            var wallet_to_admin_current_rate = 1;
-
-                                                            var referral_bonus_to_store = country.referral_bonus_to_store;
-                                                            var referral_bonus_to_store_friend = country.referral_bonus_to_store_friend;
-
-                                                            store_data.wallet_currency_code = wallet_currency_code;
-
-                                                            var country_id = country._id;
-
-                                                            store_data.save().then(() => {
-
-                                                                var url = 'https://api.branch.io/v1/url/';
-
-                                                                var request = require('request');
-                                                                var BRANCH_KEY = installation_setting.branch_io_key;
-                                                                request({
-                                                                    uri: url,
-                                                                    method: "POST",
-                                                                    form: {
-                                                                        branch_key: BRANCH_KEY,
-                                                                        stage: "'" + store_data._id + "'"
-                                                                    }
-                                                                }, function (error, response, body) {
-                                                                    if(!error && body){
-                                                                        var json = JSON.parse(body);
-                                                                        store_data.branchio_url = json.url;
-                                                                    }
-                                                                    utils.insert_documets_for_new_users(store_data, null, ADMIN_DATA_ID.STORE, country_id, function(document_response){
-                                                                        store_data.is_document_uploaded = document_response.is_document_uploaded;
-                                                                        if (request_data_body.referral_code != "") {
-
-                                                                            Store.findOne({referral_code: request_data_body.referral_code}, function (error, store) {
-
-                                                                                if (store) {
-                                                                                    var store_refferal_count = store.total_referrals;
-                                                                                    if (store_refferal_count < country.no_of_store_use_referral) {
-                                                                                        store.total_referrals = +store.total_referrals + 1;
-
-                                                                                        // Entry in wallet Table //
-                                                                                        var total_wallet_amount = wallet_history.add_wallet_history(ADMIN_DATA_ID.STORE, store.unique_id, store._id, store.country_id, wallet_currency_code, wallet_currency_code,
-                                                                                            1, referral_bonus_to_store, store.wallet, WALLET_STATUS_ID.ADD_WALLET_AMOUNT, WALLET_COMMENT_ID.ADDED_BY_REFERRAL, "Using Refferal : " + request_data_body.referral_code);
-
-
-                                                                                        store.wallet = total_wallet_amount;
-                                                                                        store.save();
-
-                                                                                        store_data.is_referral = true;
-                                                                                        store_data.referred_by = store._id;
-
-                                                                                        // Entry in wallet Table //
-
-                                                                                        var new_total_wallet_amount = wallet_history.add_wallet_history(ADMIN_DATA_ID.STORE, store_data.unique_id, store_data._id, store_data.country_id, wallet_currency_code, wallet_currency_code,
-                                                                                            1, referral_bonus_to_store_friend, store_data.wallet, WALLET_STATUS_ID.ADD_WALLET_AMOUNT, WALLET_COMMENT_ID.ADDED_BY_REFERRAL, "Using Refferal : " + request_data_body.referral_code);
-
-                                                                                        store_data.wallet = new_total_wallet_amount;
-
-                                                                                        store_data.save();
-
-
-                                                                                        // Entry in referral_code Table //
-                                                                                        var referral_code = new Referral_code({
-                                                                                            user_type: ADMIN_DATA_ID.STORE,
-                                                                                            user_id: store._id,
-                                                                                            user_unique_id: store.unique_id,
-                                                                                            user_referral_code: store.referral_code,
-                                                                                            referred_id: store_data._id,
-                                                                                            referred_unique_id: store_data.unique_id,
-                                                                                            country_id: store_data.country_id,
-                                                                                            current_rate: 1,
-                                                                                            referral_bonus_to_user_friend: referral_bonus_to_store_friend,
-                                                                                            referral_bonus_to_user: referral_bonus_to_store,
-
-                                                                                        });
-                                                                                        utils.getCurrencyConvertRate(1, wallet_currency_code, setting_detail.admin_currency_code, function (response) {
-
-                                                                                            if (response.success)
-                                                                                            {
-                                                                                                wallet_to_admin_current_rate = response.current_rate;
-                                                                                            } else
-                                                                                            {
-                                                                                                wallet_to_admin_current_rate = 1;
-                                                                                            }
-
-                                                                                            wallet_to_admin_current_rate = wallet_to_admin_current_rate;
-                                                                                            referral_code.current_rate = wallet_to_admin_current_rate;
-                                                                                            referral_code.save();
-                                                                                        });
-                                                                                    }
-
-                                                                                }
-                                                                            });
-
-                                                                        } else {
-                                                                            store_data.save();
-                                                                        }
-                                                                    });
-                                                                    if (setting_detail.is_mail_notification) {
-                                                                        //sendStoreRegisterEmail
-                                                                        emails.sendStoreRegisterEmail(request_data, store_data, store_data.name);
-                                                                    }
-
+                                                                    store_data.social_ids.push(social_id);
+                                                                    store_data.save();
                                                                     response_data.json({
                                                                         success: true,
                                                                         message: STORE_MESSAGE_CODE.REGISTER_SUCCESSFULLY,
@@ -290,20 +97,212 @@ exports.store_register = function (request_data, response_data) {
                                                                         maximum_phone_number_length: country.maximum_phone_number_length,
                                                                         store: store_data
                                                                     });
+
+                                                                } else {
+
+                                                                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.PHONE_NUMBER_ALREADY_REGISTRED });
+
+                                                                }
+
+
+
+                                                            } else {
+                                                                var name = (request_data_body.name).trim();
+                                                                name = name.charAt(0).toUpperCase() + name.slice(1);
+
+
+                                                                var server_token = utils.generateServerToken(32);
+
+
+                                                                var store_data = new Store({
+                                                                    store_type: ADMIN_DATA_ID.ADMIN,
+                                                                    admin_type: ADMIN_DATA_ID.STORE,
+                                                                    store_type_id: null,
+                                                                    store_delivery_id: request_data_body.store_delivery_id,
+                                                                    name: name,
+                                                                    email: ((request_data_body.email).trim()).toLowerCase(),
+                                                                    password: request_data_body.password,
+                                                                    country_phone_code: request_data_body.country_phone_code,
+                                                                    website_url: request_data_body.website_url,
+                                                                    slogan: request_data_body.slogan,
+                                                                    country_id: request_data_body.country_id,
+                                                                    city_id: request_data_body.city_id,
+                                                                    phone: request_data_body.phone,
+                                                                    address: request_data_body.address,
+                                                                    famous_for: request_data_body.famous_for,
+                                                                    app_version: request_data_body.app_version,
+                                                                    image_url: "",
+                                                                    device_token: request_data_body.device_token,
+                                                                    device_type: request_data_body.device_type,
+                                                                    server_token: server_token,
+                                                                    is_email_verified: request_data_body.is_email_verified,
+                                                                    is_phone_number_verified: request_data_body.is_phone_number_verified,
+                                                                    is_business: request_data_body.is_business,
+                                                                    is_approved: request_data_body.is_approved,
+                                                                    offer: request_data_body.offer,
+                                                                    price_rating: 1,
+                                                                    social_ids: social_id_array,
+                                                                    login_by: request_data_body.login_by,
+                                                                    free_delivery_for_above_order_price: request_data_body.free_delivery_for_above_order_price,
+                                                                    location: [request_data_body.latitude, request_data_body.longitude]
                                                                 });
 
-                                                            }, (error) => {
-                                                                console.log(error)
-                                                                response_data.json({
-                                                                    success: false,
-                                                                    error_code: ERROR_CODE.SOMETHING_WENT_WRONG
-                                                                });
-                                                            });
-                                                        }
+                                                                var image_file = request_data.files;
+
+                                                                if (image_file != undefined && image_file.length > 0) {
+                                                                    var image_name = store_data._id + utils.generateServerToken(4);
+                                                                    var url = utils.getStoreImageFolderPath(FOLDER_NAME.STORE_PROFILES) + image_name + FILE_EXTENSION.STORE;
+
+                                                                    store_data.image_url = url;
+                                                                    utils.storeImageToFolder(image_file[0].path, image_name + FILE_EXTENSION.STORE, FOLDER_NAME.STORE_PROFILES);
+
+                                                                }
+
+                                                                if (social_id == undefined || social_id == null || social_id == "") {
+                                                                    store_data.password = utils.encryptPassword(request_data_body.password);
+                                                                }
+
+
+                                                                var timezone = city.timezone;
+
+                                                                if (country && setting_detail) {
+
+                                                                    var referral_code = utils.generateReferralCode(ADMIN_DATA_ID.ADMIN, country.country_code, name, name);
+                                                                    store_data.referral_code = referral_code;
+
+                                                                    var wallet_currency_code = country.currency_code;
+
+                                                                    var wallet_to_admin_current_rate = 1;
+
+                                                                    var referral_bonus_to_store = country.referral_bonus_to_store;
+                                                                    var referral_bonus_to_store_friend = country.referral_bonus_to_store_friend;
+
+                                                                    store_data.wallet_currency_code = wallet_currency_code;
+
+                                                                    var country_id = country._id;
+
+                                                                    store_data.save().then(() => {
+
+                                                                        var url = 'https://api.branch.io/v1/url/';
+
+                                                                        var request = require('request');
+                                                                        var BRANCH_KEY = installation_setting.branch_io_key;
+                                                                        request({
+                                                                            uri: url,
+                                                                            method: "POST",
+                                                                            form: {
+                                                                                branch_key: BRANCH_KEY,
+                                                                                stage: "'" + store_data._id + "'"
+                                                                            }
+                                                                        }, function (error, response, body) {
+                                                                            if (!error && body) {
+                                                                                var json = JSON.parse(body);
+                                                                                store_data.branchio_url = json.url;
+                                                                            }
+                                                                            utils.insert_documets_for_new_users(store_data, null, ADMIN_DATA_ID.STORE, country_id, function (document_response) {
+                                                                                store_data.is_document_uploaded = document_response.is_document_uploaded;
+                                                                                if (request_data_body.referral_code != "") {
+
+                                                                                    Store.findOne({ referral_code: request_data_body.referral_code }).then(store => {
+
+                                                                                        if (store) {
+                                                                                            var store_refferal_count = store.total_referrals;
+                                                                                            if (store_refferal_count < country.no_of_store_use_referral) {
+                                                                                                store.total_referrals = +store.total_referrals + 1;
+
+                                                                                                // Entry in wallet Table //
+                                                                                                var total_wallet_amount = wallet_history.add_wallet_history(ADMIN_DATA_ID.STORE, store.unique_id, store._id, store.country_id, wallet_currency_code, wallet_currency_code,
+                                                                                                    1, referral_bonus_to_store, store.wallet, WALLET_STATUS_ID.ADD_WALLET_AMOUNT, WALLET_COMMENT_ID.ADDED_BY_REFERRAL, "Using Refferal : " + request_data_body.referral_code);
+
+
+                                                                                                store.wallet = total_wallet_amount;
+                                                                                                store.save();
+
+                                                                                                store_data.is_referral = true;
+                                                                                                store_data.referred_by = store._id;
+
+                                                                                                // Entry in wallet Table //
+
+                                                                                                var new_total_wallet_amount = wallet_history.add_wallet_history(ADMIN_DATA_ID.STORE, store_data.unique_id, store_data._id, store_data.country_id, wallet_currency_code, wallet_currency_code,
+                                                                                                    1, referral_bonus_to_store_friend, store_data.wallet, WALLET_STATUS_ID.ADD_WALLET_AMOUNT, WALLET_COMMENT_ID.ADDED_BY_REFERRAL, "Using Refferal : " + request_data_body.referral_code);
+
+                                                                                                store_data.wallet = new_total_wallet_amount;
+
+                                                                                                store_data.save();
+
+
+                                                                                                // Entry in referral_code Table //
+                                                                                                var referral_code = new Referral_code({
+                                                                                                    user_type: ADMIN_DATA_ID.STORE,
+                                                                                                    user_id: store._id,
+                                                                                                    user_unique_id: store.unique_id,
+                                                                                                    user_referral_code: store.referral_code,
+                                                                                                    referred_id: store_data._id,
+                                                                                                    referred_unique_id: store_data.unique_id,
+                                                                                                    country_id: store_data.country_id,
+                                                                                                    current_rate: 1,
+                                                                                                    referral_bonus_to_user_friend: referral_bonus_to_store_friend,
+                                                                                                    referral_bonus_to_user: referral_bonus_to_store,
+
+                                                                                                });
+                                                                                                utils.getCurrencyConvertRate(1, wallet_currency_code, setting_detail.admin_currency_code, function (response) {
+
+                                                                                                    if (response.success) {
+                                                                                                        wallet_to_admin_current_rate = response.current_rate;
+                                                                                                    } else {
+                                                                                                        wallet_to_admin_current_rate = 1;
+                                                                                                    }
+
+                                                                                                    wallet_to_admin_current_rate = wallet_to_admin_current_rate;
+                                                                                                    referral_code.current_rate = wallet_to_admin_current_rate;
+                                                                                                    referral_code.save();
+                                                                                                });
+                                                                                            }
+
+                                                                                        }
+                                                                                    });
+
+                                                                                } else {
+                                                                                    store_data.save();
+                                                                                }
+                                                                            });
+                                                                            if (setting_detail.is_mail_notification) {
+                                                                                //sendStoreRegisterEmail
+                                                                                emails.sendStoreRegisterEmail(request_data, store_data, store_data.name);
+                                                                            }
+
+                                                                            response_data.json({
+                                                                                success: true,
+                                                                                message: STORE_MESSAGE_CODE.REGISTER_SUCCESSFULLY,
+                                                                                timezone: timezone,
+                                                                                currency: country.currency_sign,
+                                                                                minimum_phone_number_length: country.minimum_phone_number_length,
+                                                                                maximum_phone_number_length: country.maximum_phone_number_length,
+                                                                                store: store_data
+                                                                            });
+                                                                        });
+
+                                                                    }, (error) => {
+                                                                        console.log(error)
+                                                                        response_data.json({
+                                                                            success: false,
+                                                                            error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                                                                        });
+                                                                    });
+                                                                }
+                                                            }
+                                                        });
                                                     }
+
                                                 });
                                             }
 
+                                        }, (error) => {
+                                            console.log(error)
+                                            response_data.json({
+                                                success: false,
+                                                error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                                            });
                                         });
                                     }
 
@@ -323,33 +322,24 @@ exports.store_register = function (request_data, response_data) {
                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                             });
                         });
-                    }
 
-                }, (error) => {
-                    console.log(error)
-                    response_data.json({
-                        success: false,
-                        error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                    }, (error) => {
+                        console.log(error)
+                        response_data.json({
+                            success: false,
+                            error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                        });
                     });
-                });
-
-            }, (error) => {
-                console.log(error)
-                response_data.json({
-                    success: false,
-                    error_code: ERROR_CODE.SOMETHING_WENT_WRONG
-                });
-            });
-        }
-        } else {
-            response_data.json(response);
-        }
-    });
+                }
+            } else {
+                response_data.json(response);
+            }
+        });
 };
 
 // store login
 exports.store_login = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'email', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'email', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
@@ -357,11 +347,10 @@ exports.store_login = function (request_data, response_data) {
             var social_id = request_data_body.social_id;
             var encrypted_password = request_data_body.password;
 
-            if (social_id == undefined || social_id == null || social_id == "")
-            {
+            if (social_id == undefined || social_id == null || social_id == "") {
                 social_id = "";
             }
-            if(!email){
+            if (!email) {
                 email = null;
             }
 
@@ -371,9 +360,9 @@ exports.store_login = function (request_data, response_data) {
                 encrypted_password = utils.encryptPassword(encrypted_password);
             }
 
-            var query = {$or: [{'email': email}, {'phone': email}, {social_ids: {$all: [social_id]}}]};
+            var query = { $or: [{ 'email': email }, { 'phone': email }, { social_ids: { $all: [social_id] } }] };
 
-            if(encrypted_password || social_id){
+            if (encrypted_password || social_id) {
                 Store.findOne(query).then((store_detail) => {
 
                     if (social_id == undefined || social_id == null || social_id == "") {
@@ -382,21 +371,21 @@ exports.store_login = function (request_data, response_data) {
 
                     if ((social_id == null && email == "")) {
 
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.LOGIN_FAILED});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.LOGIN_FAILED });
 
                     } else if (store_detail) {
                         if (social_id == null && encrypted_password != "" && encrypted_password != store_detail.password) {
 
-                            response_data.json({success: false, error_code: STORE_ERROR_CODE.INVALID_PASSWORD});
+                            response_data.json({ success: false, error_code: STORE_ERROR_CODE.INVALID_PASSWORD });
 
                         } else if (social_id != null && store_detail.social_ids.indexOf(social_id) < 0) {
 
-                            response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL});
+                            response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL });
 
                         } else {
-                            Country.findOne({_id: store_detail.country_id}).then((country) => {
+                            Country.findOne({ _id: store_detail.country_id }).then((country) => {
 
-                                City.findOne({_id: store_detail.city_id}).then((city) => {
+                                City.findOne({ _id: store_detail.city_id }).then((city) => {
 
                                     var timezone = city.timezone;
 
@@ -407,13 +396,10 @@ exports.store_login = function (request_data, response_data) {
                                         device_type = store_detail.device_type;
                                     }
 
-                                    if (request_data_body.device_type == DEVICE_TYPE.ANDROID || request_data_body.device_type == DEVICE_TYPE.IOS)
-                                    {
+                                    if (request_data_body.device_type == DEVICE_TYPE.ANDROID || request_data_body.device_type == DEVICE_TYPE.IOS) {
                                         store_detail.device_token = request_data_body.device_token;
-                                    } else
-                                    {
-                                        Order.update({store_notify: 0, store_id: store_detail._id}, {store_notify: 1}, {multi: true}, function (error, order) {
-                                        });
+                                    } else {
+                                        Order.update({ store_notify: 0, store_id: store_detail._id }, { store_notify: 1 }, { multi: true });
                                     }
 
                                     store_detail.device_type = request_data_body.device_type;
@@ -456,7 +442,7 @@ exports.store_login = function (request_data, response_data) {
                         }
 
                     } else {
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.NOT_A_REGISTERED});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.NOT_A_REGISTERED });
                     }
 
                 }, (error) => {
@@ -467,7 +453,7 @@ exports.store_login = function (request_data, response_data) {
                     });
                 });
             } else {
-                response_data.json({success: false, error_code: STORE_ERROR_CODE.LOGIN_FAILED});
+                response_data.json({ success: false, error_code: STORE_ERROR_CODE.LOGIN_FAILED });
             }
         } else {
             response_data.json(response);
@@ -494,26 +480,25 @@ exports.store_update = function (request_data, response_data) {
                 old_password = utils.encryptPassword(old_password);
             }
 
-            Store.findOne({_id: store_id}).then((store) => {
+            Store.findOne({ _id: store_id }).then((store) => {
 
                 if (store) {
 
                     if (request_data_body.type !== ADMIN_DATA_ID.ADMIN && request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
 
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.INVALID_SERVER_TOKEN});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.INVALID_SERVER_TOKEN });
 
                     } else if (request_data_body.type !== ADMIN_DATA_ID.ADMIN && social_id == null && old_password != "" && old_password != store.password) {
 
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.INVALID_PASSWORD});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.INVALID_PASSWORD });
 
                     } else if (request_data_body.type !== ADMIN_DATA_ID.ADMIN && social_id != null && store.social_ids.indexOf(social_id) < 0) {
 
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL });
 
-                    } else
-                    {
-                        Country.findOne({_id: store.country_id}).then((country) => {
-                            City.findOne({_id: store.city_id}).then((city) => {
+                    } else {
+                        Country.findOne({ _id: store.country_id }).then((country) => {
+                            City.findOne({ _id: store.city_id }).then((city) => {
 
                                 var timezone = city.timezone;
                                 var new_email = request_data_body.email;
@@ -535,7 +520,7 @@ exports.store_update = function (request_data, response_data) {
 
                                 request_data_body.social_ids = store.social_ids;
 
-                                Store.findOne({_id: {'$ne': store_id}, email: new_email}).then((store_details) => {
+                                Store.findOne({ _id: { '$ne': store_id }, email: new_email }).then((store_details) => {
 
                                     var is_update = false;
                                     if (store_details) {
@@ -551,10 +536,9 @@ exports.store_update = function (request_data, response_data) {
                                         is_update = true;
                                     }
 
-                                    if (is_update == true)
-                                    {
+                                    if (is_update == true) {
                                         is_update = false;
-                                        Store.findOne({_id: {'$ne': store_id}, phone: new_phone}).then((store_phone_details) => {
+                                        Store.findOne({ _id: { '$ne': store_id }, phone: new_phone }).then((store_phone_details) => {
                                             if (store_phone_details) {
                                                 if (setting_detail.is_store_sms_verification) {
                                                     if (store_phone_details.is_phone_number_verified == false) {
@@ -567,18 +551,16 @@ exports.store_update = function (request_data, response_data) {
                                             } else {
                                                 is_update = true;
                                             }
-                                            if (is_update == true)
-                                            {
+                                            if (is_update == true) {
                                                 var social_id_array = [];
                                                 if (social_id != null) {
                                                     social_id_array.push(social_id);
                                                 }
-                                                store_update_query = {'_id': store_id};
+                                                store_update_query = { '_id': store_id };
                                                 delete request_data_body.unique_id;
-                                                Store.findOneAndUpdate(store_update_query, request_data_body, {new : true}).then((store_data) => {
+                                                Store.findOneAndUpdate(store_update_query, request_data_body, { new: true }).then((store_data) => {
 
-                                                    if (store_data)
-                                                    {
+                                                    if (store_data) {
                                                         var image_file = request_data.files;
                                                         if (image_file != undefined && image_file.length > 0) {
                                                             utils.deleteImageFromFolder(store_data.image_url, FOLDER_NAME.STORE_PROFILES);
@@ -587,32 +569,28 @@ exports.store_update = function (request_data, response_data) {
                                                             utils.storeImageToFolder(image_file[0].path, image_name + FILE_EXTENSION.STORE, FOLDER_NAME.STORE_PROFILES);
                                                             store_data.image_url = url;
                                                         }
-                                                        if (request_data_body.name != undefined)
-                                                        {
+                                                        if (request_data_body.name != undefined) {
                                                             var name = (request_data_body.name).trim();
                                                             name = name.charAt(0).toUpperCase() + name.slice(1);
                                                             store_data.name = name;
                                                         }
 
                                                         if (request_data_body.latitude != undefined && request_data_body.longitude != undefined) {
-                                                            if(request_data_body.latitude == 0 && request_data_body.longitude == 0)
-                                                            {
+                                                            if (request_data_body.latitude == 0 && request_data_body.longitude == 0) {
                                                                 store_data.location = store_data.location;
-                                                            }else{
+                                                            } else {
                                                                 store_data.location = [request_data_body.latitude, request_data_body.longitude];
                                                             }
 
-                                                        }else{
+                                                        } else {
                                                             store_data.location = store_data.location;
                                                         }
 
                                                         if (request_data_body.is_phone_number_verified != undefined) {
                                                             store_data.is_phone_number_verified = request_data_body.is_phone_number_verified;
-                                                        } else if (request_data_body.is_email_verified != undefined)
-                                                        {
+                                                        } else if (request_data_body.is_email_verified != undefined) {
                                                             store_data.is_email_verified = request_data_body.is_email_verified;
-                                                        } else if (request_data_body.is_phone_number_verified != undefined && request_data_body.is_email_verified != undefined)
-                                                        {
+                                                        } else if (request_data_body.is_phone_number_verified != undefined && request_data_body.is_email_verified != undefined) {
                                                             store_data.is_phone_number_verified = request_data_body.is_phone_number_verified;
                                                             store_data.is_email_verified = request_data_body.is_email_verified;
                                                         }
@@ -631,9 +609,8 @@ exports.store_update = function (request_data, response_data) {
 
                                                         });
 
-                                                    } else
-                                                    {
-                                                        response_data.json({success: false, error_code: STORE_ERROR_CODE.UPDATE_FAILED});
+                                                    } else {
+                                                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.UPDATE_FAILED });
                                                     }
                                                 }, (error) => {
                                                     console.log(error)
@@ -642,9 +619,8 @@ exports.store_update = function (request_data, response_data) {
                                                         error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                     });
                                                 });
-                                            } else
-                                            {
-                                                response_data.json({success: false, error_code: STORE_ERROR_CODE.PHONE_NUMBER_ALREADY_REGISTRED});
+                                            } else {
+                                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.PHONE_NUMBER_ALREADY_REGISTRED });
                                             }
 
                                         }, (error) => {
@@ -655,7 +631,7 @@ exports.store_update = function (request_data, response_data) {
                                             });
                                         });
                                     } else {
-                                        response_data.json({success: false, error_code: STORE_ERROR_CODE.EMAIL_ALREADY_REGISTRED});
+                                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.EMAIL_ALREADY_REGISTRED });
                                     }
                                 });
 
@@ -675,9 +651,8 @@ exports.store_update = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -699,20 +674,17 @@ exports.store_otp_verification = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
                 if (store) {
                     if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
+                    } else {
                         if (request_data_body.is_phone_number_verified != undefined) {
                             store.is_phone_number_verified = request_data_body.is_phone_number_verified;
-                            if (store.phone != request_data_body.phone)
-                            {
-                                Store.findOne({phone: request_data_body.phone}).then((store_phone_detail) => {
-                                    if (store_phone_detail)
-                                    {
+                            if (store.phone != request_data_body.phone) {
+                                Store.findOne({ phone: request_data_body.phone }).then((store_phone_detail) => {
+                                    if (store_phone_detail) {
                                         store_phone_detail.phone = "00" + store_phone_detail.phone;
                                         store_phone_detail.save();
                                     }
@@ -723,14 +695,11 @@ exports.store_otp_verification = function (request_data, response_data) {
                             store.phone = request_data_body.phone;
                             store.save();
 
-                        } else if (request_data_body.is_email_verified != undefined)
-                        {
+                        } else if (request_data_body.is_email_verified != undefined) {
                             store.is_email_verified = request_data_body.is_email_verified;
-                            if (store.email != request_data_body.email)
-                            {
-                                Store.findOne({email: request_data_body.email}).then((store_email_detail) => {
-                                    if (store_email_detail)
-                                    {
+                            if (store.email != request_data_body.email) {
+                                Store.findOne({ email: request_data_body.email }).then((store_email_detail) => {
+                                    if (store_email_detail) {
                                         store_email_detail.email = "notverified" + store_email_detail.email;
                                         store_email_detail.save();
                                     }
@@ -742,15 +711,12 @@ exports.store_otp_verification = function (request_data, response_data) {
                             store.email = request_data_body.email;
                             store.save();
 
-                        } else if (request_data_body.is_phone_number_verified != undefined && request_data_body.is_email_verified != undefined)
-                        {
+                        } else if (request_data_body.is_phone_number_verified != undefined && request_data_body.is_email_verified != undefined) {
 
                             store.is_phone_number_verified = request_data_body.is_phone_number_verified;
-                            if (store.phone != request_data_body.phone)
-                            {
-                                Store.findOne({phone: request_data_body.phone}).then((store_phone_detail) => {
-                                    if (store_phone_detail)
-                                    {
+                            if (store.phone != request_data_body.phone) {
+                                Store.findOne({ phone: request_data_body.phone }).then((store_phone_detail) => {
+                                    if (store_phone_detail) {
                                         store_phone_detail.phone = "00" + store_phone_detail.phone;
                                         store_phone_detail.save();
                                     }
@@ -759,11 +725,9 @@ exports.store_otp_verification = function (request_data, response_data) {
 
                             }
                             store.is_email_verified = request_data_body.is_email_verified;
-                            if (store.phone != request_data_body.phone)
-                            {
-                                Store.findOne({email: request_data_body.email}).then((store_email_detail) => {
-                                    if (store_email_detail)
-                                    {
+                            if (store.phone != request_data_body.phone) {
+                                Store.findOne({ email: request_data_body.email }).then((store_email_detail) => {
+                                    if (store_email_detail) {
                                         store_email_detail.email = "notverified" + store_email_detail.email;
                                         store_email_detail.save();
                                     }
@@ -791,9 +755,8 @@ exports.store_otp_verification = function (request_data, response_data) {
                         });
                     }
 
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -815,59 +778,56 @@ exports.get_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
                 if (store) {
                     // if (store.is_approved) {
-                        if (request_data_body.server_token !== null && store.server_token != request_data_body.server_token)
-                        {
-                            response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                        } else
-                        {
-                            Country.findOne({_id: store.country_id}).then((country) => {
-                                City.findOne({_id: store.city_id}).then((city) => {
+                    if (request_data_body.server_token !== null && store.server_token != request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Country.findOne({ _id: store.country_id }).then((country) => {
+                            City.findOne({ _id: store.city_id }).then((city) => {
 
-                                    var timezone = city.timezone;
-                                    store.app_version = request_data_body.app_version;
-                                    if (request_data_body.device_token != undefined) {
-                                        store.device_token = request_data_body.device_token;
-                                    }
+                                var timezone = city.timezone;
+                                store.app_version = request_data_body.app_version;
+                                if (request_data_body.device_token != undefined) {
+                                    store.device_token = request_data_body.device_token;
+                                }
 
 
-                                    store.save().then(() => {
-                                        response_data.json({
-                                            success: true,
-                                            message: STORE_MESSAGE_CODE.GET_DETAIL_SUCCESSFULLY,
-                                            timezone: timezone,
-                                            currency: country.currency_sign,
-                                            minimum_phone_number_length: country.minimum_phone_number_length,
-                                            maximum_phone_number_length: country.maximum_phone_number_length,
-                                            store: store
-                                        });
+                                store.save().then(() => {
+                                    response_data.json({
+                                        success: true,
+                                        message: STORE_MESSAGE_CODE.GET_DETAIL_SUCCESSFULLY,
+                                        timezone: timezone,
+                                        currency: country.currency_sign,
+                                        minimum_phone_number_length: country.minimum_phone_number_length,
+                                        maximum_phone_number_length: country.maximum_phone_number_length,
+                                        store: store
+                                    });
 
-                                    }, (error) => {
-                                        console.log(error)
-                                        response_data.json({
-                                            success: false,
-                                            error_code: ERROR_CODE.SOMETHING_WENT_WRONG
-                                        });
+                                }, (error) => {
+                                    console.log(error)
+                                    response_data.json({
+                                        success: false,
+                                        error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                     });
                                 });
-
-                            }, (error) => {
-                                console.log(error)
-                                response_data.json({
-                                    success: false,
-                                    error_code: ERROR_CODE.SOMETHING_WENT_WRONG
-                                });
                             });
-                        }
+
+                        }, (error) => {
+                            console.log(error)
+                            response_data.json({
+                                success: false,
+                                error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                            });
+                        });
+                    }
                     // } else {
                     //     response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
                     // }
 
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -885,23 +845,21 @@ exports.get_detail = function (request_data, response_data) {
 
 // update device token
 exports.update_device_token = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'device_token', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'device_token', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
                     if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
                         store.device_token = request_data_body.device_token;
                         store.save().then(() => {
-                                response_data.json({
-                                    success: true,
-                                    message: STORE_MESSAGE_CODE.DEVICE_TOKEN_UPDATE_SUCCESSFULLY
-                                });
+                            response_data.json({
+                                success: true,
+                                message: STORE_MESSAGE_CODE.DEVICE_TOKEN_UPDATE_SUCCESSFULLY
+                            });
                         }, (error) => {
                             console.log(error)
                             response_data.json({
@@ -910,9 +868,8 @@ exports.update_device_token = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -934,14 +891,12 @@ exports.logout = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
                     if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
+                    } else {
                         store.device_token = "";
                         store.server_token = "";
                         store.save().then(() => {
@@ -958,9 +913,8 @@ exports.logout = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -982,105 +936,108 @@ exports.order_list = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
-                        Country.findOne({_id: store_detail.country_id}).then((country_detail) => {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Country.findOne({ _id: store_detail.country_id }).then((country_detail) => {
                             if (country_detail) {
                                 var currency = country_detail.currency_sign;
                                 var user_query = {
                                     $lookup:
-                                            {
-                                                from: "users",
-                                                localField: "user_id",
-                                                foreignField: "_id",
-                                                as: "user_detail"
-                                            }
+                                    {
+                                        from: "users",
+                                        localField: "user_id",
+                                        foreignField: "_id",
+                                        as: "user_detail"
+                                    }
                                 };
-                                var array_to_json_user_query = {$unwind: "$user_detail"};
+                                var array_to_json_user_query = { $unwind: "$user_detail" };
 
                                 var order_payment_query = {
                                     $lookup:
-                                            {
-                                                from: "order_payments",
-                                                localField: "order_payment_id",
-                                                foreignField: "_id",
-                                                as: "order_payment_detail"
-                                            }
+                                    {
+                                        from: "order_payments",
+                                        localField: "order_payment_id",
+                                        foreignField: "_id",
+                                        as: "order_payment_detail"
+                                    }
                                 };
-                                var array_to_json_order_payment_query = {$unwind: "$order_payment_detail"};
+                                var array_to_json_order_payment_query = { $unwind: "$order_payment_detail" };
 
                                 var cart_query = {
                                     $lookup:
-                                            {
-                                                from: "carts",
-                                                localField: "cart_id",
-                                                foreignField: "_id",
-                                                as: "cart_detail"
-                                            }
+                                    {
+                                        from: "carts",
+                                        localField: "cart_id",
+                                        foreignField: "_id",
+                                        as: "cart_detail"
+                                    }
                                 };
-                                var array_to_json_cart_query = {$unwind: "$cart_detail"};
+                                var array_to_json_cart_query = { $unwind: "$cart_detail" };
 
-                                var sort = {"$sort": {}};
+                                var sort = { "$sort": {} };
                                 sort["$sort"]['unique_id'] = parseInt(-1);
-                                var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                                var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
                                 //var order_status_condition = {$match: {$and: [{order_status: {$lte: ORDER_STATE.ORDER_READY}}, {order_status: {$ne: ORDER_STATE.STORE_REJECTED}}]}};
 
-                                var order_status_condition = {$match: {
+                                var order_status_condition = {
+                                    $match: {
                                         $and: [
-                                            {order_status: {$ne: ORDER_STATE.STORE_REJECTED}},
-                                            {order_status: {$ne: ORDER_STATE.STORE_CANCELLED}},
-                                            {order_status: {$ne: ORDER_STATE.CANCELED_BY_USER}},
-                                            {order_status: {$ne: ORDER_STATE.ORDER_COMPLETED}},
+                                            { order_status: { $ne: ORDER_STATE.STORE_REJECTED } },
+                                            { order_status: { $ne: ORDER_STATE.STORE_CANCELLED } },
+                                            { order_status: { $ne: ORDER_STATE.CANCELED_BY_USER } },
+                                            { order_status: { $ne: ORDER_STATE.ORDER_COMPLETED } },
                                             {
-                                                $or: [{order_status: {$lt: ORDER_STATE.ORDER_READY}},
-                                                    {request_id: null}]
+                                                $or: [{ order_status: { $lt: ORDER_STATE.ORDER_READY } },
+                                                { request_id: null }]
                                             }]
                                     }
                                 }
                                 //var request_id_condition = {"$match": {'request_id': null}};
                                 Order.aggregate([store_condition, order_status_condition, user_query, order_payment_query, array_to_json_user_query, array_to_json_order_payment_query, cart_query, array_to_json_cart_query, sort]).then((orders) => {
                                     if (orders.length == 0) {
-                                        response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
-                                    } else
-                                    {
+                                        response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
+                                    } else {
                                         var lookup = {
                                             $lookup:
-                                                {
-                                                    from: "vehicles",
-                                                    localField: "vehicle_id",
-                                                    foreignField: "_id",
-                                                    as: "vehicle_detail"
-                                                }
+                                            {
+                                                from: "vehicles",
+                                                localField: "vehicle_id",
+                                                foreignField: "_id",
+                                                as: "vehicle_detail"
+                                            }
                                         };
-                                        var unwind = {$unwind: "$vehicle_detail"};
-                                        var group = {$group: {
+                                        var unwind = { $unwind: "$vehicle_detail" };
+                                        var group = {
+                                            $group: {
                                                 _id: null,
-                                                vehicles: {$push: {
+                                                vehicles: {
+                                                    $push: {
                                                         $cond: {
-                                                            if: { $eq: [ "$admin_type", ADMIN_DATA_ID.STORE ] },
-                                                            then: '$vehicle_detail' ,
+                                                            if: { $eq: ["$admin_type", ADMIN_DATA_ID.STORE] },
+                                                            then: '$vehicle_detail',
                                                             else: null,
                                                         }
-                                                    }},
-                                                admin_vehicles: {$push: {
+                                                    }
+                                                },
+                                                admin_vehicles: {
+                                                    $push: {
                                                         $cond: {
-                                                            if: { $eq: [ "$admin_type", ADMIN_DATA_ID.ADMIN ] },
-                                                            then: '$vehicle_detail' ,
+                                                            if: { $eq: ["$admin_type", ADMIN_DATA_ID.ADMIN] },
+                                                            then: '$vehicle_detail',
                                                             else: null,
                                                         }
-                                                    }},
+                                                    }
+                                                },
                                             }
                                         }
-                                        var condition = {$match: {'city_id': {$eq: store_detail.city_id}}};
-                                        var type_condition = {$match: {$or: [{'type_id': {$eq: store_detail._id}},{'type_id': {$eq: null}}]}};
-                                        var condition1 = {$match: {'is_business': {$eq: true}}};
-                                        var vehicle_condition = {$match: {'vehicle_detail.is_business': {$eq: true}}};
-                                        var delivery_type_query = {$match: {delivery_type: {$eq: 1}}};
+                                        var condition = { $match: { 'city_id': { $eq: store_detail.city_id } } };
+                                        var type_condition = { $match: { $or: [{ 'type_id': { $eq: store_detail._id } }, { 'type_id': { $eq: null } }] } };
+                                        var condition1 = { $match: { 'is_business': { $eq: true } } };
+                                        var vehicle_condition = { $match: { 'vehicle_detail.is_business': { $eq: true } } };
+                                        var delivery_type_query = { $match: { delivery_type: { $eq: 1 } } };
 
                                         Service.aggregate([condition, type_condition, condition1, delivery_type_query, lookup, unwind, group]).then((services) => {
                                             if (services.length > 0) {
@@ -1114,9 +1071,8 @@ exports.order_list = function (request_data, response_data) {
                             }
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -1138,62 +1094,64 @@ exports.get_store_data = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
                     if (request_data_body.type !== ADMIN_DATA_ID.ADMIN && (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
+                    } else {
                         var country_query = {
                             $lookup:
-                                    {
-                                        from: "countries",
-                                        localField: "country_id",
-                                        foreignField: "_id",
-                                        as: "country_details"
-                                    }
+                            {
+                                from: "countries",
+                                localField: "country_id",
+                                foreignField: "_id",
+                                as: "country_details"
+                            }
                         };
 
-                        var array_to_json = {$unwind: "$country_details"};
+                        var array_to_json = { $unwind: "$country_details" };
                         var city_query = {
                             $lookup:
-                                    {
-                                        from: "cities",
-                                        localField: "city_id",
-                                        foreignField: "_id",
-                                        as: "city_details"}
+                            {
+                                from: "cities",
+                                localField: "city_id",
+                                foreignField: "_id",
+                                as: "city_details"
+                            }
                         };
 
-                        var array_to_json1 = {$unwind: "$city_details"};
-                        var delivery_query = {$lookup:
-                                    {
-                                        from: "deliveries",
-                                        localField: "store_delivery_id",
-                                        foreignField: "_id", as: "delivery_details"}
+                        var array_to_json1 = { $unwind: "$city_details" };
+                        var delivery_query = {
+                            $lookup:
+                            {
+                                from: "deliveries",
+                                localField: "store_delivery_id",
+                                foreignField: "_id", as: "delivery_details"
+                            }
                         };
-                        var array_to_json2 = {$unwind: "$delivery_details"};
-                        var condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var array_to_json2 = { $unwind: "$delivery_details" };
+                        var condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
 
                         Store.aggregate([condition, country_query, city_query, delivery_query, array_to_json, array_to_json1, array_to_json2]).then((store_detail) => {
 
                             if (store_detail.length != 0) {
 
-                                var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                                var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
                                 var group = {
                                     $group: {
                                         _id: null,
-                                        total_orders: {$sum: 1},
-                                        accepted_orders: {$sum: {$cond: [{$and: [{$gte: ["$order_status", ORDER_STATE.STORE_ACCEPTED]}, {$gte: ["$order_status", ORDER_STATE.STORE_ACCEPTED]}]}, 1, 0]}},
-                                        completed_orders: {$sum: {$cond: [{$eq: ["$order_status_id", ORDER_STATUS_ID.COMPLETED]}, 1, 0]}},
-                                        cancelled_orders: {$sum: {$cond: [{$eq: ["$order_status_id", ORDER_STATUS_ID.CANCELLED]}, 1, 0]}}
+                                        total_orders: { $sum: 1 },
+                                        accepted_orders: { $sum: { $cond: [{ $and: [{ $gte: ["$order_status", ORDER_STATE.STORE_ACCEPTED] }, { $gte: ["$order_status", ORDER_STATE.STORE_ACCEPTED] }] }, 1, 0] } },
+                                        completed_orders: { $sum: { $cond: [{ $eq: ["$order_status_id", ORDER_STATUS_ID.COMPLETED] }, 1, 0] } },
+                                        cancelled_orders: { $sum: { $cond: [{ $eq: ["$order_status_id", ORDER_STATUS_ID.CANCELLED] }, 1, 0] } }
                                     }
                                 }
                                 Order.aggregate([store_condition, group]).then((order_detail) => {
 
                                     if (order_detail.length == 0) {
-                                        response_data.json({success: true,
+                                        response_data.json({
+                                            success: true,
                                             message: STORE_MESSAGE_CODE.STORE_DATA_SUCCESSFULLY,
                                             store_detail: store_detail[0],
                                             order_detail: {
@@ -1207,16 +1165,16 @@ exports.get_store_data = function (request_data, response_data) {
                                     } else {
                                         var completed_order_percentage = order_detail[0].completed_orders * 100 / order_detail[0].total_orders;
                                         order_detail[0].completed_order_percentage = completed_order_percentage;
-                                        response_data.json({success: true,
+                                        response_data.json({
+                                            success: true,
                                             message: STORE_MESSAGE_CODE.STORE_DATA_SUCCESSFULLY,
                                             store_detail: store_detail[0],
                                             order_detail: order_detail[0]
                                         });
                                     }
                                 });
-                            } else
-                            {
-                                response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                            } else {
+                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                             }
 
                         }, (error) => {
@@ -1227,9 +1185,8 @@ exports.get_store_data = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -1247,7 +1204,7 @@ exports.get_store_data = function (request_data, response_data) {
 
 //update store time
 exports.update_store_time = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'store_time'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'store_time' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
@@ -1265,36 +1222,33 @@ exports.update_store_time = function (request_data, response_data) {
                 old_password = utils.encryptPassword(old_password);
             }
 
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
 
                 if (store) {
                     if (request_data_body.type !== ADMIN_DATA_ID.ADMIN && request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
                     } else if (social_id == null && old_password != "" && old_password != store.password) {
 
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.INVALID_PASSWORD});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.INVALID_PASSWORD });
 
                     } else if (social_id != null && store.social_ids.indexOf(social_id) < 0) {
 
-                        response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL});
+                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL });
 
-                    } else
-                    {
+                    } else {
 
                         // request_data_body.store_time.sort(sortStoreTime);
-                        Store.findOneAndUpdate({_id: store_id}, request_data_body, {new : true}).then((store_data) => {
+                        Store.findOneAndUpdate({ _id: store_id }, request_data_body, { new: true }).then((store_data) => {
 
-                            if (store_data)
-                            {
+                            if (store_data) {
                                 response_data.json({
                                     success: true,
                                     message: STORE_MESSAGE_CODE.UPDATE_SUCCESSFULLY,
                                     store: store_data
 
                                 });
-                            } else
-                            {
-                                response_data.json({success: false, error_code: STORE_ERROR_CODE.UPDATE_FAILED});
+                            } else {
+                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.UPDATE_FAILED });
                             }
 
                         }, (error) => {
@@ -1306,9 +1260,8 @@ exports.update_store_time = function (request_data, response_data) {
                         });
 
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -1327,114 +1280,116 @@ exports.update_store_time = function (request_data, response_data) {
 
 // order_history
 exports.order_history = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'start_date', type: 'string'}, {name: 'end_date', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'start_date', type: 'string' }, { name: 'end_date', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
                 if (store) {
                     if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
                         var city_id = store.city_id;
-                        City.findOne({_id: city_id}).then((city) => {
+                        City.findOne({ _id: city_id }).then((city) => {
                             if (city) {
                                 var city_timezone = city.timezone;
 
-                                 var start_date = null, end_date = null;
+                                var start_date = null, end_date = null;
 
-                        if (request_data_body.start_date == '') {
-                            start_date = new Date(0);
-                        } else {
-                            start_date = request_data_body.start_date;
-                        }
+                                if (request_data_body.start_date == '') {
+                                    start_date = new Date(0);
+                                } else {
+                                    start_date = request_data_body.start_date;
+                                }
 
-                        if (request_data_body.end_date == '') {
-                            end_date = new Date();
-                        } else {
-                            end_date = request_data_body.end_date;
-                        }
+                                if (request_data_body.end_date == '') {
+                                    end_date = new Date();
+                                } else {
+                                    end_date = request_data_body.end_date;
+                                }
 
-                        start_date = new Date(start_date);
-                        start_date = start_date.setHours(0, 0, 0, 0);
-                        start_date = new Date(start_date);
+                                start_date = new Date(start_date);
+                                start_date = start_date.setHours(0, 0, 0, 0);
+                                start_date = new Date(start_date);
 
-                        end_date = new Date(end_date);
-                        end_date = end_date.setHours(23, 59, 59, 999);
-                        end_date = new Date(end_date);
+                                end_date = new Date(end_date);
+                                end_date = end_date.setHours(23, 59, 59, 999);
+                                end_date = new Date(end_date);
 
 
-                        var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
-                        var order_status_condition = {
-                            "$match": {
-                                $or: [{
-                                    order_status: ORDER_STATE.ORDER_COMPLETED
-                                }, {order_status: ORDER_STATE.STORE_CANCELLED}, {order_status: ORDER_STATE.CANCELED_BY_USER}, {order_status: ORDER_STATE.STORE_REJECTED}]
-                            }
-                        };
+                                var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                var order_status_condition = {
+                                    "$match": {
+                                        $or: [{
+                                            order_status: ORDER_STATE.ORDER_COMPLETED
+                                        }, { order_status: ORDER_STATE.STORE_CANCELLED }, { order_status: ORDER_STATE.CANCELED_BY_USER }, { order_status: ORDER_STATE.STORE_REJECTED }]
+                                    }
+                                };
 
-                        var filter = {"$match": {"completed_date_in_city_timezone": {$gte: start_date, $lt: end_date}}};
+                                var filter = { "$match": { "completed_date_in_city_timezone": { $gte: start_date, $lt: end_date } } };
 
                                 Order.aggregate([store_condition, filter, order_status_condition,
                                     {
                                         $lookup:
-                                                {
-                                                    from: "users",
-                                                    localField: "user_id",
-                                                    foreignField: "_id",
-                                                    as: "user_detail"
-                                                }
+                                        {
+                                            from: "users",
+                                            localField: "user_id",
+                                            foreignField: "_id",
+                                            as: "user_detail"
+                                        }
                                     },
-                                    {"$unwind": "$user_detail"},
+                                    { "$unwind": "$user_detail" },
                                     {
                                         $lookup:
-                                                {
-                                                    from: "order_payments",
-                                                    localField: "order_payment_id",
-                                                    foreignField: "_id",
-                                                    as: "order_payment_detail"
-                                                }
+                                        {
+                                            from: "order_payments",
+                                            localField: "order_payment_id",
+                                            foreignField: "_id",
+                                            as: "order_payment_detail"
+                                        }
                                     },
-                                    {"$unwind": "$order_payment_detail"},
+                                    { "$unwind": "$order_payment_detail" },
 
                                     {
                                         $lookup:
-                                                {
-                                                    from: "cities",
-                                                    localField: "city_id",
-                                                    foreignField: "_id",
-                                                    as: "city_detail"
-                                                }
+                                        {
+                                            from: "cities",
+                                            localField: "city_id",
+                                            foreignField: "_id",
+                                            as: "city_detail"
+                                        }
                                     },
-                                    {"$unwind": "$city_detail"},
+                                    { "$unwind": "$city_detail" },
 
                                     {
                                         $lookup:
-                                                {
-                                                    from: "countries",
-                                                    localField: "city_detail.country_id",
-                                                    foreignField: "_id",
-                                                    as: "country_detail"
-                                                }
+                                        {
+                                            from: "countries",
+                                            localField: "city_detail.country_id",
+                                            foreignField: "_id",
+                                            as: "country_detail"
+                                        }
                                     },
-                                    {"$unwind": "$country_detail"},
+                                    { "$unwind": "$country_detail" },
                                     {
                                         $lookup:
-                                                {
-                                                    from: "requests",
-                                                    localField: "request_id",
-                                                    foreignField: "_id",
-                                                    as: "request_detail"
-                                                }
+                                        {
+                                            from: "requests",
+                                            localField: "request_id",
+                                            foreignField: "_id",
+                                            as: "request_detail"
+                                        }
                                     },
-                                    {$unwind: {
+                                    {
+                                        $unwind: {
                                             path: "$request_detail",
                                             preserveNullAndEmptyArrays: true
                                         }
                                     },
 
-                                    {$project: {created_at: "$created_at",
+                                    {
+                                        $project: {
+                                            created_at: "$created_at",
                                             order_status: "$order_status",
                                             store_profit: "$order_payment_detail.total_store_income",
                                             total: "$order_payment_detail.total",
@@ -1449,16 +1404,19 @@ exports.order_history = function (request_data, response_data) {
                                                 delivery_status: "$request_detail.delivery_status",
                                                 delivery_status_manage_id: "$request_detail.delivery_status_manage_id",
                                             },
-                                            user_detail: {first_name: "$user_detail.first_name", last_name: "$user_detail.last_name", image_url: "$user_detail.image_url"}}},
+                                            user_detail: { first_name: "$user_detail.first_name", last_name: "$user_detail.last_name", image_url: "$user_detail.image_url" }
+                                        }
+                                    },
                                 ]).then((orders) => {
 
                                     if (orders.length == 0) {
-                                        response_data.json({success: false, error_code: STORE_ERROR_CODE.ORDER_HISTORY_NOT_FOUND});
-                                    } else
-                                    {
-                                        response_data.json({success: true,
+                                        response_data.json({ success: false, error_code: STORE_ERROR_CODE.ORDER_HISTORY_NOT_FOUND });
+                                    } else {
+                                        response_data.json({
+                                            success: true,
                                             message: STORE_MESSAGE_CODE.ORDER_HISTORY_SUCCESSFULLY,
-                                            order_list: orders});
+                                            order_list: orders
+                                        });
                                     }
                                 }, (error) => {
                                     console.log(error)
@@ -1479,10 +1437,9 @@ exports.order_history = function (request_data, response_data) {
                         });
 
                     }
-                } else
-                {
+                } else {
 
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
 
                 }
             });
@@ -1493,40 +1450,37 @@ exports.order_history = function (request_data, response_data) {
 };
 // store order_history_detail
 exports.order_history_detail = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
                 if (store) {
                     if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
-                        Order.findOne({_id: request_data_body.order_id}).then((order_detail) => {
-                            if (order_detail)
-                            {
+                    } else {
+                        Order.findOne({ _id: request_data_body.order_id }).then((order_detail) => {
+                            if (order_detail) {
                                 var country_id = order_detail.country_id;
                                 if (order_detail.country_id == null && order_detail.country_id == undefined) {
                                     country_id = store.country_id;
                                 }
 
-                                Country.findOne({_id: country_id}).then((country) => {
+                                Country.findOne({ _id: country_id }).then((country) => {
                                     var currency = "";
-                                    if (country)
-                                    {
+                                    if (country) {
                                         currency = country.currency_sign;
                                     }
-                                    User.findOne({_id: order_detail.user_id}).then((user_data) => {
+                                    User.findOne({ _id: order_detail.user_id }).then((user_data) => {
                                         var current_provider = null;
-                                        Request.findOne({_id: order_detail.request_id}).then((request_data) => {
+                                        Request.findOne({ _id: order_detail.request_id }).then((request_data) => {
                                             if (request_data) {
                                                 current_provider = request_data.current_provider;
                                             }
-                                            Provider.findOne({_id: current_provider}).then((provider_data) => {
-                                                Order_payment.findOne({_id: order_detail.order_payment_id}).then((order_payment) => {
-                                                    Payment_gateway.findOne({_id: order_payment.payment_id}).then((payment_gateway) => {
+                                            Provider.findOne({ _id: current_provider }).then((provider_data) => {
+                                                Order_payment.findOne({ _id: order_detail.order_payment_id }).then((order_payment) => {
+                                                    Payment_gateway.findOne({ _id: order_payment.payment_id }).then((payment_gateway) => {
                                                         var payment_gateway_name = "Cash";
                                                         if (order_payment.is_payment_mode_cash == false) {
                                                             payment_gateway_name = payment_gateway.name;
@@ -1554,47 +1508,50 @@ exports.order_history_detail = function (request_data, response_data) {
 
                                                         var order_payment_query = {
                                                             $lookup:
-                                                                    {
-                                                                        from: "order_payments",
-                                                                        localField: "order_payment_id",
-                                                                        foreignField: "_id",
-                                                                        as: "order_payment_detail"
-                                                                    }
+                                                            {
+                                                                from: "order_payments",
+                                                                localField: "order_payment_id",
+                                                                foreignField: "_id",
+                                                                as: "order_payment_detail"
+                                                            }
                                                         };
-                                                        var array_to_json_order_payment = {$unwind: "$order_payment_detail"};
+                                                        var array_to_json_order_payment = { $unwind: "$order_payment_detail" };
 
                                                         var cart_query = {
                                                             $lookup:
-                                                                    {
-                                                                        from: "carts",
-                                                                        localField: "cart_id",
-                                                                        foreignField: "_id",
-                                                                        as: "cart_detail"
-                                                                    }
+                                                            {
+                                                                from: "carts",
+                                                                localField: "cart_id",
+                                                                foreignField: "_id",
+                                                                as: "cart_detail"
+                                                            }
                                                         };
 
-                                                        var array_to_json_cart_query = {$unwind: "$cart_detail"};
+                                                        var array_to_json_cart_query = { $unwind: "$cart_detail" };
 
 
-                                                        var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
-                                                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                                                        var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                                        var order_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.order_id) } } };
                                                         //var order_status_condition = {"$match": {'order_status': {$eq: ORDER_STATE.ORDER_COMPLETED}}};
                                                         //var order_status_id_condition = {"$match": {'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}};
 
-                                                        var order_status_condition = {$match: {
-                                                                $or: [{order_status: {$eq: ORDER_STATE.STORE_REJECTED}},
-                                                                    {order_status: {$eq: ORDER_STATE.CANCELED_BY_USER}},
-                                                                    {order_status: {$eq: ORDER_STATE.STORE_CANCELLED}},
-                                                                    {order_status: {$eq: ORDER_STATE.ORDER_COMPLETED}}
+                                                        var order_status_condition = {
+                                                            $match: {
+                                                                $or: [{ order_status: { $eq: ORDER_STATE.STORE_REJECTED } },
+                                                                { order_status: { $eq: ORDER_STATE.CANCELED_BY_USER } },
+                                                                { order_status: { $eq: ORDER_STATE.STORE_CANCELLED } },
+                                                                { order_status: { $eq: ORDER_STATE.ORDER_COMPLETED } }
 
-                                                                ]}
+                                                                ]
+                                                            }
                                                         };
 
-                                                        var order_status_id_condition = {$match: {
+                                                        var order_status_id_condition = {
+                                                            $match: {
 
-                                                                $or: [{order_status_id: {$eq: ORDER_STATUS_ID.CANCELLED}},
-                                                                    {order_status_id: {$eq: ORDER_STATUS_ID.REJECTED}},
-                                                                    {order_status_id: {$eq: ORDER_STATUS_ID.COMPLETED}},
+                                                                $or: [{ order_status_id: { $eq: ORDER_STATUS_ID.CANCELLED } },
+                                                                { order_status_id: { $eq: ORDER_STATUS_ID.REJECTED } },
+                                                                { order_status_id: { $eq: ORDER_STATUS_ID.COMPLETED } },
                                                                 ]
 
                                                             }
@@ -1602,16 +1559,17 @@ exports.order_history_detail = function (request_data, response_data) {
 
                                                         Order.aggregate([order_condition, store_condition, order_status_condition, order_status_id_condition, order_payment_query, cart_query, array_to_json_order_payment, array_to_json_cart_query]).then((orders) => {
                                                             if (orders.length == 0) {
-                                                                response_data.json({success: false, error_code: STORE_ERROR_CODE.ORDER_DETAIL_NOT_FOUND});
-                                                            } else
-                                                            {
-                                                                response_data.json({success: true,
+                                                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.ORDER_DETAIL_NOT_FOUND });
+                                                            } else {
+                                                                response_data.json({
+                                                                    success: true,
                                                                     message: STORE_MESSAGE_CODE.GET_STORE_ORDER_DETAIL_SUCCESSFULLY,
                                                                     currency: currency,
                                                                     user_detail: user_detail,
                                                                     provider_detail: provider_detail,
                                                                     payment_gateway_name: payment_gateway_name,
-                                                                    order_list: orders[0]});
+                                                                    order_list: orders[0]
+                                                                });
                                                             }
 
                                                         }, (error) => {
@@ -1661,9 +1619,8 @@ exports.order_history_detail = function (request_data, response_data) {
                                     });
                                 });
 
-                            } else
-                            {
-                                response_data.json({success: false, error_code: STORE_ERROR_CODE.ORDER_DETAIL_NOT_FOUND});
+                            } else {
+                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.ORDER_DETAIL_NOT_FOUND });
                             }
 
                         }, (error) => {
@@ -1674,9 +1631,8 @@ exports.order_history_detail = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
             }, (error) => {
                 console.log(error)
@@ -1693,23 +1649,20 @@ exports.order_history_detail = function (request_data, response_data) {
 
 // store order_payment_status_set_on_cash_on_delivery
 exports.order_payment_status_set_on_cash_on_delivery = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_payment_id', type: 'string'}, {name: 'is_order_price_paid_by_store'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_payment_id', type: 'string' }, { name: 'is_order_price_paid_by_store' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
 
                 if (store) {
-                    if (request_data_body.server_token !== null && store.server_token != request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+                    if (request_data_body.server_token !== null && store.server_token != request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
 
-                        Order_payment.findOne({_id: request_data_body.order_payment_id, store_id: request_data_body.store_id}).then((order_payment) => {
+                        Order_payment.findOne({ _id: request_data_body.order_payment_id, store_id: request_data_body.store_id }).then((order_payment) => {
                             if (order_payment) {
-                                if (order_payment.is_payment_mode_cash == true)
-                                {
+                                if (order_payment.is_payment_mode_cash == true) {
 
                                     order_payment.is_order_price_paid_by_store = request_data_body.is_order_price_paid_by_store;
                                     order_payment.is_order_payment_status_set_by_store = true;
@@ -1740,8 +1693,7 @@ exports.order_payment_status_set_on_cash_on_delivery = function (request_data, r
                                     if (request_data_body.is_order_price_paid_by_store == false) {
 
                                         provider_paid_order_payment = order_payment.total_order_price;
-                                    } else
-                                    {
+                                    } else {
                                         provider_paid_order_payment = 0;
                                     }
 
@@ -1753,11 +1705,11 @@ exports.order_payment_status_set_on_cash_on_delivery = function (request_data, r
                                     order_payment.pay_to_provider = pay_to_provider;
 
                                     order_payment.save().then(() => {
-                                            response_data.json({
-                                                success: true,
-                                                message: STORE_MESSAGE_CODE.PAY_BY_CASH_ON_DELIVERY_SUCCESSFULLY
+                                        response_data.json({
+                                            success: true,
+                                            message: STORE_MESSAGE_CODE.PAY_BY_CASH_ON_DELIVERY_SUCCESSFULLY
 
-                                            });
+                                        });
                                     }, (error) => {
                                         console.log(error)
                                         response_data.json({
@@ -1765,14 +1717,12 @@ exports.order_payment_status_set_on_cash_on_delivery = function (request_data, r
                                             error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                         });
                                     });
-                                } else
-                                {
-                                    response_data.json({success: false, error_code: STORE_ERROR_CODE.PAY_BY_CASH_ON_DELIVERY_FAILED});
+                                } else {
+                                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.PAY_BY_CASH_ON_DELIVERY_FAILED });
 
                                 }
-                            } else
-                            {
-                                response_data.json({success: false, error_code: STORE_ERROR_CODE.PAY_BY_CASH_ON_DELIVERY_FAILED});
+                            } else {
+                                response_data.json({ success: false, error_code: STORE_ERROR_CODE.PAY_BY_CASH_ON_DELIVERY_FAILED });
                             }
 
                         }, (error) => {
@@ -1784,9 +1734,8 @@ exports.order_payment_status_set_on_cash_on_delivery = function (request_data, r
                         });
                     }
 
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -1804,18 +1753,16 @@ exports.order_payment_status_set_on_cash_on_delivery = function (request_data, r
 
 /// check_order_status
 exports.check_order_status = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
-                        Order.findOne({_id: request_data_body.order_id, store_id: request_data_body.store_id}).then((order) => {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Order.findOne({ _id: request_data_body.order_id, store_id: request_data_body.store_id }).then((order) => {
                             if (order) {
                                 var vehicle_detail = {};
                                 var provider_detail = {};
@@ -1838,18 +1785,17 @@ exports.check_order_status = function (request_data, response_data) {
 
 
                                 var current_provider = null;
-                                Request.findOne({_id: order.request_id}).then((request) => {
-                                    if (request)
-                                    {
+                                Request.findOne({ _id: order.request_id }).then((request) => {
+                                    if (request) {
                                         current_provider = request.current_provider;
                                     }
 
-                                    Country.findOne({_id: store_detail.country_id}).then((country_detail) => {
+                                    Country.findOne({ _id: store_detail.country_id }).then((country_detail) => {
                                         var currency = country_detail.currency_sign;
-                                        Cart.findOne({_id: order.cart_id, store_id: request_data_body.store_id}).then((cart) => {
+                                        Cart.findOne({ _id: order.cart_id, store_id: request_data_body.store_id }).then((cart) => {
                                             if (cart) {
 
-                                                Order_payment.findOne({_id: order.order_payment_id, order_id: order._id}).then((order_payment) => {
+                                                Order_payment.findOne({ _id: order.order_payment_id, order_id: order._id }).then((order_payment) => {
                                                     if (order_payment) {
                                                         var order_datail = {
                                                             _id: order._id,
@@ -1875,16 +1821,14 @@ exports.check_order_status = function (request_data, response_data) {
 
 
                                                         }
-                                                        Provider.findOne({_id: current_provider}).then((provider) => {
-                                                            if (provider)
-                                                            {
+                                                        Provider.findOne({ _id: current_provider }).then((provider) => {
+                                                            if (provider) {
 
 
-                                                                Vehicle.findOne({_id: provider.vehicle_id}).then((vehicle) => {
+                                                                Vehicle.findOne({ _id: provider.vehicle_id }).then((vehicle) => {
 
 
-                                                                    if (provider)
-                                                                    {
+                                                                    if (provider) {
                                                                         provider_detail = {
                                                                             bearing: provider.bearing,
                                                                             image_url: provider.image_url,
@@ -1908,7 +1852,8 @@ exports.check_order_status = function (request_data, response_data) {
                                                                         }
                                                                     }
 
-                                                                    response_data.json({success: true,
+                                                                    response_data.json({
+                                                                        success: true,
                                                                         message: ORDER_MESSAGE_CODE.GET_ORDER_STATUS_SUCCESSFULLY,
                                                                         order: order_datail,
                                                                         provider_detail: provider_detail,
@@ -1923,9 +1868,9 @@ exports.check_order_status = function (request_data, response_data) {
                                                                         error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                                     });
                                                                 });
-                                                            } else
-                                                            {
-                                                                response_data.json({success: true,
+                                                            } else {
+                                                                response_data.json({
+                                                                    success: true,
                                                                     message: ORDER_MESSAGE_CODE.GET_ORDER_STATUS_SUCCESSFULLY,
                                                                     order: order_datail,
                                                                     provider_detail: provider_detail,
@@ -1970,7 +1915,7 @@ exports.check_order_status = function (request_data, response_data) {
                                 });
                             } else {
 
-                                response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                             }
 
                         }, (error) => {
@@ -1981,9 +1926,8 @@ exports.check_order_status = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
             }, (error) => {
                 console.log(error)
@@ -2000,24 +1944,20 @@ exports.check_order_status = function (request_data, response_data) {
 
 // store_rating_to_user
 exports.store_rating_to_user = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}, {name: 'store_review_to_user'}, {name: 'store_rating_to_user'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }, { name: 'store_review_to_user' }, { name: 'store_rating_to_user' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
-                        Order.findOne({_id: request_data_body.order_id}).then((order) => {
-                            if (order)
-                            {
-                                Review.findOne({order_id: order._id}).then((review) => {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Order.findOne({ _id: request_data_body.order_id }).then((order) => {
+                            if (order) {
+                                Review.findOne({ order_id: order._id }).then((review) => {
 
-                                    if (review)
-                                    {
+                                    if (review) {
                                         var store_rating_to_user = request_data_body.store_rating_to_user;
                                         review.store_rating_to_user = store_rating_to_user;
                                         review.store_review_to_user = request_data_body.store_review_to_user;
@@ -2025,7 +1965,7 @@ exports.store_rating_to_user = function (request_data, response_data) {
 
                                         var order_status = order.order_status;
                                         if (order_status == ORDER_STATE.ORDER_COMPLETED) {
-                                            User.findOne({_id: order.user_id}).then((user) => {
+                                            User.findOne({ _id: order.user_id }).then((user) => {
                                                 if (user) {
                                                     var old_rate = user.store_rate;
                                                     var old_rate_count = user.store_rate_count;
@@ -2038,10 +1978,11 @@ exports.store_rating_to_user = function (request_data, response_data) {
                                                     review.save();
                                                     order.is_store_rated_to_user = true;
                                                     order.save().then(() => {
-                                                            response_data.json({success: true,
-                                                                message: STORE_MESSAGE_CODE.GIVE_RATING_TO_USER_SUCCESSFULLY
+                                                        response_data.json({
+                                                            success: true,
+                                                            message: STORE_MESSAGE_CODE.GIVE_RATING_TO_USER_SUCCESSFULLY
 
-                                                            });
+                                                        });
 
                                                     }, (error) => {
                                                         console.log(error)
@@ -2061,12 +2002,11 @@ exports.store_rating_to_user = function (request_data, response_data) {
                                             });
                                         } else {
 
-                                            response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                            response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                                         }
 
-                                    } else
-                                    {
-                                        response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                    } else {
+                                        response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
 
                                     }
                                 }, (error) => {
@@ -2086,9 +2026,8 @@ exports.store_rating_to_user = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -2106,33 +2045,29 @@ exports.store_rating_to_user = function (request_data, response_data) {
 
 // store_rating_to_provider
 exports.store_rating_to_provider = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}, {name: 'store_review_to_provider'},{name: 'store_rating_to_provider'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }, { name: 'store_review_to_provider' }, { name: 'store_rating_to_provider' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
-                        Order.findOne({_id: request_data_body.order_id}).then((order) => {
-                            if (order)
-                            {
-                                Review.findOne({order_id: order._id}).then((review) => {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Order.findOne({ _id: request_data_body.order_id }).then((order) => {
+                            if (order) {
+                                Review.findOne({ order_id: order._id }).then((review) => {
 
-                                    if (review)
-                                    {
+                                    if (review) {
                                         var store_rating_to_provider = request_data_body.store_rating_to_provider;
                                         review.store_rating_to_provider = store_rating_to_provider;
                                         review.store_review_to_provider = request_data_body.store_review_to_provider;
 
                                         var order_status = order.order_status;
                                         if (order_status == ORDER_STATE.ORDER_COMPLETED) {
-                                            Request.findOne({_id: order.request_id}).then((request) => {
+                                            Request.findOne({ _id: order.request_id }).then((request) => {
 
-                                                Provider.findOne({_id: request.provider_id}).then((provider) => {
+                                                Provider.findOne({ _id: request.provider_id }).then((provider) => {
                                                     if (provider) {
                                                         var old_rate = provider.store_rate;
                                                         var old_rate_count = provider.store_rate_count;
@@ -2146,10 +2081,11 @@ exports.store_rating_to_provider = function (request_data, response_data) {
                                                         order.is_store_rated_to_provider = true;
                                                         order.save().then(() => {
 
-                                                                response_data.json({success: true,
-                                                                    message: STORE_MESSAGE_CODE.GIVE_RATING_TO_PROVIDER_SUCCESSFULLY
+                                                            response_data.json({
+                                                                success: true,
+                                                                message: STORE_MESSAGE_CODE.GIVE_RATING_TO_PROVIDER_SUCCESSFULLY
 
-                                                                });
+                                                            });
 
                                                         }, (error) => {
                                                             console.log(error)
@@ -2170,12 +2106,11 @@ exports.store_rating_to_provider = function (request_data, response_data) {
                                             });
                                         } else {
 
-                                            response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                            response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                                         }
 
-                                    } else
-                                    {
-                                        response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                    } else {
+                                        response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                                     }
 
                                 }, (error) => {
@@ -2195,9 +2130,8 @@ exports.store_rating_to_provider = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -2215,20 +2149,18 @@ exports.store_rating_to_provider = function (request_data, response_data) {
 
 ///// store cancel request
 exports.store_cancel_request = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'request_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'request_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
-                        Request.findOne({_id: request_data_body.request_id, delivery_status_manage_id: ORDER_STATUS_ID.RUNNING }).then((request) => {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Request.findOne({ _id: request_data_body.request_id, delivery_status_manage_id: ORDER_STATUS_ID.RUNNING }).then((request) => {
                             if (request) {
-                                Provider.findOne({_id: request_data_body.provider_id}).then((provider) => {
+                                Provider.findOne({ _id: request_data_body.provider_id }).then((provider) => {
 
                                     if (provider) {
                                         var requests = provider.requests;
@@ -2264,20 +2196,20 @@ exports.store_cancel_request = function (request_data, response_data) {
                                         var index = request.date_time.findIndex((x) => x.status == ORDER_STATE.STORE_CANCELLED_REQUEST);
 
                                         if (index == -1) {
-                                            request.date_time.push({status: ORDER_STATE.STORE_CANCELLED_REQUEST, date: new Date()});
+                                            request.date_time.push({ status: ORDER_STATE.STORE_CANCELLED_REQUEST, date: new Date() });
                                         } else {
                                             request.date_time[index].date = new Date();
                                         }
 
                                         request.save();
 
-                                        response_data.json({success: true,
+                                        response_data.json({
+                                            success: true,
                                             message: STORE_MESSAGE_CODE.CANCEL_REQUEST_SUCESSFULLY,
                                             delivery_status: request.delivery_status
                                         });
-                                    } else
-                                    {
-                                        response_data.json({success: false, error_code: PROVIDER_ERROR_CODE.PROVIDER_DATA_NOT_FOUND});
+                                    } else {
+                                        response_data.json({ success: false, error_code: PROVIDER_ERROR_CODE.PROVIDER_DATA_NOT_FOUND });
                                     }
 
                                 }, (error) => {
@@ -2288,7 +2220,7 @@ exports.store_cancel_request = function (request_data, response_data) {
                                     });
                                 });
                             } else {
-                                response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                             }
 
                         }, (error) => {
@@ -2299,9 +2231,8 @@ exports.store_cancel_request = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -2319,86 +2250,85 @@ exports.store_cancel_request = function (request_data, response_data) {
 
 // store get_order_detail
 exports.get_order_detail = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
 
-                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                        var order_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.order_id) } } };
                         var user_query = {
                             $lookup:
-                                    {
-                                        from: "users",
-                                        localField: "user_id",
-                                        foreignField: "_id",
-                                        as: "user_detail"
-                                    }
+                            {
+                                from: "users",
+                                localField: "user_id",
+                                foreignField: "_id",
+                                as: "user_detail"
+                            }
                         };
-                        var array_to_json_user_detail = {$unwind: "$user_detail"};
+                        var array_to_json_user_detail = { $unwind: "$user_detail" };
                         var store_query = {
                             $lookup:
-                                    {
-                                        from: "stores",
-                                        localField: "store_id",
-                                        foreignField: "_id",
-                                        as: "store_detail"
-                                    }
+                            {
+                                from: "stores",
+                                localField: "store_id",
+                                foreignField: "_id",
+                                as: "store_detail"
+                            }
                         };
-                        var array_to_json_store_detail = {$unwind: "$store_detail"};
+                        var array_to_json_store_detail = { $unwind: "$store_detail" };
 
                         var country_query = {
                             $lookup:
-                                    {
-                                        from: "countries",
-                                        localField: "store_detail.country_id",
-                                        foreignField: "_id",
-                                        as: "country_detail"
-                                    }
+                            {
+                                from: "countries",
+                                localField: "store_detail.country_id",
+                                foreignField: "_id",
+                                as: "country_detail"
+                            }
                         };
 
-                        var array_to_json_country_query = {$unwind: "$country_detail"};
+                        var array_to_json_country_query = { $unwind: "$country_detail" };
 
                         var order_payment_query = {
                             $lookup:
-                                    {
-                                        from: "order_payments",
-                                        localField: "order_payment_id",
-                                        foreignField: "_id",
-                                        as: "order_payment_detail"
-                                    }
+                            {
+                                from: "order_payments",
+                                localField: "order_payment_id",
+                                foreignField: "_id",
+                                as: "order_payment_detail"
+                            }
                         };
-                        var array_to_json_order_payment_query = {$unwind: "$order_payment_detail"};
+                        var array_to_json_order_payment_query = { $unwind: "$order_payment_detail" };
 
 
                         var cart_query = {
                             $lookup:
-                                    {
-                                        from: "carts",
-                                        localField: "cart_id",
-                                        foreignField: "_id",
-                                        as: "cart_detail"
-                                    }
+                            {
+                                from: "carts",
+                                localField: "cart_id",
+                                foreignField: "_id",
+                                as: "cart_detail"
+                            }
                         };
 
-                        var array_to_json_cart_query = {$unwind: "$cart_detail"};
+                        var array_to_json_cart_query = { $unwind: "$cart_detail" };
                         var request_query = {
                             $lookup:
-                                    {
-                                        from: "requests",
-                                        localField: "request_id",
-                                        foreignField: "_id",
-                                        as: "request_detail"
-                                    }
+                            {
+                                from: "requests",
+                                localField: "request_id",
+                                foreignField: "_id",
+                                as: "request_detail"
+                            }
                         };
 
-                        var array_to_json_request_query = {$unwind: {
+                        var array_to_json_request_query = {
+                            $unwind: {
                                 path: "$request_detail",
                                 preserveNullAndEmptyArrays: true
                             }
@@ -2406,24 +2336,23 @@ exports.get_order_detail = function (request_data, response_data) {
 
                         var provider_query = {
                             $lookup:
-                                    {
-                                        from: "providers",
-                                        localField: "request_detail.provider_id",
-                                        foreignField: "_id",
-                                        as: "provider_detail"
-                                    }
+                            {
+                                from: "providers",
+                                localField: "request_detail.provider_id",
+                                foreignField: "_id",
+                                as: "provider_detail"
+                            }
                         };
 
 
                         Order.aggregate([order_condition, user_query, order_payment_query, store_query, cart_query, request_query, request_query, array_to_json_user_detail, array_to_json_store_detail, country_query, array_to_json_country_query, array_to_json_order_payment_query, array_to_json_cart_query, array_to_json_request_query, provider_query
 
                         ]).then((order) => {
-                            if (order.length === 0)
-                            {
-                                response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
-                            } else
-                            {
-                                response_data.json({success: true,
+                            if (order.length === 0) {
+                                response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
+                            } else {
+                                response_data.json({
+                                    success: true,
                                     message: ORDER_MESSAGE_CODE.GET_ORDER_DATA_SUCCESSFULLY,
                                     order: order[0]
                                 });
@@ -2437,9 +2366,8 @@ exports.get_order_detail = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -2458,26 +2386,23 @@ exports.get_order_detail = function (request_data, response_data) {
 
 // store get_user
 exports.get_user = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'email', type: 'string'}, {name: 'phone', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'email', type: 'string' }, { name: 'phone', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
 
                         var email = ((request_data_body.email).trim()).toLowerCase();
                         var phone = request_data_body.phone;
                         var country_id = request_data_body.country_id;
-                        var query = {$or: [{'email': email}, {'phone': phone}]};
+                        var query = { $or: [{ 'email': email }, { 'phone': phone }] };
                         User.findOne(query).then((user_detail) => {
-                            Country.findOne({_id: country_id}).then((country_detail) => {
-                                if (country_detail)
-                                {
+                            Country.findOne({ _id: country_id }).then((country_detail) => {
+                                if (country_detail) {
                                     var minimum_phone_number_length = country_detail.minimum_phone_number_length;
                                     var maximum_phone_number_length = country_detail.maximum_phone_number_length;
                                     var country_phone_code = country_detail.country_phone_code;
@@ -2485,14 +2410,14 @@ exports.get_user = function (request_data, response_data) {
 
                                     if (user_detail) {
                                         console.log("user");
-                                        response_data.json({success: true,
+                                        response_data.json({
+                                            success: true,
                                             message: USER_MESSAGE_CODE.REGISTER_SUCCESSFULLY,
                                             minimum_phone_number_length: minimum_phone_number_length,
                                             maximum_phone_number_length: maximum_phone_number_length,
                                             user: user_detail
                                         });
-                                    } else
-                                    {
+                                    } else {
                                         console.log("user not");
                                         var server_token = utils.generateServerToken(32);
                                         var password = "123456";
@@ -2609,22 +2534,20 @@ exports.get_user = function (request_data, response_data) {
 
 
 exports.get_country_phone_number_length = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'country_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'country_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Country.findOne({_id: request_data_body.country_id}).then((country) => {
-                if (country)
-                {
+            Country.findOne({ _id: request_data_body.country_id }).then((country) => {
+                if (country) {
                     response_data.json({
                         success: true,
                         message: USER_MESSAGE_CODE.REGISTER_SUCCESSFULLY,
                         minimum_phone_number_length: country.minimum_phone_number_length,
                         maximum_phone_number_length: country.maximum_phone_number_length
                     });
-                } else
-                {
-                    response_data.json({success: false, error_code: USER_ERROR_CODE.REGISTRATION_FAILED});
+                } else {
+                    response_data.json({ success: false, error_code: USER_ERROR_CODE.REGISTRATION_FAILED });
 
                 }
             }, (error) => {
@@ -2644,21 +2567,18 @@ exports.get_country_phone_number_length = function (request_data, response_data)
 exports.store_complete_order = function (request_data, response_data) {
 
     console.log('store_complete_order')
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
             var order_id = request_data_body.order_id;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
+                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
 
-                        City.findOne({_id: store.city_id}).then((city) => {
+                        City.findOne({ _id: store.city_id }).then((city) => {
 
                             var is_store_earning_add_in_wallet_on_cash_payment_for_city = city.is_store_earning_add_in_wallet_on_cash_payment;
 
@@ -2668,9 +2588,9 @@ exports.store_complete_order = function (request_data, response_data) {
                             var now = new Date();
                             var today_start_date_time = utils.get_date_now_at_city(now, city_timezone);
                             var tag_date = moment(today_start_date_time).format(DATE_FORMATE.DDMMYYYY);
-                            Order.findOne({_id: order_id, store_id: request_data_body.store_id, order_status_id: ORDER_STATUS_ID.RUNNING}).then((order) => {
+                            Order.findOne({ _id: order_id, store_id: request_data_body.store_id, order_status_id: ORDER_STATUS_ID.RUNNING }).then((order) => {
                                 if (order) {
-                                    User.findOne({_id: order.user_id}).then((user) => {
+                                    User.findOne({ _id: order.user_id }).then((user) => {
                                         var now = new Date();
                                         var user_device_type = user.device_type;
                                         var user_device_token = user.device_token;
@@ -2686,14 +2606,14 @@ exports.store_complete_order = function (request_data, response_data) {
 
                                         var index = order.date_time.findIndex((x) => x.status == ORDER_STATE.ORDER_COMPLETED);
                                         if (index == -1) {
-                                            order.date_time.push({status: ORDER_STATE.ORDER_COMPLETED, date: new Date()});
+                                            order.date_time.push({ status: ORDER_STATE.ORDER_COMPLETED, date: new Date() });
                                         } else {
                                             order.date_time[index].date = new Date();
                                         }
 
                                         order.save();
 
-                                        Order_payment.findOne({_id: order.order_payment_id}).then((order_payment) => {
+                                        Order_payment.findOne({ _id: order.order_payment_id }).then((order_payment) => {
                                             if (order_payment) {
 
                                                 // Entry in Store_analytic_daily Table
@@ -2728,41 +2648,39 @@ exports.store_complete_order = function (request_data, response_data) {
                                                 var other_promo_payment_loyalty = order_payment.other_promo_payment_loyalty;
 
                                                 pay_to_store = order_payment.total_store_income - other_promo_payment_loyalty;
-                                                console.log("pay_to_store: "+pay_to_store)
+                                                console.log("pay_to_store: " + pay_to_store)
                                                 // if(order_payment.is_user_pick_up_order){
                                                 //     pay_to_store = order_payment.total_store_income - total_store_have_payment;
                                                 // } else {
-                                                    if (is_payment_mode_cash) {
-                                                        pay_to_store = pay_to_store - order_payment.cash_payment;
-                                                    } else {
-                                                        pay_to_store = pay_to_store - total_store_have_payment;
-                                                    }
+                                                if (is_payment_mode_cash) {
+                                                    pay_to_store = pay_to_store - order_payment.cash_payment;
+                                                } else {
+                                                    pay_to_store = pay_to_store - total_store_have_payment;
+                                                }
                                                 // }
-                                                console.log("pay_to_store: "+pay_to_store)
+                                                console.log("pay_to_store: " + pay_to_store)
                                                 pay_to_store = utils.precisionRoundTwo(pay_to_store);
 
                                                 order_payment.pay_to_store = pay_to_store;
 
-                                                Payment_gateway.findOne({_id: order_payment.payment_id}).then((payment_gateway) => {
+                                                Payment_gateway.findOne({ _id: order_payment.payment_id }).then((payment_gateway) => {
 
                                                     if (!is_payment_mode_cash) {
                                                         payment_gateway_name = payment_gateway.name;
                                                     }
 
-                                                    if ((setting_detail.is_store_earning_add_in_wallet_on_cash_payment && order_payment.is_payment_mode_cash && is_store_earning_add_in_wallet_on_cash_payment_for_city) || (setting_detail.is_store_earning_add_in_wallet_on_other_payment && !order_payment.is_payment_mode_cash && is_store_earning_add_in_wallet_on_other_payment_for_city))
-                                                    {
-                                                        if (pay_to_store<0) {
+                                                    if ((setting_detail.is_store_earning_add_in_wallet_on_cash_payment && order_payment.is_payment_mode_cash && is_store_earning_add_in_wallet_on_cash_payment_for_city) || (setting_detail.is_store_earning_add_in_wallet_on_other_payment && !order_payment.is_payment_mode_cash && is_store_earning_add_in_wallet_on_other_payment_for_city)) {
+                                                        if (pay_to_store < 0) {
 
                                                             var store_total_wallet_amount = wallet_history.add_wallet_history(ADMIN_DATA_ID.STORE, store.unique_id, store._id, store.country_id,
-                                                                    store.wallet_currency_code, order_payment.order_currency_code,
-                                                                    1, Math.abs(pay_to_store), store.wallet, WALLET_STATUS_ID.REMOVE_WALLET_AMOUNT, WALLET_COMMENT_ID.SET_ORDER_PROFIT, "Profit Of This Order : " + order.unique_id);
+                                                                store.wallet_currency_code, order_payment.order_currency_code,
+                                                                1, Math.abs(pay_to_store), store.wallet, WALLET_STATUS_ID.REMOVE_WALLET_AMOUNT, WALLET_COMMENT_ID.SET_ORDER_PROFIT, "Profit Of This Order : " + order.unique_id);
 
                                                             store.wallet = store_total_wallet_amount;
-                                                        } else
-                                                        {
+                                                        } else {
                                                             var store_total_wallet_amount = wallet_history.add_wallet_history(ADMIN_DATA_ID.STORE, store.unique_id, store._id, store.country_id,
-                                                                    store.wallet_currency_code, order_payment.order_currency_code,
-                                                                    1, pay_to_store, store.wallet, WALLET_STATUS_ID.ADD_WALLET_AMOUNT, WALLET_COMMENT_ID.SET_ORDER_PROFIT, "Profit Of This Order : " + order.unique_id);
+                                                                store.wallet_currency_code, order_payment.order_currency_code,
+                                                                1, pay_to_store, store.wallet, WALLET_STATUS_ID.ADD_WALLET_AMOUNT, WALLET_COMMENT_ID.SET_ORDER_PROFIT, "Profit Of This Order : " + order.unique_id);
 
                                                             store.wallet = store_total_wallet_amount;
                                                         }
@@ -2835,7 +2753,7 @@ exports.store_complete_order = function (request_data, response_data) {
 
                                                 });
                                             } else {
-                                                response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_COMPLETE_FAILED});
+                                                response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_COMPLETE_FAILED });
                                             }
 
                                         }, (error) => {
@@ -2863,9 +2781,8 @@ exports.store_complete_order = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -2883,20 +2800,17 @@ exports.store_complete_order = function (request_data, response_data) {
 
 
 exports.store_change_delivery_address = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'latitude'}, {name: 'longitude'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'latitude' }, { name: 'longitude' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
+                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
                         var city_id = store.city_id;
-                        City.findOne({_id: city_id}).then((city) => {
+                        City.findOne({ _id: city_id }).then((city) => {
                             var latlong = [request_data_body.latitude, request_data_body.longitude];
 
                             var cityLatLong = city.city_lat_long;
@@ -2904,32 +2818,30 @@ exports.store_change_delivery_address = function (request_data, response_data) {
                             var cityRadius = city.city_radius;
                             if (city.is_use_radius) {
                                 if (distanceFromSubAdminCity < cityRadius) {
-                                    response_data.json({success: true, message: CART_MESSAGE_CODE.DESTINATION_CHANGE_SUCCESSFULLY
+                                    response_data.json({
+                                        success: true, message: CART_MESSAGE_CODE.DESTINATION_CHANGE_SUCCESSFULLY
                                     });
 
-                                } else
-                                {
-                                    response_data.json({success: false, error_code: CART_ERROR_CODE.CHANGE_DELIVERY_ADDRESS_FAILED});
+                                } else {
+                                    response_data.json({ success: false, error_code: CART_ERROR_CODE.CHANGE_DELIVERY_ADDRESS_FAILED });
                                 }
-                            } else
-                            {
+                            } else {
                                 var store_zone = geolib.isPointInside(
-                                        {latitude: latlong[0], longitude: latlong[1]},
-                                        city.city_locations);
+                                    { latitude: latlong[0], longitude: latlong[1] },
+                                    city.city_locations);
                                 if (store_zone) {
-                                    response_data.json({success: true, message: CART_MESSAGE_CODE.DESTINATION_CHANGE_SUCCESSFULLY
+                                    response_data.json({
+                                        success: true, message: CART_MESSAGE_CODE.DESTINATION_CHANGE_SUCCESSFULLY
                                     });
-                                } else
-                                {
-                                    response_data.json({success: false, error_code: CART_ERROR_CODE.CHANGE_DELIVERY_ADDRESS_FAILED});
+                                } else {
+                                    response_data.json({ success: false, error_code: CART_ERROR_CODE.CHANGE_DELIVERY_ADDRESS_FAILED });
 
                                 }
                             }
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -2947,54 +2859,46 @@ exports.store_change_delivery_address = function (request_data, response_data) {
 
 /// store_create_order without ITEM
 exports.store_create_order = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'cart_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'cart_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
             var order_type = Number(request_data_body.order_type);
 
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
+                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
-                        Cart.findOne({_id: request_data_body.cart_id}).then((cart) => {
+                    } else {
+                        Cart.findOne({ _id: request_data_body.cart_id }).then((cart) => {
 
-                            if (cart)
-                            {
-                                Order_payment.findOne({_id: cart.order_payment_id}).then((order_payment) => {
+                            if (cart) {
+                                Order_payment.findOne({ _id: cart.order_payment_id }).then((order_payment) => {
 
-                                    if (order_payment)
-                                    {
+                                    if (order_payment) {
                                         console.log('User id =>> ', cart.user_id);
-                                        User.findOne({_id: cart.user_id}).then((user) => {
+                                        User.findOne({ _id: cart.user_id }).then((user) => {
                                             console.log('User =====> ', user);
 
                                             var user_id = null;
                                             var user_unique_id = 0;
-                                            if (user)
-                                            {
+                                            if (user) {
                                                 user_id = user._id;
                                                 user_unique_id = user.unique_id;
                                             }
-                                            Country.findOne({_id: store.country_id}).then((country) => {
-                                                City.findOne({_id: store.city_id}).then((city) => {
+                                            Country.findOne({ _id: store.country_id }).then((country) => {
+                                                City.findOne({ _id: store.city_id }).then((city) => {
                                                     var now = new Date();
                                                     var city_timezone = "";
                                                     var country_id = store.country_id;
                                                     var city_id = store.city_id;
 
-                                                    if (city)
-                                                    {
+                                                    if (city) {
                                                         city_timezone = city.timezone;
                                                         city_id = city._id;
                                                     }
-                                                    if (country)
-                                                    {
+                                                    if (country) {
                                                         country_id = country._id;
                                                     }
 
@@ -3038,7 +2942,7 @@ exports.store_create_order = function (request_data, response_data) {
                                                         completed_at: null
                                                     });
 
-                                                    order.save().then(()=>{
+                                                    order.save().then(() => {
                                                         user.cart_id = null;
                                                         user.save();
                                                         var orders_array = {
@@ -3084,15 +2988,15 @@ exports.store_create_order = function (request_data, response_data) {
                                                         });
 
                                                         request.save().then(() => {
-                                                                order_payment.order_id = order._id;
-                                                                order_payment.order_unique_id = order.unique_id;
-                                                                order_payment.save();
-                                                                response_data.json({
-                                                                    success: true,
-                                                                    message: ORDER_MESSAGE_CODE.ORDER_CREATE_SUCCESSFULLY,
-                                                                    order_id: order._id,
-                                                                });
-                                                                my_request.findNearestProvider(request, null);
+                                                            order_payment.order_id = order._id;
+                                                            order_payment.order_unique_id = order.unique_id;
+                                                            order_payment.save();
+                                                            response_data.json({
+                                                                success: true,
+                                                                message: ORDER_MESSAGE_CODE.ORDER_CREATE_SUCCESSFULLY,
+                                                                order_id: order._id,
+                                                            });
+                                                            my_request.findNearestProvider(request, null);
 
                                                         }, (error) => {
                                                             console.log(error)
@@ -3102,11 +3006,11 @@ exports.store_create_order = function (request_data, response_data) {
                                                             });
                                                         });
                                                     }, (error) => {
-                                                            console.log(error)
-                                                            response_data.json({
-                                                                success: false,
-                                                                error_code: ERROR_CODE.SOMETHING_WENT_WRONG
-                                                            });
+                                                        console.log(error)
+                                                        response_data.json({
+                                                            success: false,
+                                                            error_code: ERROR_CODE.SOMETHING_WENT_WRONG
+                                                        });
                                                     });
                                                 });
                                             });
@@ -3118,8 +3022,7 @@ exports.store_create_order = function (request_data, response_data) {
                                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                             });
                                         });
-                                    } else
-                                    {
+                                    } else {
                                         response_data.json({
                                             success: false,
                                             error_code: ORDER_ERROR_CODE.REQUEST_FAILED
@@ -3133,15 +3036,13 @@ exports.store_create_order = function (request_data, response_data) {
                                         error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                     });
                                 });
-                            } else
-                            {
-                                response_data.json({success: false, error_code: CART_ERROR_CODE.CART_NOT_FOUND});
+                            } else {
+                                response_data.json({ success: false, error_code: CART_ERROR_CODE.CART_NOT_FOUND });
                             }
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -3159,25 +3060,22 @@ exports.store_create_order = function (request_data, response_data) {
 
 /// store update_order
 exports.store_update_order = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
             var total_store_tax_price = 0;
             var total_cart_price = 0;
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+            Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+                if (store) {
+                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
-                        Order.findOne({_id: request_data_body.order_id, store_id: request_data_body.store_id}).then((order) => {
+                    } else {
+                        Order.findOne({ _id: request_data_body.order_id, store_id: request_data_body.store_id }).then((order) => {
 
                             if (order) {
-                                Cart.findOne({_id: order.cart_id}).then((cart_detail) => {
+                                Cart.findOne({ _id: order.cart_id }).then((cart_detail) => {
                                     if (cart_detail) {
 
                                         cart_detail.order_details = request_data_body.order_details;
@@ -3189,7 +3087,7 @@ exports.store_update_order = function (request_data, response_data) {
                                                 total_store_tax_price = request_data_body.total_item_tax;
                                             }
                                         } else {
-                                            if(total_cart_price){
+                                            if (total_cart_price) {
                                                 total_store_tax_price = total_cart_price * store.item_tax * 0.01;
                                             } else {
                                                 total_cart_price = 0;
@@ -3202,7 +3100,7 @@ exports.store_update_order = function (request_data, response_data) {
                                         cart_detail.save();
 
 
-                                        Order_payment.findOne({_id: order.order_payment_id}).then((order_payment) => {
+                                        Order_payment.findOne({ _id: order.order_payment_id }).then((order_payment) => {
                                             if (order_payment) {
 
                                                 var total_item_count = request_data_body.total_item_count;
@@ -3223,14 +3121,14 @@ exports.store_update_order = function (request_data, response_data) {
 
                                                 var limit = store.admin_profit_setting_on_store;
 
-                                                if(limit != undefined && limit != "" && limit.length > 0){
+                                                if (limit != undefined && limit != "" && limit.length > 0) {
                                                     var admin_profit_value_on_store = store.admin_profit_value_on_store;
-                                                    for(let i = 0; i < limit.length; i++){
-                                                        if(order_price <= limit[i].to_price && order_price > limit[i].from_price){
+                                                    for (let i = 0; i < limit.length; i++) {
+                                                        if (order_price <= limit[i].to_price && order_price > limit[i].from_price) {
                                                             admin_profit_value_on_store = limit[i].profit_fee;
                                                         }
                                                     }
-                                                }else{
+                                                } else {
                                                     var admin_profit_value_on_store = store.admin_profit_value_on_store;
                                                 }
 
@@ -3335,9 +3233,10 @@ exports.store_update_order = function (request_data, response_data) {
                                                 order_payment.total_cart_price = total_cart_price;
                                                 order_payment.total_item_count = total_item_count;
                                                 order_payment.save(function (error) {
-                                                        response_data.json({success: true,
-                                                            message: STORE_MESSAGE_CODE.STORE_ORDER_UPDATE_SUCCESSFULLY
-                                                        });
+                                                    response_data.json({
+                                                        success: true,
+                                                        message: STORE_MESSAGE_CODE.STORE_ORDER_UPDATE_SUCCESSFULLY
+                                                    });
                                                 }, (error) => {
                                                     console.log(error)
                                                     response_data.json({
@@ -3354,9 +3253,8 @@ exports.store_update_order = function (request_data, response_data) {
                                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                             });
                                         });
-                                    } else
-                                    {
-                                        response_data.json({success: false, error_code: CART_ERROR_CODE.CART_NOT_FOUND});
+                                    } else {
+                                        response_data.json({ success: false, error_code: CART_ERROR_CODE.CART_NOT_FOUND });
                                     }
                                 }, (error) => {
                                     console.log(error)
@@ -3365,9 +3263,8 @@ exports.store_update_order = function (request_data, response_data) {
                                         error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                     });
                                 });
-                            } else
-                            {
-                                response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                            } else {
+                                response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                             }
 
                         }, (error) => {
@@ -3378,9 +3275,8 @@ exports.store_update_order = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -3398,30 +3294,28 @@ exports.store_update_order = function (request_data, response_data) {
 
 // check_request_status
 exports.check_request_status = function (request_data, response_data) {
-    utils.check_request_params(request_data.body, [{name: 'order_id', type: 'string'}, {name: 'request_id', type: 'string'}], function (response) {
+    utils.check_request_params(request_data.body, [{ name: 'order_id', type: 'string' }, { name: 'request_id', type: 'string' }], function (response) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            Store.findOne({_id: request_data_body.store_id}).then((store_detail) => {
+            Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
                 if (store_detail) {
-                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
-                    } else
-                    {
-                        Request.findOne({_id: request_data_body.request_id}).then((request) => {
+                    if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
+                        response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
+                    } else {
+                        Request.findOne({ _id: request_data_body.request_id }).then((request) => {
                             if (request) {
-                                Order.findOne({_id: request_data_body.order_id, store_id: request_data_body.store_id}).then((order) => {
+                                Order.findOne({ _id: request_data_body.order_id, store_id: request_data_body.store_id }).then((order) => {
                                     if (order) {
                                         var country_id = order.country_id;
                                         if (country_id == null && country_id == undefined) {
                                             country_id = store_detail.country_id;
                                         }
-                                        Country.findOne({_id: country_id}).then((country_detail) => {
+                                        Country.findOne({ _id: country_id }).then((country_detail) => {
                                             var currency = country_detail.currency_sign;
-                                            Cart.findOne({_id: order.cart_id, store_id: request_data_body.store_id}).then((cart) => {
+                                            Cart.findOne({ _id: order.cart_id, store_id: request_data_body.store_id }).then((cart) => {
                                                 if (cart) {
-                                                    Order_payment.findOne({_id: order.order_payment_id, order_id: order._id}).then((order_payment) => {
+                                                    Order_payment.findOne({ _id: order.order_payment_id, order_id: order._id }).then((order_payment) => {
                                                         if (order_payment) {
 
                                                             var vehicle_detail = {};
@@ -3468,12 +3362,10 @@ exports.check_request_status = function (request_data, response_data) {
 
 
                                                             }
-                                                            Provider.findOne({_id: request.current_provider}).then((provider) => {
-                                                                if (provider)
-                                                                {
-                                                                    Vehicle.findOne({_id: provider.vehicle_id}).then((vehicle) => {
-                                                                        if (provider)
-                                                                        {
+                                                            Provider.findOne({ _id: request.current_provider }).then((provider) => {
+                                                                if (provider) {
+                                                                    Vehicle.findOne({ _id: provider.vehicle_id }).then((vehicle) => {
+                                                                        if (provider) {
                                                                             bearing = provider.bearing;
                                                                             image_url = provider.image_url;
                                                                             first_name = provider.first_name;
@@ -3515,7 +3407,8 @@ exports.check_request_status = function (request_data, response_data) {
                                                                         }
 
 
-                                                                        response_data.json({success: true,
+                                                                        response_data.json({
+                                                                            success: true,
                                                                             message: ORDER_MESSAGE_CODE.GET_REQUEST_STATUS_SUCCESSFULLY,
                                                                             request: request_datail,
                                                                             provider_detail: provider_detail,
@@ -3530,9 +3423,9 @@ exports.check_request_status = function (request_data, response_data) {
                                                                             error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                                         });
                                                                     });
-                                                                } else
-                                                                {
-                                                                    response_data.json({success: true,
+                                                                } else {
+                                                                    response_data.json({
+                                                                        success: true,
                                                                         message: ORDER_MESSAGE_CODE.GET_REQUEST_STATUS_SUCCESSFULLY,
                                                                         request: request_datail,
                                                                         provider_detail: provider_detail,
@@ -3568,7 +3461,7 @@ exports.check_request_status = function (request_data, response_data) {
                                             });
                                         });
                                     } else {
-                                        response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                        response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                                     }
 
                                 }, (error) => {
@@ -3580,7 +3473,7 @@ exports.check_request_status = function (request_data, response_data) {
                                 });
 
                             } else {
-                                response_data.json({success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND});
+                                response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                             }
 
                         }, (error) => {
@@ -3591,9 +3484,8 @@ exports.check_request_status = function (request_data, response_data) {
                             });
                         });
                     }
-                } else
-                {
-                    response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND});
+                } else {
+                    response_data.json({ success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND });
                 }
 
             }, (error) => {
@@ -3612,7 +3504,7 @@ exports.check_request_status = function (request_data, response_data) {
 var LiqPay = require('../user/liqpay');
 // var LiqPay = require('liqpay');
 
-var crypto  = require('crypto');
+var crypto = require('crypto');
 
 var keyBase64 = "DWIzFkO22qfVMgx2fIsxOXnwz10pRuZfFJBvf4RS3eY=";
 var ivBase64 = 'AcynMwikMkW4c7+mHtwtfw==';
@@ -3648,7 +3540,7 @@ function encrypt(plainText, keyBase64, ivBase64) {
 // }
 
 function decrypt(messagebase64, keyBase64, ivBase64) {
-	// const key = Buffer.from(keyBase64, 'base64');
+    // const key = Buffer.from(keyBase64, 'base64');
     // const iv = Buffer.from(ivBase64, 'base64');
     const key = keyBase64;
     const iv = ivBase64;
@@ -3666,66 +3558,63 @@ exports.add_company = function (request_data, response_data) {
     // utils.check_request_params(request_data.body, [{name: 'store_id', type: 'string'}], function (response) {
     //     if (response.success) {
 
-            var request_data_body = request_data.body;
+    var request_data_body = request_data.body;
 
-            console.log(request_data_body.store_id);
+    console.log(request_data_body.store_id);
 
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+    Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+        if (store) {
+            if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
-                        var phone = store.country_phone_code+store.phone;
-                        var phonenumber = phone.split('+');
-                        var phonenu = phonenumber[1];
-                        console.log(phonenu);
+            } else {
+                var phone = store.country_phone_code + store.phone;
+                var phonenumber = phone.split('+');
+                var phonenu = phonenumber[1];
+                console.log(phonenu);
 
 
-                        Payment_gateway.findOne({unique_id : 2}).then((payment_gateway) => {
-                            var public_key = payment_gateway.payment_key_id;
-                            var private_key = payment_gateway.payment_key;
+                Payment_gateway.findOne({ unique_id: 2 }).then((payment_gateway) => {
+                    var public_key = payment_gateway.payment_key_id;
+                    var private_key = payment_gateway.payment_key;
 
-                            var liqpay = new LiqPay(public_key, private_key);
-                            var params = {
-                                "action"         : "agent_shop_create",
-                                "version"        : "3",
-                                "phone"          : phonenu,
-                                "site"           : store.website_url,
-                                "description"    : store.name,
-                                "email"          : store.email,
-                                "name"           : store.name,
-                                "card"           : request_data_body.card_no,
-                                "card_exp_month" : request_data_body.month,
-                                "card_exp_year"  : request_data_body.year,
-                                "card_cvv"       : request_data_body.cvv,
-                            }
-                            console.log(JSON.stringify(params))
-                            liqpay.api("request", params, function( json ){
-                                console.log("----------------");
-                                console.log( json );
-                                if(json.status == "success"){
-                                    store.public_key = json.public_key;
-                                    store.private_key = json.private_key;
-                                    store.save();
-                                    response_data.json({success: true})
-
-                                }else{
-                                    response_data.json({success: false, verify : json})
-                                }
-                            // store.public_key =
-                            });
-                        })
+                    var liqpay = new LiqPay(public_key, private_key);
+                    var params = {
+                        "action": "agent_shop_create",
+                        "version": "3",
+                        "phone": phonenu,
+                        "site": store.website_url,
+                        "description": store.name,
+                        "email": store.email,
+                        "name": store.name,
+                        "card": request_data_body.card_no,
+                        "card_exp_month": request_data_body.month,
+                        "card_exp_year": request_data_body.year,
+                        "card_cvv": request_data_body.cvv,
                     }
-                }else{
-                    console.log(" store not found")
-                    response_data.json({success: false})
-                }
-            })
-        // }
+                    console.log(JSON.stringify(params))
+                    liqpay.api("request", params, function (json) {
+                        console.log("----------------");
+                        console.log(json);
+                        if (json.status == "success") {
+                            store.public_key = json.public_key;
+                            store.private_key = json.private_key;
+                            store.save();
+                            response_data.json({ success: true })
+
+                        } else {
+                            response_data.json({ success: false, verify: json })
+                        }
+                        // store.public_key =
+                    });
+                })
+            }
+        } else {
+            console.log(" store not found")
+            response_data.json({ success: false })
+        }
+    })
+    // }
     // })
 
 
@@ -3740,59 +3629,56 @@ exports.addcompany_verify_otp = function (request_data, response_data) {
     // utils.check_request_params(request_data.body, [{name: 'store_id', type: 'string'}], function (response) {
     //     if (response.success) {
 
-            var request_data_body = request_data.body;
+    var request_data_body = request_data.body;
 
-            console.log(request_data_body.store_id);
+    console.log(request_data_body.store_id);
 
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+    Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+        if (store) {
+            if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
-                        // var phone = store.country_phone_code+store.phone;
-                        // var phonenumber = phone.split('+');
-                        // var phonenu = phonenumber[1];
-                        // console.log(phonenu);
+            } else {
+                // var phone = store.country_phone_code+store.phone;
+                // var phonenumber = phone.split('+');
+                // var phonenu = phonenumber[1];
+                // console.log(phonenu);
 
 
-                        Payment_gateway.findOne({unique_id : 2}).then((payment_gateway) => {
-                            var public_key = payment_gateway.payment_key_id;
-                            var private_key = payment_gateway.payment_key;
+                Payment_gateway.findOne({ unique_id: 2 }).then((payment_gateway) => {
+                    var public_key = payment_gateway.payment_key_id;
+                    var private_key = payment_gateway.payment_key;
 
-                            var liqpay = new LiqPay(public_key, private_key);
-                            var params =  {
-                                "action"  : "confirm",
-                                "version" : "3",
-                                "confirm_token"   : request_data_body.confirm_token,
-                                "otp"     : request_data_body.otp
-                                }
-                            console.log(JSON.stringify(params))
-                            liqpay.api("request", params, function( json ){
-                                console.log("----------------");
-                                console.log( json );
-                                if(json.status == "success"){
-                                    // store.public_key = json.public_key;
-                                    store.private_key = json.private_key;
-                                    store.save();
-                                    response_data.json({success: true})
-
-                                }else{
-                                    response_data.json({success: false, verify : json})
-                                }
-                            // store.public_key =
-                            });
-                        })
+                    var liqpay = new LiqPay(public_key, private_key);
+                    var params = {
+                        "action": "confirm",
+                        "version": "3",
+                        "confirm_token": request_data_body.confirm_token,
+                        "otp": request_data_body.otp
                     }
-                }else{
-                    console.log(" store not found")
-                    response_data.json({success: false})
-                }
-            })
-        // }
+                    console.log(JSON.stringify(params))
+                    liqpay.api("request", params, function (json) {
+                        console.log("----------------");
+                        console.log(json);
+                        if (json.status == "success") {
+                            // store.public_key = json.public_key;
+                            store.private_key = json.private_key;
+                            store.save();
+                            response_data.json({ success: true })
+
+                        } else {
+                            response_data.json({ success: false, verify: json })
+                        }
+                        // store.public_key =
+                    });
+                })
+            }
+        } else {
+            console.log(" store not found")
+            response_data.json({ success: false })
+        }
+    })
+    // }
     // })
 
 
@@ -3807,61 +3693,58 @@ exports.addcompany_verify_cvv = function (request_data, response_data) {
     // utils.check_request_params(request_data.body, [{name: 'store_id', type: 'string'}], function (response) {
     //     if (response.success) {
 
-            var request_data_body = request_data.body;
+    var request_data_body = request_data.body;
 
-            console.log(request_data_body.store_id);
+    console.log(request_data_body.store_id);
 
-            Store.findOne({_id: request_data_body.store_id}).then((store) => {
-                if (store)
-                {
-                    if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token)
-                    {
-                        response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
+    Store.findOne({ _id: request_data_body.store_id }).then((store) => {
+        if (store) {
+            if (request_data_body.server_token !== null && store.server_token !== request_data_body.server_token) {
+                response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
 
-                    } else
-                    {
+            } else {
 
-                        Payment_gateway.findOne({unique_id : 2}).then((payment_gateway) => {
-                            var public_key = payment_gateway.payment_key_id;
-                            var private_key = payment_gateway.payment_key;
+                Payment_gateway.findOne({ unique_id: 2 }).then((payment_gateway) => {
+                    var public_key = payment_gateway.payment_key_id;
+                    var private_key = payment_gateway.payment_key;
 
-                            var liqpay = new LiqPay(public_key, private_key);
-                            var params =  {
-                                "action"  : "confirm",
-                                "version" : "3",
-                                "confirm_token"   : request_data_body.confirm_token,
-                                "card_cvv"     : request_data_body.cvv
-                                }
-                            console.log(JSON.stringify(params))
-                            liqpay.api("request", params, function( json ){
-                                console.log("----------------");
-                                console.log( json );
-                                if(json.status == "success"){
-                                    // store.public_key = json.public_key;
-                                    store.private_key = json.private_key;
-                                    store.save();
-                                    response_data.json({success: true})
-
-                                }else{
-                                    response_data.json({success: false, verify : json})
-                                }
-                            // store.public_key =
-                            });
-                        })
+                    var liqpay = new LiqPay(public_key, private_key);
+                    var params = {
+                        "action": "confirm",
+                        "version": "3",
+                        "confirm_token": request_data_body.confirm_token,
+                        "card_cvv": request_data_body.cvv
                     }
-                }else{
-                    console.log(" store not found")
-                    response_data.json({success: false})
-                }
-            })
-        // }
+                    console.log(JSON.stringify(params))
+                    liqpay.api("request", params, function (json) {
+                        console.log("----------------");
+                        console.log(json);
+                        if (json.status == "success") {
+                            // store.public_key = json.public_key;
+                            store.private_key = json.private_key;
+                            store.save();
+                            response_data.json({ success: true })
+
+                        } else {
+                            response_data.json({ success: false, verify: json })
+                        }
+                        // store.public_key =
+                    });
+                })
+            }
+        } else {
+            console.log(" store not found")
+            response_data.json({ success: false })
+        }
+    })
+    // }
     // })
 };
 
 
 
 exports.remove_tags = function (request_data, response_data) {
-    Store.find({}).then((stores)=>{
+    Store.find({}).then((stores) => {
         stores.forEach(store => {
             store.famous_products_tags = []
             store.save();

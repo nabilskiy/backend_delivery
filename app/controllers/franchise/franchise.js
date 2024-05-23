@@ -40,12 +40,12 @@ exports.franchise_register = function (request_data, response_data) {
     {
         social_id_array.push(social_id);
     }
-    Country.findOne({_id: request_data_body.country_id}, function (error, country) {
+    Country.findOne({_id: request_data_body.country_id}).then(country =>{
         if (country) {
-            City.findOne({_id: request_data_body.city_id}, function (error, city) {
+            City.findOne({_id: request_data_body.city_id}).then(city => {
                 if (city) {
                     var timezone = city.timezone;
-                    Franchise.findOne({social_ids: {$all: social_id_array}}, function (error, franchise_data) {
+                    Franchise.findOne({social_ids: {$all: social_id_array}}).then(franchise_data => {
                         if (error) {
 
                             response_data.json({success: false, error_code: STORE_ERROR_CODE.REGISTRATION_FAILED});
@@ -59,7 +59,7 @@ exports.franchise_register = function (request_data, response_data) {
                         } else {
 
 
-                            Franchise.findOne({email: request_data_body.email}, function (error, franchise_data) {
+                            Franchise.findOne({email: request_data_body.email}).then(franchise_data => {
 
                                 if (error) {
 
@@ -89,7 +89,7 @@ exports.franchise_register = function (request_data, response_data) {
                                     }
                                 } else {
 
-                                    Franchise.findOne({phone: request_data_body.phone}, function (error, franchise_data) {
+                                    Franchise.findOne({phone: request_data_body.phone}).then(franchise_data => {
 
                                         if (error) {
 
@@ -172,12 +172,12 @@ exports.franchise_register = function (request_data, response_data) {
                                             {
                                                 franchise_data.password = utils.encryptPassword(request_data_body.password);
                                             }
-                                            // City.findOne({_id: store_data.city_id}, function (error, city) {
+                                            // City.findOne({_id: store_data.city_id}).then(city => {
 
                                             var timezone = city.timezone;
 
 
-                                            Setting.findOne({}, function (error, setting_detail) {
+                                            Setting.findOne({}).then(setting_detail => {
 
                                                 if (country && setting_detail) {
 
@@ -187,10 +187,10 @@ exports.franchise_register = function (request_data, response_data) {
                                                             response_data.json({success: false, error_code: STORE_ERROR_CODE.REGISTRATION_FAILED});
                                                         } else {
 
-                                                            Setting.findOne({}, function (error, setting_detail) {
+                                                            Setting.findOne({}).then(setting_detail => {
                                                                 var is_mail_notification = setting_detail.is_mail_notification;
                                                                 if (is_mail_notification == true) {
-                                                                    Email.findOne({unique_id: EMAIL_UNIQUE_ID.STORE_WELCOME}, function (error, email_detail) {
+                                                                    Email.findOne({unique_id: EMAIL_UNIQUE_ID.STORE_WELCOME}).then(email_detail => {
                                                                         var is_send = email_detail.is_send;
                                                                         if (is_send == true) {
                                                                             //emails.sendStoreRegisterEmail(request_data, franchise_data, franchise_data.name);
@@ -243,14 +243,14 @@ exports.approve_decline_business_store = function (request_data, response_data) 
     var store_page_type = request_data_body.store_page_type;
     
     console.log(request_data_body);
-    Setting.findOne({}, function (error, setting_detail) {
+    Setting.findOne({}).then(setting_detail => {
         var is_mail_notification = setting_detail.is_mail_notification;
         var is_sms_notification = setting_detail.is_sms_notification;
         var is_push_notification = setting_detail.is_push_notification;
 
         if (store_page_type == 2)
         {
-            Store.findOneAndUpdate({_id: store_id}, {is_business: true}, {new : true}, function (error, stores) {
+            Store.findOneAndUpdate({_id: store_id}, {is_business: true}, {new : true}).then(stores => {
 
                 if (error || !stores) {
 
@@ -262,7 +262,7 @@ exports.approve_decline_business_store = function (request_data, response_data) 
 
                     // email to store approved
                     if (is_mail_notification == true) {
-                        Email.findOne({unique_id: EMAIL_UNIQUE_ID.STORE_APPROVED}, function (error, email_detail) {
+                        Email.findOne({unique_id: EMAIL_UNIQUE_ID.STORE_APPROVED}).then(email_detail => {
                             var is_send = email_detail.is_send;
                             if (is_send == true) {
                                 emails.sendStoreApprovedEmail(request_data, stores, stores.name);
@@ -291,7 +291,7 @@ exports.approve_decline_business_store = function (request_data, response_data) 
         } else if (store_page_type == 1 || store_page_type == 3)
         {
 
-            Store.findOneAndUpdate({_id: store_id}, {is_business: false}, {new : true}, function (error, stores) {
+            Store.findOneAndUpdate({_id: store_id}, {is_business: false}, {new : true}).then(stores => {
 
                 if (error || !stores) {
 
@@ -303,7 +303,7 @@ exports.approve_decline_business_store = function (request_data, response_data) 
 
                     // email to store declined
                     if (is_mail_notification == true) {
-                        Email.findOne({unique_id: EMAIL_UNIQUE_ID.STORE_DECLINED}, function (error, email_detail) {
+                        Email.findOne({unique_id: EMAIL_UNIQUE_ID.STORE_DECLINED}).then(email_detail => {
                             var is_send = email_detail.is_send;
                             if (is_send == true) {
                                 emails.sendStoreDeclineEmail(request_data, stores, stores.name);
@@ -335,7 +335,7 @@ exports.approve_decline_business_store = function (request_data, response_data) 
 };
 exports.logout = function (request_data, response_data) {
     var request_data_body = request_data.body;
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise => {
         if (franchise)
         {
             if (request_data_body.server_token !== null && franchise.server_token !== request_data_body.server_token) {
@@ -383,7 +383,7 @@ exports.franchise_update = function (request_data, response_data) {
         old_password = utils.encryptPassword(old_password);
     }
 
-    Franchise.findOne({_id: franchise_id}, function (error, franchise) {
+    Franchise.findOne({_id: franchise_id}).then(franchise =>  {
 
         if (franchise) {
 
@@ -401,13 +401,13 @@ exports.franchise_update = function (request_data, response_data) {
 
             } else
             {
-                Setting.findOne({}, function (error, setting_data) {
+                Setting.findOne({}).then(setting_data => {
 
                     var is_franchise_mail_verification = setting_data.is_user_mail_verification;
                     var is_franchise_sms_verification = setting_data.is_user_sms_verification;
 
-                    Country.findOne({_id: franchise.country_id}, function (error, country) {
-                        City.findOne({_id: franchise.city_id}, function (error, city) {
+                    Country.findOne({_id: franchise.country_id}).then(country => {
+                        City.findOne({_id: franchise.city_id}).then(city => {
 
                             var timezone = city.timezone;
                             var new_email = request_data_body.email;
@@ -426,7 +426,7 @@ exports.franchise_update = function (request_data, response_data) {
 
                             request_data_body.social_ids = franchise.social_ids;
 
-                            Franchise.findOne({_id: {'$ne': franchise_id}, email: new_email}, function (error, franchise_details) {
+                            Franchise.findOne({_id: {'$ne': franchise_id}, email: new_email}).then(franchise_details => {
 
                                 var is_update = false;
                                 if (franchise_details) {
@@ -445,7 +445,7 @@ exports.franchise_update = function (request_data, response_data) {
                                 if (is_update == true)
                                 {
                                     is_update = false;
-                                    Franchise.findOne({_id: {'$ne': franchise_id}, phone: new_phone}, function (error, franchise_phone_details) {
+                                    Franchise.findOne({_id: {'$ne': franchise_id}, phone: new_phone}).then(franchise_phone_details => {
                                         if (franchise_phone_details) {
                                             if (is_franchise_sms_verification == true) {
                                                 if (franchise_phone_details.is_phone_number_verified == false) {
@@ -467,7 +467,7 @@ exports.franchise_update = function (request_data, response_data) {
                                             var franchise_update_query = {$or: [{'password': old_password}, {social_ids: {$all: social_id_array}}]};
                                             franchise_update_query = {$and: [{'_id': franchise_id}, franchise_update_query]};
 
-                                            Franchise.findOneAndUpdate(franchise_update_query, request_data_body, {new : true}, function (error, franchise_data) {
+                                            Franchise.findOneAndUpdate(franchise_update_query, request_data_body, {new : true}).then(franchise_data => {
 
                                                 if (franchise_data)
                                                 {
@@ -541,7 +541,7 @@ exports.franchise_update = function (request_data, response_data) {
 };
 exports.get_order_detail = function (request_data, response_data) {
     var request_data_body = request_data.body;
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise_detail) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise_detail => {
         if (franchise_detail) {
             if (request_data_body.server_token !== null && franchise_detail.server_token !== request_data_body.server_token)
             {
@@ -605,7 +605,7 @@ exports.get_order_detail = function (request_data, response_data) {
 
                 Order.aggregate([order_condition, user_query, order_payment_query, store_query, provider_query, array_to_json_user_detail, array_to_json_store_detail, array_to_json_order_payment_query
 
-                ], function (error, order) {
+                ]).then(order => {
 
                     if (error || order.length === 0)
                     {
@@ -631,7 +631,7 @@ exports.get_order_detail = function (request_data, response_data) {
 exports.get_franchise_data = function (request_data, response_data) {
     var request_data_body = request_data.body;
 
-    Franchise.findOne({_id: request_data_body.franchise_id}, function (error, franchise) {
+    Franchise.findOne({_id: request_data_body.franchise_id}).then(franchise => {
 
         if (franchise)
         {
@@ -673,7 +673,7 @@ exports.get_franchise_data = function (request_data, response_data) {
 
                 var condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
 
-                Franchise.aggregate([condition, country_query, city_query, delivery_query, array_to_json, array_to_json1, array_to_json2], function (error, franchise_detail) {
+                Franchise.aggregate([condition, country_query, city_query, delivery_query, array_to_json, array_to_json1, array_to_json2]).then(franchise_detail => {
 
 
                     if (franchise_detail.length != 0) {
@@ -696,7 +696,7 @@ exports.get_franchise_data = function (request_data, response_data) {
                                             cancelled_orders: {$sum: {$cond: [{$eq: ["$order_status_id", ORDER_STATUS_ID.CANCELLED]}, 1, 0]}}
                                         }
                                     }
-                                    Order.aggregate([franchise_condition, group], function (error, order_detail) {
+                                    Order.aggregate([franchise_condition, group]).then(order_detail => {
 
                                         if (error || order_detail.length == 0) {
                                             response_data.json({success: true,
@@ -784,7 +784,7 @@ exports.get_store_data = function (request_data, response_data) {
             console.log(stores_array);
             Store.aggregate([condition1, city_query, array_to_json_city_query,delivery_query,array_to_json_delivery_query
                         , count
-            ], function (error, stores) {
+            ]).then(stores => {
 
                 if (error || stores.length === 0)
                 {
@@ -793,7 +793,7 @@ exports.get_store_data = function (request_data, response_data) {
                 } else
                 {
 
-                    Store.aggregate([condition1, city_query, array_to_json_city_query,delivery_query,array_to_json_delivery_query], function (error, stores) {
+                    Store.aggregate([condition1, city_query, array_to_json_city_query,delivery_query,array_to_json_delivery_query]).then(stores => {
                         if (error || stores.length == 0) {
                             response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_DATA_NOT_FOUND
                             });
@@ -830,7 +830,7 @@ console.log(request_data_body);
 
     var query = {$or: [{'email': email}, {'phone': email}, {social_ids: {$all: [social_id]}}]};
 
-    Franchise.findOne(query, function (error, franchise_detail) {
+    Franchise.findOne(query).then(franchise_detail => {
 
         if (social_id == undefined || social_id == null || social_id == "") {
             social_id = null;
@@ -850,9 +850,9 @@ console.log(request_data_body);
                 response_data.json({success: false, error_code: STORE_ERROR_CODE.STORE_NOT_REGISTER_WITH_SOCIAL});
 
             } else {
-                Country.findOne({_id: franchise_detail.country_id}, function (error, country) {
+                Country.findOne({_id: franchise_detail.country_id}).then(country => {
 
-                    City.findOne({_id: franchise_detail.city_id}, function (error, city) {
+                    City.findOne({_id: franchise_detail.city_id}).then(city => {
 
                         var timezone = city.timezone;
 
@@ -869,8 +869,7 @@ console.log(request_data_body);
 
                         } else
                         {
-                            Order.update({franchise_notify: 0, franchise_id: franchise_detail._id}, {franchise_notify: 1}, {multi: true}, function (error, order) {
-                            });
+                            Order.update({franchise_notify: 0, franchise_id: franchise_detail._id}, {franchise_notify: 1}, {multi: true});
                         }
 
                         franchise_detail.device_type = request_data_body.device_type;
