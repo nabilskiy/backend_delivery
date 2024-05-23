@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var database_backup = new schema({
     unique_id: Number,
     start_date: { type: Date },
@@ -25,5 +25,5 @@ var database_backup = new schema({
     }
 });
 
-//database_backup.plugin(autoIncrement.plugin, {model: 'database_backup', field: 'unique_id', startAt: 1, incrementBy: 1});
+database_backup.plugin(autoIncrement.plugin, {model: 'database_backup', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('database_backup', database_backup);

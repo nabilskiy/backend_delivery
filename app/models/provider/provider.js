@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var provider = new schema({
     unique_id: Number,
     provider_type: Number,
@@ -130,5 +130,5 @@ provider.index({is_online: 1, is_approved: 1, provider_type_id: 1}, {background:
 provider.index({country_id: 1, city_id: 1, device_type: 1, device_token: 1}, {background: true});
 
 
-// provider.plugin(autoIncrement.plugin, {model: 'provider', field: 'unique_id', startAt: 1, incrementBy: 1});
+provider.plugin(autoIncrement.plugin, {model: 'provider', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('provider', provider);

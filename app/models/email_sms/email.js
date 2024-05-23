@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var email_detail = new schema({
     unique_id: Number,
     template_unique_id:Number,
@@ -13,5 +13,5 @@ var email_detail = new schema({
 
 email_detail.index({unique_id: 1}, {background: true});
 
-// email_detail.plugin(autoIncrement.plugin, {model: 'email_detail', field: 'unique_id' , startAt: 1,incrementBy: 1});
+email_detail.plugin(autoIncrement.plugin, {model: 'email_detail', field: 'unique_id' , startAt: 1,incrementBy: 1});
 module.exports = mongoose.model('email_detail', email_detail);

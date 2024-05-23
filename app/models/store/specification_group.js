@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var specification_group = new schema({
     unique_id: Number,
     store_id: {type: schema.Types.ObjectId},
@@ -32,6 +32,6 @@ specification_group.index({product_id: 1}, {background: true});
 specification_group.index({_id: 1, store_id: 1}, {background: true});
 
  
-// specification_group.plugin(autoIncrement.plugin, {model: 'specification_group', field: 'unique_id' , startAt: 1,incrementBy: 1});
+specification_group.plugin(autoIncrement.plugin, {model: 'specification_group', field: 'unique_id' , startAt: 1,incrementBy: 1});
 
 module.exports = mongoose.model('specification_group', specification_group);

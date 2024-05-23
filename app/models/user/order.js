@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var order = new schema({
 
     unique_id: Number,
@@ -101,5 +101,5 @@ order.index({completed_date_in_city_timezone: 1, store_id: 1}, {background: true
 order.index({user_id: 1, order_status: 1, order_status_id: 1}, {background: true});
 order.index({completed_date_in_city_timezone: 1, user_id: 1}, {background: true});
 
-// order.plugin(autoIncrement.plugin, {model: 'order', field: 'unique_id', startAt: 1, incrementBy: 1});
+order.plugin(autoIncrement.plugin, {model: 'order', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('order', order);

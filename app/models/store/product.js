@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 require('../../utils/constants');
 
 var product = new schema({
@@ -35,5 +35,5 @@ var product = new schema({
 product.index({franchise_product_id: 1}, {background: true});
 product.index({store_id: 1}, {background: true});
 
-// product.plugin(autoIncrement.plugin, {model: 'product', field: 'unique_id' , startAt: 1,incrementBy: 1});
+product.plugin(autoIncrement.plugin, {model: 'product', field: 'unique_id' , startAt: 1,incrementBy: 1});
 module.exports = mongoose.model('product', product);

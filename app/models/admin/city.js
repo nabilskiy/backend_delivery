@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+ var autoIncrement = require('mongoose-id-autoincrement');
 var city = new schema({
     unique_id: Number,
     country_id: {type: schema.Types.ObjectId},
@@ -66,5 +66,5 @@ var city = new schema({
 city.index({country_id: 1, city_name: 1, city_code: 1}, {background: true});
 city.index({country_id: 1, is_business: 1}, {background: true});
 
-// city.plugin(autoIncrement.plugin, {model: 'city', field: 'unique_id', startAt: 1, incrementBy: 1});
+city.plugin(autoIncrement.plugin, {model: 'city', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('city', city);

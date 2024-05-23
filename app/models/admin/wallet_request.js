@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var wallet_request = new schema({
     unique_id: Number,
     user_type: Number,
@@ -51,5 +51,5 @@ var wallet_request = new schema({
 wallet_request.index({user_id: 1, user_type: 1}, {background: true});
 wallet_request.index({created_at: 1}, {background: true});
 
-//wallet_request.plugin(autoIncrement.plugin, {model: 'wallet_request', field: 'unique_id', startAt: 1, incrementBy: 1});
+wallet_request.plugin(autoIncrement.plugin, {model: 'wallet_request', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('wallet_request', wallet_request);

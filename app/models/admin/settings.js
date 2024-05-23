@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-//// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var setting = new schema({
     default_search_radius: {type: Number, default: 0},
     provider_timeout: {type: Number, default: 0},
@@ -102,5 +102,5 @@ var setting = new schema({
         updatedAt: 'updated_at'
     }
 });
-//setting.plugin(autoIncrement.plugin, {model: 'setting', field: 'unique_id', startAt: 1, incrementBy: 1});
+setting.plugin(autoIncrement.plugin, {model: 'setting', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('setting', setting);

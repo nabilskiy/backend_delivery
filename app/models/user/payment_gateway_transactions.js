@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 
 var payment_gateway_transaction = new Schema({
     
@@ -44,7 +44,7 @@ var payment_gateway_transaction = new Schema({
 });
 
 
-// payment_gateway_transaction.plugin(autoIncrement.plugin, {model: 'payment_gateway_transaction', field: 'unique_id', startAt: 1, incrementBy: 1});
+payment_gateway_transaction.plugin(autoIncrement.plugin, {model: 'payment_gateway_transaction', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('payment_gateway_transaction', payment_gateway_transaction);
 
 // unique_id: Number,

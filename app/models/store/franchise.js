@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var franchise = new schema({
     unique_id: Number,
     admin_type: Number,
@@ -72,5 +72,5 @@ franchise.index({social_ids: 1}, {background: true});
 franchise.index({email: 1}, {background: true});
 franchise.index({phone: 1}, {background: true});
 
-// franchise.plugin(autoIncrement.plugin, {model: 'franchise', field: 'unique_id', startAt: 1, incrementBy: 1});
+franchise.plugin(autoIncrement.plugin, {model: 'franchise', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('franchise', franchise);

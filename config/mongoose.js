@@ -1,16 +1,11 @@
 var config = require('./config'),
         mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-//// var autoIncrement = require('mongoose-auto-increment');
+const autoIncrement = require('mongoose-id-autoincrement');
 
 module.exports = function () {
-    /// for mongoose 4
-    // var db = mongoose.connect(config.db, {useMongoClient: true});
-    // autoIncrement.initialize(db);
-
-    //// for mongoose 5
     var db = mongoose.connect(config.db);
-    //autoIncrement.initialize(mongoose.connection);
+    autoIncrement.initialize(mongoose.connection);
 
     require('../app/models/admin/settings');
     require('../app/models/admin/delivery');

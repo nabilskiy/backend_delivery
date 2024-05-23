@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var document_uploaded_list = new schema({
     unique_id: Number,
     document_id: {type: schema.Types.ObjectId},
@@ -38,5 +38,5 @@ var document_uploaded_list = new schema({
 
 document_uploaded_list.index({user_id: 1, document_for: 1, user_type_id: 1}, {background: true});
 
-// document_uploaded_list.plugin(autoIncrement.plugin, {model: 'document_uploaded_list', field: 'unique_id', startAt: 1, incrementBy: 1});
+document_uploaded_list.plugin(autoIncrement.plugin, {model: 'document_uploaded_list', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('document_uploaded_list', document_uploaded_list);

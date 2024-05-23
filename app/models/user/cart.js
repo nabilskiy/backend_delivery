@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var cart = new schema({
 
     unique_id: Number,
@@ -44,5 +44,5 @@ var cart = new schema({
 
 cart.index({cart_unique_token: 1}, {background: true});
 
-// cart.plugin(autoIncrement.plugin, {model: 'cart', field: 'unique_id', startAt: 1, incrementBy: 1});
+cart.plugin(autoIncrement.plugin, {model: 'cart', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('cart', cart);

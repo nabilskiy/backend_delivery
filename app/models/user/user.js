@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var user = new schema({
     unique_id: Number,
     user_type: Number,
@@ -84,5 +84,5 @@ user.index({country_id: 1, city_id: 1, device_type: 1, device_token: 1}, {backgr
 user.index({is_approved: 1}, {background: true});
 
 
-// user.plugin(autoIncrement.plugin, {model: 'user', field: 'unique_id', startAt: 1, incrementBy: 1});
+user.plugin(autoIncrement.plugin, {model: 'user', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('user', user);

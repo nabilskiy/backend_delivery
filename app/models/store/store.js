@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var store = new schema({
     // STORE TYPE INFORMATION
     unique_id: Number,
@@ -196,7 +196,7 @@ store.index({_id: 1, is_approved: 1}, {background: true});
 store.index({is_approved: 1, is_business: 1, is_visible: 1, city_id: 1, store_delivery_id: 1}, {background: true});
 store.index({country_id: 1, city_id: 1, device_type: 1, device_token: 1}, {background: true});
 
-// store.plugin(autoIncrement.plugin, {model: 'store', field: 'unique_id', startAt: 1, incrementBy: 1});
+store.plugin(autoIncrement.plugin, {model: 'store', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('store', store);
 
 

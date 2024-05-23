@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var image_setting = new schema({
     unique_id: Number,
     delivery_image_ratio: Number,
@@ -83,5 +83,5 @@ var image_setting = new schema({
         updatedAt: 'updated_at'
     }
 })
-// image_setting.plugin(autoIncrement.plugin, {model: 'image_setting', field: 'unique_id', startAt: 1, incrementBy: 1});
+image_setting.plugin(autoIncrement.plugin, {model: 'image_setting', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('image_setting', image_setting);

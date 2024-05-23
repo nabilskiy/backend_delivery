@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var mass_notification = new schema({
     unique_id: Number,
     message: {type: String, default: ''},
@@ -28,5 +28,5 @@ var mass_notification = new schema({
 });
 
 
-// mass_notification.plugin(autoIncrement.plugin, {model: 'mass_notification', field: 'unique_id', startAt: 1, incrementBy: 1});
+mass_notification.plugin(autoIncrement.plugin, {model: 'mass_notification', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('mass_notification', mass_notification);

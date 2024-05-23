@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var item = new schema({
     unique_id: Number,
     store_id: {type: schema.Types.ObjectId},
@@ -55,5 +55,5 @@ item.index({sequence_number: 1}, {background: true});
 item.index({name: 1}, {background: true});
 item.index({user_id: 1, is_user_show_invoice: 1, order_status: 1}, {background: true});
 
-// item.plugin(autoIncrement.plugin, {model: 'item', field: 'unique_id', startAt: 1, incrementBy: 1});
+item.plugin(autoIncrement.plugin, {model: 'item', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('item', item);

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-// var autoIncrement = require('mongoose-auto-increment');
+var autoIncrement = require('mongoose-id-autoincrement');
 var review = new schema({
     unique_id: Number,
     user_rating_to_provider: Number,
@@ -51,5 +51,5 @@ review.index({store_id: 1}, {background: true});
 review.index({user_id: 1}, {background: true});
 review.index({order_id: 1}, {background: true});
 
-// review.plugin(autoIncrement.plugin, {model: 'review', field: 'unique_id', startAt: 1, incrementBy: 1});
+review.plugin(autoIncrement.plugin, {model: 'review', field: 'unique_id', startAt: 1, incrementBy: 1});
 module.exports = mongoose.model('review', review);
