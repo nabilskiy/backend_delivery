@@ -177,7 +177,7 @@ function remove_current_request_from_provider(provider_detail, current_order_id)
 function provider_auto_transfer(city_detail) {
     var today = new Date(Date.now());
     Country.findOne({ _id: city_detail.country_id}).then((country_detail) => {
-        if(country_detail.is_auto_transfer){
+        if(country_detail && country_detail.is_auto_transfer){
             var auto_transfer_day = country_detail.auto_transfer_day;
             var final_day = new Date(today.setDate(today.getDate() - auto_transfer_day));
             Provider.find({provider_type: ADMIN_DATA_ID.ADMIN, city_id: city_detail._id, last_transferred_date: {$lte: final_day}, account_id: {$exist: true}, account_id: {$ne: ''},
