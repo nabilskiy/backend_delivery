@@ -97,11 +97,11 @@ exports.franchise_notify_new_order = function (request_data, response_data) {
                                         setting_detail: setting_detail*/
                                     });
                                 } else {
-                                    /* Order.update({
+                                    /* Order.updateMany({
                                          store_notify: 0,
                                          store_id: request_data_body.store_id,
                                          _id: orders[0]._id
-                                     }, {store_notify: 1}, {multi: true}).then(response => {*/
+                                     }, {store_notify: 1}).then(response => {*/
                                     response_data.json({
                                         success: true,
                                         // store_detail: store_detail,

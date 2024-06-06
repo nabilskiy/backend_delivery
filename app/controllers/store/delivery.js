@@ -397,11 +397,11 @@ exports.store_notify_new_order = function (request_data, response_data) {
                                             })
                                         }
                                     } else {
-                                        Order.update({
+                                        Order.updateMany({
                                             store_notify: 0,
                                             store_id: request_data_body.store_id,
                                             _id: orders[0]._id
-                                        }, {store_notify: 1}, {multi: true}).then((response) => {
+                                        }, {store_notify: 1}).then((response) => {
 
                                             if (no_deliveryman_orders.length == 0) {
                                                 response_data.json({

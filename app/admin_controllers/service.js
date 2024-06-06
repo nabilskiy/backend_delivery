@@ -44,7 +44,7 @@ exports.select_default_service = function (request_data, response_data) {
         if (response.success) {
             var request_data_body = request_data.body;
             Service.findOneAndUpdate({ _id: request_data_body.service_id }, { is_default: request_data_body.is_default }).then(service_data => {
-                Service.update({ type_id: request_data_body.type_id, delivery_type: service_data.delivery_type, city_id: request_data_body.city_id, _id: { $ne: request_data_body.service_id } }, { is_default: false }, { multi: true }).then(service_list => {
+                Service.updateMany({ type_id: request_data_body.type_id, delivery_type: service_data.delivery_type, city_id: request_data_body.city_id, _id: { $ne: request_data_body.service_id } }, { is_default: false }).then(service_list => {
                     response_data.json({ success: true });
                 })
             });

@@ -869,7 +869,7 @@ console.log(request_data_body);
 
                         } else
                         {
-                            Order.update({franchise_notify: 0, franchise_id: franchise_detail._id}, {franchise_notify: 1}, {multi: true});
+                            Order.updateMany({franchise_notify: 0, franchise_id: franchise_detail._id}, {franchise_notify: 1});
                         }
 
                         franchise_detail.device_type = request_data_body.device_type;
