@@ -399,7 +399,7 @@ exports.store_login = function (request_data, response_data) {
                                     if (request_data_body.device_type == DEVICE_TYPE.ANDROID || request_data_body.device_type == DEVICE_TYPE.IOS) {
                                         store_detail.device_token = request_data_body.device_token;
                                     } else {
-                                        Order.update({ store_notify: 0, store_id: store_detail._id }, { store_notify: 1 }, { multi: true });
+                                        Order.updateMany({ store_notify: 0, store_id: store_detail._id }, { store_notify: 1 });
                                     }
 
                                     store_detail.device_type = request_data_body.device_type;
