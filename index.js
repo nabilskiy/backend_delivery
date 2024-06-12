@@ -35,7 +35,7 @@ function init() {
 	app.listen(port);
 
 	//workers init
-	// require("./app/workers");
+	require("./app/workers");
 	const Setting = require('mongoose').model('setting');
 	Setting.findOne({}).then(setting => {
 		setting_detail = setting;
