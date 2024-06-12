@@ -1,3 +1,3 @@
 module.exports = {
-	db : 'mongodb://localhost:27017/deliverylime2'
+	db : 'mongodb://admin:mWaiCw4cQnli1uIBAJ6m@remote.runflare.com:31846/deliverylime?authSource=admin'
 }
