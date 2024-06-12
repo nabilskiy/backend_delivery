@@ -24,7 +24,14 @@ module.exports = function () {
         var client = redis.createClient();
 
         ///// FOR SESSION SET /////
-        app.use(session({ resave: true, saveUninitialized: true, secret: 'SOMERANDOMSECRETHERE', maxAge: '1h', store: new RedisStore({ host: 'localhost', port: 6379, client: client, ttl: 1440 }) }));
+        app.use(session({
+            resave: true, saveUninitialized: true, secret: 'SOMERANDOMSECRETHERE', maxAge: '1h', store: new RedisStore({
+                host: 'remote.runflare.com',
+                port: 31492,
+                password:'wQZbTd481tAtqjyEZnQh',
+                client: client, ttl: 1440
+            })
+        }));
     }
 
 
