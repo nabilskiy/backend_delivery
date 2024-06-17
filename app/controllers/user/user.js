@@ -916,7 +916,7 @@ exports.user_register = function (request_data, response_data) {
 
 //USER LOGIN API
 exports.user_login = function (request_data, response_data) {
-
+    
     utils.check_request_params(request_data.body, [{name: 'email', type: 'string'}], function (response) {
         if (response.success) {
 
@@ -928,6 +928,7 @@ exports.user_login = function (request_data, response_data) {
                 email = null
             }
             var encrypted_password = request_data_body.password;
+         
             if (social_id == undefined || social_id == null || social_id == "") {
                 social_id = "";
             }
@@ -938,7 +939,7 @@ exports.user_login = function (request_data, response_data) {
             }
             var query = {$or: [{'email': email}, {'phone': email}, {social_ids: {$all: [social_id]}}]};
 
-            if(!encrypted_password || social_id){
+            if(encrypted_password || social_id){
                 User.findOne(query).then((user_detail) => {
                     if (social_id == undefined || social_id == null || social_id == "") {
                         social_id = null;
