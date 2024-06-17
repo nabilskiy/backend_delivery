@@ -25,6 +25,7 @@ var Request = require('mongoose').model('request');
 var Installation_setting = require('mongoose').model('installation_setting');
 var geolib = require('geolib');
 var console = require('../../utils/console');
+const ObjectId = mongoose.Types.ObjectId; 
 
 var Service = require('mongoose').model('service');
 // store register api
@@ -937,6 +938,7 @@ exports.order_list = function (request_data, response_data) {
 
             var request_data_body = request_data.body;
             Store.findOne({ _id: request_data_body.store_id }).then((store_detail) => {
+              
                 if (store_detail) {
                     if (request_data_body.server_token !== null && store_detail.server_token !== request_data_body.server_token) {
                         response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
@@ -979,7 +981,7 @@ exports.order_list = function (request_data, response_data) {
 
                                 var sort = { "$sort": {} };
                                 sort["$sort"]['unique_id'] = parseInt(-1);
-                                var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                var store_condition = { "$match": { 'store_id': { $eq: new ObjectId(request_data_body.store_id) } } };
                                 //var order_status_condition = {$match: {$and: [{order_status: {$lte: ORDER_STATE.ORDER_READY}}, {order_status: {$ne: ORDER_STATE.STORE_REJECTED}}]}};
 
                                 var order_status_condition = {
