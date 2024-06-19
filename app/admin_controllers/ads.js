@@ -180,7 +180,7 @@ exports.get_advertise_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var advertise_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.advertise_id)}}};
+            var advertise_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.advertise_id)}}};
             var country_query = {
                 $lookup:
                     {

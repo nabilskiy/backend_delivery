@@ -118,7 +118,7 @@ exports.order_detail = function (request_data, response_data) {
             var redact = {};
             if(request_data_body.country_id !== "all")
             {
-                redact = { "$redact": {"$cond": [ {$and :[ { "$eq": [ "$store_detail.country_id", Schema(request_data_body.country_id) ] }]}, "$$KEEP", "$$PRUNE"]} }
+                redact = { "$redact": {"$cond": [ {$and :[ { "$eq": [ "$store_detail.country_id", new Schema(request_data_body.country_id) ] }]}, "$$KEEP", "$$PRUNE"]} }
             }
             else
             {

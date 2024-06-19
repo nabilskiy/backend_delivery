@@ -970,8 +970,8 @@ exports.get_store_list = function (request_data, response_data) {
                                             {"is_approved": {"$eq": true}},
                                             {"is_business": {"$eq": true}},
                                             {"is_visible": {"$eq": true}},
-                                            {"city_id": {$eq: Schema(city_id)}},
-                                            {"store_delivery_id": {$eq: Schema(store_delivery_id)}}
+                                            {"city_id": {$eq: new Schema(city_id)}},
+                                            {"store_delivery_id": {$eq: new Schema(store_delivery_id)}}
                                         ]
                                     }
                                 },
@@ -1075,7 +1075,7 @@ exports.user_get_store_product_item_list = function (request_data, response_data
             var request_data_body = request_data.body;
             var store_id = request_data_body.store_id;
             var server_time = new Date();
-            var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(store_id)}}};
+            var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(store_id)}}};
             var condition1 = {"$match": {'is_visible_in_store': {$eq: true}}};
 
             Store.findOne({_id: store_id}).then((store) => {
@@ -1401,8 +1401,8 @@ exports.store_list_for_item = function (request_data, response_data) {
 
                             {
                                 $match: {
-                                    $and: [{"store_detail.city_id": {$eq: Schema(city_id)}},
-                                        {"store_detail.store_delivery_id": {$eq: Schema(store_delivery_id)}}]
+                                    $and: [{"store_detail.city_id": {$eq: new Schema(city_id)}},
+                                        {"store_detail.store_delivery_id": {$eq: new Schema(store_delivery_id)}}]
                                 }
                             },
 
@@ -1534,7 +1534,7 @@ exports.get_orders = function (request_data, response_data) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else {
 
-                        var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
+                        var user_condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.user_id)}}};
                         var order_invoice_condition = {"$match": {'is_user_show_invoice': false}};
 
                         var order_status_condition = {
@@ -2694,8 +2694,8 @@ exports.order_history_detail = function (request_data, response_data) {
                                                         var array_to_json_cart_query = {$unwind: "$cart_detail"};
 
 
-                                                        var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
-                                                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                                                        var user_condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.user_id)}}};
+                                                        var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
 
                                                         var order_status_condition = {
                                                             $match: {
@@ -2852,7 +2852,7 @@ exports.order_history = function (request_data, response_data) {
                         end_date = new Date(end_date);
 
 
-                        var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
+                        var user_condition = {"$match": {'user_id': {$eq:new  mongoose.Types.ObjectId(request_data_body.user_id)}}};
                         var order_status_condition = {
                             "$match": {
                                 $or: [{
@@ -3416,7 +3416,7 @@ exports.get_order_detail = function (request_data, response_data) {
                     if (request_data_body.server_token !== null && user_detail.server_token !== request_data_body.server_token) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else {
-                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                        var order_condition = {"$match": {'_id': {$eq: new  mongoose.Types.ObjectId(request_data_body.order_id)}}};
 
 
                         var store_query = {
@@ -3630,7 +3630,7 @@ exports.user_get_store_review_list = function (request_data, response_data) {
                     var store_review_list = [];
                     var remaining_review_list = [];
 
-                    var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                    var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                     var review_condition = {"$match": {'user_rating_to_store': {$gt: 0}}};
                     Review.aggregate([store_condition, review_condition,
                         {

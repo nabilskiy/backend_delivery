@@ -193,7 +193,7 @@ exports.get_product_list = function (request_data, response_data) {
                         };
 
 
-                        var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
                         Product.aggregate([condition, product_array]).then((products) => {
                             if (products.length == 0) {
@@ -203,7 +203,7 @@ exports.get_product_list = function (request_data, response_data) {
                                 });
                             } else {
 
-                                var store_condition = {$match: {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                                var store_condition = {$match: {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
                                 Item.aggregate([store_condition, {
                                     $project: {
@@ -290,7 +290,7 @@ exports.get_product_data = function (request_data, response_data) {
                                 });
                             } else {
 
-                                var store_condition = {$match: {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                                var store_condition = {$match: {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                                 var product_condition = {$match: {'_id': {$ne: mongoose.Types.ObjectId(request_data_body.product_id)}}};
                                 Product.aggregate([store_condition, product_condition, {$project: {a: '$name'}}, {$unwind: '$a'},
                                     {$group: {_id: 'a', product_name: {$addToSet: '$a'}}}]).then((product_array) => {

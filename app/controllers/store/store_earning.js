@@ -12,7 +12,7 @@ var Store = require('mongoose').model('store');
 var mongoose = require('mongoose');
 var Store_analytic_daily = require('mongoose').model('store_analytic_daily');
 var console = require('../../utils/console');
-
+const {Types:{ObjectId}} = require("mongoose");
 
 exports.get_store_earning = function (request_data, response_data) {
     utils.check_request_params(request_data.body, [{name: 'start_date', type: 'string'}, {name: 'end_date', type: 'string'}], function (response) {
@@ -234,7 +234,7 @@ exports.get_store_earning = function (request_data, response_data) {
                         var limit = {};
                         limit["$limit"] = number_of_rec;
 
-                        var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                         var order_status_id_condition = {"$match": {$or: [{'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}, {'order_status': {$eq: ORDER_STATE.CANCELED_BY_USER}}]}};
 
                         Order.aggregate([filter, store_condition, order_status_id_condition, user_query, order_payment_query, country_query, request_query, array_to_json_order_payment_query, payment_gateway_query, store_query, array_to_json_user_detail, array_to_json_store_detail, array_to_json_country_query, array_to_json_request_query, provider_query
@@ -379,7 +379,7 @@ exports.store_daily_earning = function (request_data, response_data) {
                             end_date = end_date.setHours(23, 59, 59, 999);
                             end_date = new Date(end_date);
 
-                            var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                            var store_condition = {"$match": {'store_id': {$eq: new ObjectId(request_data_body.store_id)}}};
                             var order_status_id_condition = {"$match": {$or: [{'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}, {'order_status': {$eq: ORDER_STATE.CANCELED_BY_USER}}]}};
 
                             var filter = {"$match": {$and: [{"completed_date_in_city_timezone": {$gte: start_date, $lt: end_date}}, {total_store_income: {$ne: 0}}]}};
@@ -515,7 +515,7 @@ exports.store_weekly_earning = function (request_data, response_data) {
 
                             var start_date_time = start_date;
 
-                            var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                            var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                             var filter = {"$match": {$and: [{"completed_date_in_city_timezone": {$gte: start_date, $lt: end_date}}, {total_store_income: {$ne: 0}}]}};
                             var order_status_id_condition = {"$match": {$or: [{'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}, {'order_status': {$eq: ORDER_STATE.CANCELED_BY_USER}}]}};
 

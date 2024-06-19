@@ -11,6 +11,7 @@ var Product = require('mongoose').model('product');
 var Country = require('mongoose').model('country');
 var mongoose = require('mongoose');
 var Schema = mongoose.Types.ObjectId;
+const { Types: { ObjectId } } = require('mongoose');
 
 // add item api 
 // exports.add_item = function (request_data, response_data) {
@@ -262,7 +263,7 @@ exports.get_store_product_item_list = function (request_data, response_data) {
             }
             var condition2 = { "$match": {} };
             if (request_data_body.product_id) {
-                condition2 = { "$match": { _id: Schema(request_data_body.product_id) } };
+                condition2 = { "$match": { _id: new Schema(request_data_body.product_id) } };
             }
             table.findOne({ _id: id }).then((detail) => {
                 if (detail) {
@@ -283,7 +284,7 @@ exports.get_store_product_item_list = function (request_data, response_data) {
                                     }
 
                                 };
-                                var condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                var condition = { "$match": { 'store_id': { $eq: new ObjectId(request_data_body.store_id) } } };
 
                                 Product.aggregate([condition, condition1, condition2, items_array]).then((products) => {
                                     if (products.length == 0) {
@@ -356,7 +357,7 @@ exports.get_item_list = function (request_data, response_data) {
                                     }
                                 };
                                 var array_to_json = { $unwind: "$products_detail" };
-                                var condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(store_id) } } };
+                                var condition = { "$match": { 'store_id': { $eq: new mongoose.Types.ObjectId(store_id) } } };
                                 Item.aggregate([condition, products_array, array_to_json]).then((items) => {
                                     if (items.length == 0) {
                                         response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
@@ -426,13 +427,13 @@ exports.get_item_data = function (request_data, response_data) {
                                         as: "specifications_detail"
                                     }
                                 };
-                                var condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(product_id) } } };
+                                var condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(product_id) } } };
                                 Product.aggregate([condition, specification_array]).then((product) => {
                                     if (product.length == 0) {
                                         response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
                                     } else {
-                                        var store_condition = { $match: { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
-                                        var product_condition = { $match: { 'product_id': { $eq: mongoose.Types.ObjectId(product_id) } } };
+                                        var store_condition = { $match: { 'store_id': { $eq: new mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                        var product_condition = { $match: { 'product_id': { $eq: new mongoose.Types.ObjectId(product_id) } } };
                                         var item_condition = { $match: { '_id': { $ne: mongoose.Types.ObjectId(item_id) } } };
 
                                         Item.aggregate([store_condition, product_condition, item_condition, { $project: { a: '$name' } }, { $unwind: '$a' },

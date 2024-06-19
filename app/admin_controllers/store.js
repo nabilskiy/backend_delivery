@@ -247,14 +247,14 @@ exports.get_store_data = function (request_data, response_data) {
 
             var array_to_json2 = {$unwind: "$delivery_details"};
 
-            var condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+            var condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
 
             Store.aggregate([condition, country_query, city_query, delivery_query, referred_query, array_to_json, array_to_json1, array_to_json2]).then((store_detail) => {
 
                 if (store_detail.length != 0) {
 
-                    var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                    var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                     var group = {
                         $group: {
                             _id: null,
@@ -585,7 +585,7 @@ exports.product_for_city_store = function (request_data, response_data) {
 
             var request_data_body = request_data.body;
             console.log(request_data_body);
-            var city_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.city_id)}}};
+            var city_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.city_id)}}};
 
             var store_query = {
                 $lookup:
@@ -640,7 +640,7 @@ exports.item_for_city_store = function (request_data, response_data) {
 
             var request_data_body = request_data.body;
             console.log(request_data_body);
-            var city_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.city_id)}}};
+            var city_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.city_id)}}};
             var store_query = {
                 $lookup:
                         {

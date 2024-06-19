@@ -307,7 +307,7 @@ exports.get_promo_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var promo_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.promo_id)}}};
+            var promo_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.promo_id)}}};
             var country_query = {
                 $lookup:
                         {
@@ -370,7 +370,7 @@ exports.get_promo_uses_detail = function (request_data, response_data) {
                             if (city_details) {
                                 city_name = city_details.city_name;
                             }
-                            var promo_condition = {"$match": {'promo_id': {$eq: mongoose.Types.ObjectId(request_data_body.promo_id)}}};
+                            var promo_condition = {"$match": {'promo_id': {$eq: new mongoose.Types.ObjectId(request_data_body.promo_id)}}};
                             var user_query = {
                                 $lookup:
                                         {

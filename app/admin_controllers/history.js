@@ -369,7 +369,7 @@ exports.get_order_data = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+            var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
 
             var user_query = {
                 $lookup:
@@ -791,10 +791,10 @@ exports.view_history = function (request_data, response_data) {
 
             if (type == 2)
             {
-                condition1 = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.id)}}};
+                condition1 = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.id)}}};
             } else if (type == 3)
             {
-                condition1 = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.id)}}};
+                condition1 = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.id)}}};
             }
 
             if (request_data_body.start_date == '' || request_data_body.end_date == '') {
@@ -1056,7 +1056,7 @@ exports.get_request_data = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var request_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.request_id)}}};
+            var request_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.request_id)}}};
             var user_query = {
                 $lookup:
                         {
@@ -1388,7 +1388,7 @@ exports.view_provider_history = function (request_data, response_data) {
             var limit = {};
             limit["$limit"] = number_of_rec;
 
-            var provider_condition = {"$match": {'current_provider': {$eq: mongoose.Types.ObjectId(request_data_body.provider_id)}}};
+            var provider_condition = {"$match": {'current_provider': {$eq: new mongoose.Types.ObjectId(request_data_body.provider_id)}}};
 
             var delivery_status_condition = {"$match": {$or: [{delivery_status: ORDER_STATE.ORDER_COMPLETED}, {delivery_status: ORDER_STATE.STORE_CANCELLED_REQUEST}, {delivery_status: ORDER_STATE.DELIVERY_MAN_CANCELLED}]}};
             var delivery_status_manage_id_condition = {"$match": {$or: [{delivery_status_manage_id: ORDER_STATUS_ID.COMPLETED}, {delivery_status_manage_id: ORDER_STATUS_ID.CANCELLED}]}};

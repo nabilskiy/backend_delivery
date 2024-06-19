@@ -280,7 +280,7 @@ exports.get_delivery_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var delivery_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.delivery_id)}}};
+            var delivery_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.delivery_id)}}};
             var delivery_type_query = {
                 $lookup:
                         {

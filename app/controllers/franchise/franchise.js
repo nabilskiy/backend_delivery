@@ -549,7 +549,7 @@ exports.get_order_detail = function (request_data, response_data) {
             } else
             {
 
-                var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
 
 
                 var user_query = {
@@ -671,7 +671,7 @@ exports.get_franchise_data = function (request_data, response_data) {
 
                 var array_to_json2 = {$unwind: "$delivery_details"};
 
-                var condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
+                var condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
 
                 Franchise.aggregate([condition, country_query, city_query, delivery_query, array_to_json, array_to_json1, array_to_json2]).then(franchise_detail => {
 

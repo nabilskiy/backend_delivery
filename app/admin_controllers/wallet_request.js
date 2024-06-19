@@ -562,7 +562,7 @@ exports.get_wallet_request_bank_detail = function (request_data, response_data) 
             var bank_detail_id = request_data_body.bank_detail_id;
             console.log("get_wallet_request_bank_detail");
 
-            var query1 = {$match: {'_id': {$eq: mongoose.Types.ObjectId(bank_detail_id)}}};
+            var query1 = {$match: {'_id': {$eq: new mongoose.Types.ObjectId(bank_detail_id)}}};
 
             Bank_detail.aggregate([query1]).then((bank_detail) => {
 

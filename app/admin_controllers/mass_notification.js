@@ -115,12 +115,12 @@ exports.create_mass_notification = function (request_data, response_data) {
 
             var country_query = {"$match": {}};
             if (request_data_body.country != null) {
-                country_query = {"$match": {country_id: {$eq: Schema(request_data_body.country)}}}
+                country_query = {"$match": {country_id: {$eq: new Schema(request_data_body.country)}}}
             }
 
             var city_query = {"$match": {}};
             if (request_data_body.city != null) {
-                city_query = {"$match": {city_id: {$eq: Schema(request_data_body.city)}}}
+                city_query = {"$match": {city_id: {$eq: new Schema(request_data_body.city)}}}
             }
 
             var device_type_query = {"$match": {}};

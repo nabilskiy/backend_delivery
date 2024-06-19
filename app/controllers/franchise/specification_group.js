@@ -140,7 +140,7 @@ exports.get_specification_group = function (request_data, response_data) {
                     }
                 };
 
-                var product_condition = { "$match": { 'product_id': { $eq: mongoose.Types.ObjectId(request_data_body.product_id) } } };
+                var product_condition = { "$match": { 'product_id': { $eq: new mongoose.Types.ObjectId(request_data_body.product_id) } } };
 
 
 
@@ -267,8 +267,8 @@ exports.get_specification_lists = function (request_data, response_data) {
                     }
                 };
 
-                var product_condition = { "$match": { 'product_id': { $eq: mongoose.Types.ObjectId(request_data_body.product_id) } } };
-                var specification_group_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.specification_group_id) } } };
+                var product_condition = { "$match": { 'product_id': { $eq: new mongoose.Types.ObjectId(request_data_body.product_id) } } };
+                var specification_group_condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.specification_group_id) } } };
 
 
 

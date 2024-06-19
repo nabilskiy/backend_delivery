@@ -389,7 +389,7 @@ exports.get_document_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var document_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.document_id)}}};
+            var document_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.document_id)}}};
             var country_query = {
                 $lookup:
                         {
@@ -511,7 +511,7 @@ exports.upload_document = function (request_data, response_data) {
                             };
 
                             var array_to_json_document_query = {$unwind: "$document_details"};
-                            var condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.id)}}};
+                            var condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.id)}}};
                             var image_condition = {"$match": {'image_url': {$eq: ""}}};
                             var redact = {"$redact": {"$cond": [{"$eq": ["$document_details.is_mandatory", true]}, "$$KEEP", "$$PRUNE"]}};
                                     Document_uploaded_list.aggregate([condition, image_condition, document_query, array_to_json_document_query, redact]).then((documents) => {

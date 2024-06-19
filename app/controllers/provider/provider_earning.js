@@ -59,7 +59,7 @@ exports.provider_daily_earning = function (request_data, response_data) {
                         end_date = end_date.setHours(23, 59, 59, 999);
                         end_date = new Date(end_date);
 
-                        var provider_condition = {"$match": {'provider_id': {$eq: mongoose.Types.ObjectId(request_data_body.provider_id)}}};
+                        var provider_condition = {"$match": {'provider_id': {$eq: new mongoose.Types.ObjectId(request_data_body.provider_id)}}};
                         var filter = {"$match": {$and: [{"completed_date_in_city_timezone": {$gte: start_date, $lt: end_date}}, {total_provider_income: {$ne: 0}}]}};
                         var order_status_id_condition = {"$match": {'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}};
 
@@ -219,7 +219,7 @@ exports.provider_weekly_earning = function (request_data, response_data) {
 
                             var start_date_time = start_date;
 
-                            var provider_condition = {"$match": {'provider_id': {$eq: mongoose.Types.ObjectId(request_data_body.provider_id)}}};
+                            var provider_condition = {"$match": {'provider_id': {$eq: new mongoose.Types.ObjectId(request_data_body.provider_id)}}};
                             var order_status_id_condition = {"$match": {'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}};
                             var filter = {"$match": {$and: [{"completed_date_in_city_timezone": {$gte: start_date, $lt: end_date}}, {total_provider_income: {$ne: 0}}]}};
                             var total_condition = {

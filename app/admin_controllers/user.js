@@ -213,7 +213,7 @@ exports.get_user_detail = function (request_data, response_data) {
                             as: "referred_user_details"
                         }
             };
-            var condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
+            var condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.user_id)}}};
 
             User.aggregate([condition, country_query, referred_query, array_to_json]).then((user) => {
                 if (user.length == 0) {

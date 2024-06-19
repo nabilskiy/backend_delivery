@@ -76,7 +76,7 @@ exports.order_list_for_delivery = function (request_data, response_data) {
                             }
                         }
 
-                        var store_id_condition = {"$match": {'order_detail.store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_id_condition = {"$match": {'order_detail.store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
 
                         var order_payment_query = {
@@ -233,9 +233,9 @@ exports.get_order_list = function (request_data, response_data) {
                         };
                         var array_to_json_order_query = {$unwind: "$order_detail"};
                         var array_to_json2 = {$unwind: "$cart_detail"};
-                        var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                         var condition1 = {"$match": {'request_status': {$eq: ORDER_STATE.NO_DELIVERY_MAN_FOUND}}};
-                        var store_id_condition = {"$match": {'order_detail.store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_id_condition = {"$match": {'order_detail.store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                         Request.aggregate([order_query,  array_to_json_order_query, store_id_condition, condition1, user_query, array_to_json1]).then((no_deliveryman_orders) => {
                             var condition1 = {"$match": {'order_status': {$eq: ORDER_STATE.WAITING_FOR_ACCEPT_STORE}}};
                             Order.aggregate([condition, condition1, cart_query, array_to_json2, user_query, array_to_json1]).then((new_order_list) => {
@@ -368,7 +368,7 @@ exports.store_notify_new_order = function (request_data, response_data) {
                             };
                             var array_to_json2 = {$unwind: "$cart_detail"};
 
-                            var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                            var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                             var condition2 = {"$match": {'store_notify': {$eq: 0}}};
                             var condition1 = {"$match": {'order_status': {$eq: ORDER_STATE.NO_DELIVERY_MAN_FOUND}}};
 
@@ -508,7 +508,7 @@ exports.delivery_list_search_sort = function (request_data, response_data) {
                         var order_condition = {$match: {'order_detail.order_status_id': {$eq: ORDER_STATUS_ID.RUNNING}}};
 
 
-                        var store_id_condition = {"$match": {'order_detail.store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_id_condition = {"$match": {'order_detail.store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
                         var order_payment_query = {
                             $lookup:
@@ -876,7 +876,7 @@ exports.history = function (request_data, response_data) {
                             skip["$skip"] = (page * number_of_rec) - number_of_rec;
                             var limit = {};
                             limit["$limit"] = number_of_rec;
-                            var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                            var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                             var condition1 = {"$match": {$and:[{'order_status_id': {$ne: ORDER_STATUS_ID.RUNNING}}, {'order_status_id': {$ne: ORDER_STATUS_ID.IDEAL}}]}};
 
                             var order_status_id_condition = {$match:{}}
@@ -1080,7 +1080,7 @@ exports.order_list_search_sort = function (request_data, response_data) {
                             skip["$skip"] = (page * number_of_rec) - number_of_rec;
                             var limit = {};
                             limit["$limit"] = number_of_rec;
-                            var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                            var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                             var order_status_condition = {$match: {$and: [ {$or: [ {'order_status_id': {$eq: ORDER_STATUS_ID.RUNNING}} , {'order_status_id': {$eq: ORDER_STATUS_ID.IDEAL}} ]} ,{$or: [{'order_status_manage_id': {$ne: ORDER_STATUS_ID.COMPLETED}}, {'request_id': {$eq: null}}]} ]}};
 
 
@@ -1171,8 +1171,8 @@ exports.get_order_data = function (request_data, response_data) {
                     } else
                     {
 
-                        var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
-                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                        var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
                         var user_query = {
                             $lookup:
                                     {
@@ -1421,7 +1421,7 @@ exports.export_excel_history = function (request_data, response_data) {
                         var filter = {"$match": {"completed_at": {$gte: start_date, $lt: end_date}}};
                         var sort = {"$sort": {}};
                         sort["$sort"]['unique_id'] = parseInt(-1);
-                        var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                         var condition1 = {"$match": {'order_status_id': {$ne: ORDER_STATUS_ID.RUNNING}}};
 
                         Order.aggregate([condition, condition1, user_query, order_payment_query, provider_query, review_query, array_to_json_user_detail, array_to_json_order_payment_query, payment_gateway_query, sort, search, filter]).then((orders) => {

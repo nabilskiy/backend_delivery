@@ -229,7 +229,6 @@ exports.store_list_search_sort = function (request_data, response_data) {
             stores_array.push(x);
             if (i + 1 == store_ids.length) {
                 var condition1 = { $match: { '_id': { $in: stores_array } } };
-                console.log(stores_array);
                 Store.aggregate([condition1, city_query, array_to_json_city_query, delivery_query, array_to_json_delivery_query
                     , search
                     , count

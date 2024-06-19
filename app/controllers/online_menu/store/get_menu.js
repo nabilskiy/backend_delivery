@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
     }
 
     const server_time = new Date();
-    const condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(store_id)}}};
+    const condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(store_id)}}};
     const condition1 = {"$match": {'is_visible_in_store': {$eq: true}}};
 
     try {

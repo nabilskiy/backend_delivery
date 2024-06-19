@@ -83,7 +83,7 @@ exports.store_promo_code_list = function (request_data, response_data) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else
                     {
-                        var store_promo_condition = {"$match": {'created_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_promo_condition = {"$match": {'created_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                         Promo_code.aggregate([store_promo_condition]).then((promo_codes) => {
 
                             if (promo_codes.length == 0) {
@@ -289,7 +289,7 @@ exports.search_sort_promo_code_list = function (request_data, response_data) {
                         limit["$limit"] = number_of_rec;
 
 
-                        var store_promo_condition = {"$match": {'created_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_promo_condition = {"$match": {'created_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                         Promo_code.aggregate([store_promo_condition
                                     , search, count
                         ]).then((promo_codes) => {

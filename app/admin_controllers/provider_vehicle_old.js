@@ -15,7 +15,7 @@ exports.provider_vehicle_list = function (request_data, response_data) {
 
     Provider.findOne({ _id: request_data_body.provider_id }).then(provider => {
         if (provider) {
-            var provider_id_condition = { "$match": { 'provider_id': { $eq: mongoose.Types.ObjectId(request_data_body.provider_id) } } };
+            var provider_id_condition = { "$match": { 'provider_id': { $eq: new mongoose.Types.ObjectId(request_data_body.provider_id) } } };
             var provider_vehicle_array_condition = { "$match": { '_id': { $in: provider.vehicle_ids } } };
             var vehicle_query = {
                 $lookup:
@@ -134,13 +134,13 @@ exports.get_provider_vehicle_document_list = function (request_data, response_da
                 }
             };
 
-            var user_condition = { "$match": { 'user_id': { $eq: mongoose.Types.ObjectId(request_data_body.id) } } };
+            var user_condition = { "$match": { 'user_id': { $eq: new mongoose.Types.ObjectId(request_data_body.id) } } };
             var document_type_condition = { "$match": { 'document_for': { $eq: type } } };
 
             var user_type_id_condition = { "$match": { 'user_type_id': { $eq: null } } };
 
             if (request_data_body.user_type_id != undefined) {
-                user_type_id_condition = { "$match": { 'user_type_id': { $eq: mongoose.Types.ObjectId(request_data_body.user_type_id) } } };
+                user_type_id_condition = { "$match": { 'user_type_id': { $eq: new mongoose.Types.ObjectId(request_data_body.user_type_id) } } };
             }
             var array_to_json_document_query = { $unwind: "$document_details" };
 
@@ -174,7 +174,7 @@ exports.get_provider_vehicle_detail = function (request_data, response_data) {
     var request_data_body = request_data.body;
     console.log(request_data_body);
 
-    var vehicle_id_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.provider_vehicle_id) } } };
+    var vehicle_id_condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.provider_vehicle_id) } } };
 
     var vehicle_query = {
         $lookup:

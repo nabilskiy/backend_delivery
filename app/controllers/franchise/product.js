@@ -99,14 +99,14 @@ exports.get_product_list = function (request_data, response_data) {
                 };
 
 
-                var condition = {"$match": {'franchise_id': {$eq: mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
+                var condition = {"$match": {'franchise_id': {$eq: new mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
                
                 FranchiseProduct.aggregate([condition, product_array]).then(products => {
                     if (error || products.length == 0) {
                         response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
                     } else {
 
-                        /*var store_condition = {$match: {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        /*var store_condition = {$match: {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
                         Item.aggregate([store_condition, {$project: {a: '$name', b: '$product_id'}}, {$unwind: '$a', $unwind: '$b'},
                             {$group: {_id: 'a', item_name: {$addToSet: {item_name: '$a', product_id: '$b'}}}}]).then(item_array => {
@@ -158,7 +158,7 @@ exports.get_product_data = function (request_data, response_data) {
                         response_data.json({success: false, error_code: PRODUCT_ERROR_CODE.PRODUCT_DATA_NOT_FOUND});
                     } else {
 
-                        var store_condition = {$match: {'franchise_id': {$eq: mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
+                        var store_condition = {$match: {'franchise_id': {$eq: new mongoose.Types.ObjectId(request_data_body.franchise_id)}}};
                         var product_condition = {$match: {'_id': {$ne: mongoose.Types.ObjectId(request_data_body.product_id)}}};
                         FranchiseProduct.aggregate([store_condition, product_condition, {$project: {a: '$name'}}, {$unwind: '$a'},
                             {$group: {_id: 'a', product_name: {$addToSet: '$a'}}}], function (err, product_array) {
@@ -254,7 +254,7 @@ exports.get_product_store_data = function (request_data, response_data) {
                 };
                 var array_to_json_store_array = {$unwind: "$store_list"};
 
-                var condition = {"$match": {'franchise_product_id': {$eq: mongoose.Types.ObjectId(request_data_body.product_id)}}};
+                var condition = {"$match": {'franchise_product_id': {$eq: new mongoose.Types.ObjectId(request_data_body.product_id)}}};
                
                 Product.aggregate([condition, store_array, array_to_json_store_array]).then(products => {
                     

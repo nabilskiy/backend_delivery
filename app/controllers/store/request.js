@@ -2356,7 +2356,7 @@ exports.get_vehicle_list = function (request_data, response_data) {
                         if (detail && detail.city_id) {
                             condition = { $match: { 'city_id': { $eq: detail.city_id } } };
                         } else {
-                            condition = { $match: { 'city_id': { $eq: Schema(request_data_body.city_id) } } };
+                            condition = { $match: { 'city_id': { $eq: new Schema(request_data_body.city_id) } } };
                         }
 
                         var condition1 = { $match: { 'is_business': { $eq: true } } };
@@ -2442,7 +2442,7 @@ exports.get_vehicles_list = function (request_data, response_data) {
                     if (store) {
                         condition = { $match: { 'city_id': { $eq: store.city_id } } };
                     } else {
-                        condition = { $match: { 'city_id': { $eq: Schema(request_data_body.city_id) } } };
+                        condition = { $match: { 'city_id': { $eq: new Schema(request_data_body.city_id) } } };
                     }
 
                     var delivery_type = DELIVERY_TYPE.STORE;

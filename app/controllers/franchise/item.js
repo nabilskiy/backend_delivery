@@ -151,7 +151,7 @@ exports.get_for_store_product_item_list = function (request_data, response_data)
                                 }
 
                             };
-                            var condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                            var condition = { "$match": { 'store_id': { $eq: new mongoose.Types.ObjectId(request_data_body.store_id) } } };
 
                             Product.aggregate([condition, items_array]).then(products => {
                                 if (error || products.length == 0) {
@@ -213,7 +213,7 @@ exports.get_store_product_item_list = function (request_data, response_data) {
 
                         };
 
-                        var condition = { "$match": { 'franchise_id': { $eq: mongoose.Types.ObjectId(request_data_body.franchise_id) } } };
+                        var condition = { "$match": { 'franchise_id': { $eq: new mongoose.Types.ObjectId(request_data_body.franchise_id) } } };
 
                         FranchiseProduct.aggregate([condition, items_array]).then(products => {
                             if (error || products.length == 0) {
@@ -263,7 +263,7 @@ exports.get_item_list = function (request_data, response_data) {
                             }
                         };
                         var array_to_json = { $unwind: "$products_detail" };
-                        var condition = { "$match": { 'franchise_id': { $eq: mongoose.Types.ObjectId(franchise_id) } } };
+                        var condition = { "$match": { 'franchise_id': { $eq: new mongoose.Types.ObjectId(franchise_id) } } };
                         FranchiseItem.aggregate([condition, products_array, array_to_json]).then(items => {
                             if (error || items.length == 0) {
                                 response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
@@ -309,13 +309,13 @@ exports.get_item_data = function (request_data, response_data) {
                                 as: "specifications_detail"
                             }
                         };
-                        var condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(product_id) } } };
+                        var condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(product_id) } } };
                         FranchiseProduct.aggregate([condition, specification_array]).then(product => {
                             if (error || product.length == 0) {
                                 response_data.json({ success: false, error_code: ITEM_ERROR_CODE.ITEM_NOT_FOUND });
                             } else {
-                                var franchise_condition = { $match: { 'franchise_id': { $eq: mongoose.Types.ObjectId(request_data_body.franchise_id) } } };
-                                var product_condition = { $match: { 'product_id': { $eq: mongoose.Types.ObjectId(product_id) } } };
+                                var franchise_condition = { $match: { 'franchise_id': { $eq: new mongoose.Types.ObjectId(request_data_body.franchise_id) } } };
+                                var product_condition = { $match: { 'product_id': { $eq: new mongoose.Types.ObjectId(product_id) } } };
                                 var item_condition = { $match: { '_id': { $ne: mongoose.Types.ObjectId(item_id) } } };
 
                                 FranchiseItem.aggregate([franchise_condition, product_condition, item_condition, { $project: { a: '$name' } }, { $unwind: '$a' },

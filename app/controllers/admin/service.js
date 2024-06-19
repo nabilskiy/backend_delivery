@@ -34,7 +34,7 @@ exports.get_service_list = function (request_data, response_data) {
                         };
                         var array_to_json = {$unwind: "$vehicle_details"};
 
-                        var cityid_condition = {$match: {'city_id': {$eq: mongoose.Types.ObjectId(request_data_body.city_id)}}};
+                        var cityid_condition = {$match: {'city_id': {$eq: new mongoose.Types.ObjectId(request_data_body.city_id)}}};
                         Service.aggregate([cityid_condition, city_type_to_type_query, array_to_json]).then((service) => {
 
                             if (service.length != 0) {

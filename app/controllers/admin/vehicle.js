@@ -25,7 +25,7 @@ exports.get_vehicle_list = function (request_data, response_data) {
             };
             var unwind = {$unwind: "$vehicle_detail"};
             var mongoose = require('mongoose');
-            var condition = {$match: {'city_id': {$eq: mongoose.Types.ObjectId(request_data.body.city_id)}}};
+            var condition = {$match: {'city_id': {$eq: new mongoose.Types.ObjectId(request_data.body.city_id)}}};
             var type_query = {$match: {}}
             if(request_data.body.type_id){
                 type_query = {$match: {type_id: mongoose.Types.ObjectId(request_data.body.type_id)}};
@@ -89,7 +89,7 @@ exports.get_city_lists = function (request_data, response_data) {
                     };
                     var unwind = {$unwind: "$city_detail"};
                     var mongoose = require('mongoose');
-                    var condition = {$match: {'country_id': {$eq: mongoose.Types.ObjectId(request_data.body.country_id)}}};
+                    var condition = {$match: {'country_id': {$eq: new mongoose.Types.ObjectId(request_data.body.country_id)}}};
                     Service.aggregate([condition, lookup, unwind]).then((services) => {
 
                         City.find({country_id: request_data_body.country_id}).then((city) => {

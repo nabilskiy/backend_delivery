@@ -779,7 +779,7 @@ exports.get_order_data = function (request_data, response_data) {
                     stores_array.push(x);
                     if (i + 1 == franchise_detail.store_ids.length) {
                         var store_condition = { "$match": { 'store_id': { $in: stores_array } } };
-                        var order_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.order_id) } } };
+                        var order_condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.order_id) } } };
 
 
                         var user_query = {

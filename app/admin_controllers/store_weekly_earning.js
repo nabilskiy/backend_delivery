@@ -264,7 +264,7 @@ exports.weekly_statement_for_store = function (request_data, response_data) {
 
                                                 Store_analytic_weekly.findOne({store_id: store_weekly_earning.store_id, start_date_tag: store_weekly_earning.start_date_tag, end_date_tag: store_weekly_earning.end_date_tag}).then((store_analytic_weekly) => {
 
-                                                    var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(store_weekly_earning.store_id)}}};
+                                                    var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(store_weekly_earning.store_id)}}};
                                                     var filter = {"$match": {"delivered_at": {$gte: store_weekly_earning.start_date, $lt: store_weekly_earning.end_date}}};
                                                     var total_condition = {
                                                         $group: {

@@ -1015,7 +1015,7 @@ exports.get_requests = function (request_data, response_data) {
                     } else
                     {
 
-                        var provider_condition = { $match: {$or: [ {'current_provider': {$eq: Schema(request_data_body.provider_id) }} , {'provider_id': {$eq: Schema(request_data_body.provider_id) }} ] } };
+                        var provider_condition = { $match: {$or: [ {'current_provider': {$eq: new Schema(request_data_body.provider_id) }} , {'provider_id': {$eq: new Schema(request_data_body.provider_id) }} ] } };
                         var delivery_status_condition = {"$match": {'delivery_status': {$eq: ORDER_STATE.WAITING_FOR_DELIVERY_MAN}}};
                         var delivery_status_manage_id_condition = {"$match": {'delivery_status_manage_id': {$eq: ORDER_STATUS_ID.RUNNING}}};
 
@@ -1762,8 +1762,8 @@ exports.request_history_detail = function (request_data, response_data) {
                                                                     }
                                                             };
                                                             var array_to_json_order_payment = {$unwind: "$order_payment_detail"};
-                                                            var provider_condition = {"$match": {'provider_id': {$eq: mongoose.Types.ObjectId(request_data_body.provider_id)}}};
-                                                            var request_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.request_id)}}};
+                                                            var provider_condition = {"$match": {'provider_id': {$eq: new mongoose.Types.ObjectId(request_data_body.provider_id)}}};
+                                                            var request_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.request_id)}}};
                                                             var delivery_status_condition = {"$match": {'delivery_status': {$eq: ORDER_STATE.ORDER_COMPLETED}}};
                                                             var delivery_status_manage_id_condition = {"$match": {'delivery_status_manage_id': {$eq: ORDER_STATUS_ID.COMPLETED}}};
 
@@ -1900,7 +1900,7 @@ exports.request_history = function (request_data, response_data) {
                         end_date = end_date.setHours(23, 59, 59, 999);
                         end_date = new Date(end_date);
 
-                        var provider_condition = {"$match": {'provider_id': {$eq: mongoose.Types.ObjectId(request_data_body.provider_id)}}};
+                        var provider_condition = {"$match": {'provider_id': {$eq: new mongoose.Types.ObjectId(request_data_body.provider_id)}}};
 
                         var delivery_status_condition = {"$match": {$or: [{delivery_status: ORDER_STATE.ORDER_COMPLETED}, {delivery_status: ORDER_STATE.STORE_CANCELLED}, {delivery_status: ORDER_STATE.DELIVERY_MAN_CANCELLED}]}};
                         var delivery_status_manage_id_condition = {"$match": {$or: [{delivery_status_manage_id: ORDER_STATUS_ID.COMPLETED}, {delivery_status_manage_id: ORDER_STATUS_ID.CANCELLED}]}};
@@ -2278,7 +2278,7 @@ exports.get_request_count = function (request_data, response_data) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else
                     {
-                        Request.aggregate([{$match: {$or: [{'current_provider': {$eq: Schema(request_data_body.provider_id) }}, {'provider_id': {$eq: Schema(request_data_body.provider_id) }}]}},
+                        Request.aggregate([{$match: {$or: [{'current_provider': {$eq: new Schema(request_data_body.provider_id) }}, {'provider_id': {$eq: new Schema(request_data_body.provider_id) }}]}},
 
                             {"$unwind": "$orders"},
                             {

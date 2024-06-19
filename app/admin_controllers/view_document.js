@@ -49,14 +49,14 @@ exports.view_document_list = function (request_data, response_data) {
                                 }
                     };
 
-                    var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.id)}}};
+                    var user_condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.id)}}};
                     var document_type_condition = {"$match": {'document_for': {$eq: type}}};
 
                     var user_type_id_condition = {"$match": {'user_type_id': {$eq: null}}};
 
                     if (request_data_body.user_type_id != undefined)
                     {
-                        user_type_id_condition = {"$match": {'user_type_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_type_id)}}};
+                        user_type_id_condition = {"$match": {'user_type_id': {$eq: new mongoose.Types.ObjectId(request_data_body.user_type_id)}}};
                     }
                     var array_to_json_document_query = {$unwind: "$document_details"};
 

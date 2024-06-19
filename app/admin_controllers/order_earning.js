@@ -337,7 +337,7 @@ exports.get_order_earning_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+            var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
             var user_query = {
                 $lookup:
                     {

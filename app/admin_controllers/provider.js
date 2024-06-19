@@ -178,7 +178,7 @@ exports.provider_list_search_sort = function (request_data, response_data) {
             var type_id_condition = { $match: {} }
             console.log(request_data_body)
             if (request_data_body.store_id) {
-                type_id_condition = { $match: { provider_type_id: { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } }
+                type_id_condition = { $match: { provider_type_id: { $eq: new mongoose.Types.ObjectId(request_data_body.store_id) } } }
             }
             console.log(skip)
 
@@ -290,12 +290,12 @@ exports.get_provider_detail = function (request_data, response_data) {
                 }
             };
 
-            var condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.provider_id) } } };
+            var condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.provider_id) } } };
             Provider.aggregate([condition, country_query, city_query, referred_query, array_to_json, array_to_json1, vehicle_query]).then((provider) => {
 
                 if (provider.length != 0) {
 
-                    var provider_condition = { "$match": { 'current_provider': { $eq: mongoose.Types.ObjectId(request_data_body.provider_id) } } };
+                    var provider_condition = { "$match": { 'current_provider': { $eq: new mongoose.Types.ObjectId(request_data_body.provider_id) } } };
                     var group = {
                         $group: {
                             _id: null,

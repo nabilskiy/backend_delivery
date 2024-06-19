@@ -280,7 +280,7 @@ exports.get_service_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var service_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.service_id) } } };
+            var service_condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.service_id) } } };
             var country_query = {
                 $lookup:
                 {

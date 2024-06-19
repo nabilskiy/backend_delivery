@@ -1102,7 +1102,7 @@ exports.user_update = function (request_data, response_data) {
 
                                             User.findOneAndUpdate(
                                                 // user_update_query
-                                                {_id: mongoose.Types.ObjectId(user_id)},
+                                                {_id: new mongoose.Types.ObjectId(user_id)},
                                                 request_data_body, {new : true}
                                                 ).then((user_data) => {
 
@@ -1406,7 +1406,6 @@ exports.logout = function (request_data, response_data) {
 
 // GET DELIVERY LIST OF CITY, pass CITY NAME - LAT LONG
 exports.get_delivery_list_for_nearest_city = function (request_data, response_data) {
-    console.log('get_delivery_list_for_nearest_city')
     utils.check_request_params(request_data.body, [
         {name: 'country', type: 'string'},
         {name: 'latitude'},{name: 'longitude'}
@@ -1419,7 +1418,6 @@ exports.get_delivery_list_for_nearest_city = function (request_data, response_da
             var server_time = new Date();
             var country_code = request_data_body.country_code;
             var country_code_2 = request_data_body.country_code_2;
-
             Country.findOne({$and: [{$or: [{country_name: country}, {country_code: country_code}, {country_code_2: country_code_2}]}, {is_business: true}]}).then((country_data) => {
 
                 if (!country_data){
@@ -1493,7 +1491,7 @@ exports.get_delivery_list_for_nearest_city = function (request_data, response_da
                                                         Delivery.find({
                                                             '_id': {$in: city[0].deliveries_in_city},
                                                             is_business: true
-                                                        }, function(error, delivery){
+                                                        }).then(delivery => {
                                                             if (delivery.length == 0) {
                                                                 console.log(" sdvbjhasbdvjgbsd")
 
@@ -1510,7 +1508,7 @@ exports.get_delivery_list_for_nearest_city = function (request_data, response_da
                                                                         {is_ads_visible: {$eq: true}},
                                                                         {$or: [
                                                                             {city_id: {$eq: city[0]._id}},
-                                                                            {city_id: {$eq: mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}}
+                                                                            {city_id: {$eq: new ObjectId(ID_FOR_ALL.ALL_ID)}}
                                                                         ]}
                                                                     ]}
                                                                 }
@@ -1531,7 +1529,7 @@ exports.get_delivery_list_for_nearest_city = function (request_data, response_da
 
                                                                 var store_condition = {$match: {$or: [{'is_ads_redirect_to_store': {$eq: false}}, {$and: [{'is_ads_redirect_to_store': {$eq: true}}, {'store_detail.is_approved': {$eq: true}}, {'store_detail.is_business': {$eq: true}} ]} ]}}
 
-                                                                Advertise.aggregate([condition, store_query, array_to_json_store_detail, store_condition], function(error, advertise){
+                                                                Advertise.aggregate([condition, store_query, array_to_json_store_detail, store_condition]).then(advertise => {
                                                                     if (city[0] && city[0].is_ads_visible && country_data && country_data.is_ads_visible) {
                                                                         ads = advertise;
                                                                     }
@@ -1580,7 +1578,7 @@ exports.get_delivery_list_for_nearest_city = function (request_data, response_da
                                                                 //     });
                                                                 // });
                                                             }
-                                                        }).sort({sequence_number: 1});
+                                                        });//.sort({sequence_number: 1});
                                                     } else {
                                                         response_data.json({
                                                             success: true,
@@ -1658,7 +1656,7 @@ exports.get_store_list = function (request_data, response_data) {
             var store_delivery_id = request_data_body.store_delivery_id;
             var ads = [];
             Advertise.find({
-                $or: [{city_id: request_data_body.city_id}, {city_id: mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
+                $or: [{city_id: request_data_body.city_id}, {city_id: new mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
                 ads_for: ADS_TYPE.STORE_LIST,
                 is_ads_visible: true
             }).then((advertise) => {
@@ -1694,8 +1692,8 @@ exports.get_store_list = function (request_data, response_data) {
                                             {"is_approved": {"$eq": true}},
                                             {"is_business": {"$eq": true}},
                                             {"is_visible": {"$eq": true}},
-                                            {"city_id": {$eq: Schema(city_id)}},
-                                            {"store_delivery_id": {$eq: Schema(store_delivery_id)}}
+                                            {"city_id": {$eq: new Schema(city_id)}},
+                                            {"store_delivery_id": {$eq: new Schema(store_delivery_id)}}
                                         ]
                                     }
                                 },
@@ -1804,7 +1802,7 @@ exports.user_get_store_product_item_list = function (request_data, response_data
             var request_data_body = request_data.body;
             var store_id = request_data_body.store_id;
             var server_time = new Date();
-            var condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(store_id)}}};
+            var condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(store_id)}}};
             var condition1 = {"$match": {'is_visible_in_store': {$eq: true}}};
 
             Store.findOne({_id: store_id}).then((store) => {
@@ -1946,7 +1944,7 @@ exports.user_get_store_product_item_list = function (request_data, response_data
 
 
                                             Advertise.find({
-                                                $or: [{city_id: store.city_id}, {city_id: mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
+                                                $or: [{city_id: store.city_id}, {city_id: new mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
                                                 ads_for: ADS_TYPE.FOR_INSIDE_STORE,
                                                 is_ads_visible: true
                                             }).then((advertise) => {
@@ -2112,7 +2110,7 @@ exports.get_store_list_nearest_city = function (request_data, response_data) {
 
                                                             Advertise.find({
                                                                 country_id: country_id,
-                                                                $or: [{city_id: city[0]._id}, {city_id: mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
+                                                                $or: [{city_id: city[0]._id}, {city_id: new mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
                                                                 ads_for: ADS_TYPE.STORE_LIST,
                                                                 is_ads_visible: true
                                                             }).then((advertise) => {
@@ -2217,8 +2215,8 @@ exports.store_list_for_item = function (request_data, response_data) {
 
                             {
                                 $match: {
-                                    $and: [{"store_detail.city_id": {$eq: Schema(city_id)}},
-                                        {"store_detail.store_delivery_id": {$eq: Schema(store_delivery_id)}}]
+                                    $and: [{"store_detail.city_id": {$eq: new Schema(city_id)}},
+                                        {"store_detail.store_delivery_id": {$eq: new Schema(store_delivery_id)}}]
                                 }
                             },
 
@@ -5068,8 +5066,8 @@ exports.order_history_detail = function (request_data, response_data) {
                                                         var array_to_json_cart_query = {$unwind: "$cart_detail"};
 
 
-                                                        var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
-                                                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                                                        var user_condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.user_id)}}};
+                                                        var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
 
                                                         var order_status_condition = {
                                                             $match: {
@@ -5797,7 +5795,7 @@ exports.get_order_detail = function (request_data, response_data) {
                     if (request_data_body.server_token !== null && user_detail.server_token !== request_data_body.server_token) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else {
-                        var order_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+                        var order_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
 
 
                         var store_query = {
@@ -6018,7 +6016,7 @@ exports.user_get_store_review_list = function (request_data, response_data) {
                     var store_review_list = [];
                     var remaining_review_list = [];
 
-                    var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                    var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
                     var review_condition = {"$match": {'user_rating_to_store': {$gt: 0}}};
                     Review.aggregate([store_condition, review_condition,
                         {

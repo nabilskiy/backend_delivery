@@ -1133,13 +1133,13 @@ exports.get_store_data = function (request_data, response_data) {
                             }
                         };
                         var array_to_json2 = { $unwind: "$delivery_details" };
-                        var condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                        var condition = { "$match": { '_id': { $eq: new ObjectId(request_data_body.store_id) } } };
 
                         Store.aggregate([condition, country_query, city_query, delivery_query, array_to_json, array_to_json1, array_to_json2]).then((store_detail) => {
 
                             if (store_detail.length != 0) {
 
-                                var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                var store_condition = { "$match": { 'store_id': { $eq: new ObjectId(request_data_body.store_id) } } };
                                 var group = {
                                     $group: {
                                         _id: null,
@@ -1319,7 +1319,7 @@ exports.order_history = function (request_data, response_data) {
                                 end_date = new Date(end_date);
 
 
-                                var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                var store_condition = { "$match": { 'store_id': { $eq: new ObjectId(request_data_body.store_id) } } };
                                 var order_status_condition = {
                                     "$match": {
                                         $or: [{
@@ -1532,8 +1532,8 @@ exports.order_history_detail = function (request_data, response_data) {
                                                         var array_to_json_cart_query = { $unwind: "$cart_detail" };
 
 
-                                                        var store_condition = { "$match": { 'store_id': { $eq: mongoose.Types.ObjectId(request_data_body.store_id) } } };
-                                                        var order_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.order_id) } } };
+                                                        var store_condition = { "$match": { 'store_id': { $eq: new mongoose.Types.ObjectId(request_data_body.store_id) } } };
+                                                        var order_condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.order_id) } } };
                                                         //var order_status_condition = {"$match": {'order_status': {$eq: ORDER_STATE.ORDER_COMPLETED}}};
                                                         //var order_status_id_condition = {"$match": {'order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}};
 
@@ -2262,7 +2262,7 @@ exports.get_order_detail = function (request_data, response_data) {
                         response_data.json({ success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN });
                     } else {
 
-                        var order_condition = { "$match": { '_id': { $eq: mongoose.Types.ObjectId(request_data_body.order_id) } } };
+                        var order_condition = { "$match": { '_id': { $eq: new mongoose.Types.ObjectId(request_data_body.order_id) } } };
                         var user_query = {
                             $lookup:
                             {

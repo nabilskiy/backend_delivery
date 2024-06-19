@@ -63,7 +63,7 @@ exports.get_document_list = function (request_data, response_data) {
 
                         var document_visible_condition = {"$match": {'document_details.is_show': true}};
 
-                        var condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.id)}}};
+                        var condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.id)}}};
                         var type_condition = {"$match": {'document_for': {$eq: Number(request_data_body.type)}}};
                         Document_uploaded_list.aggregate([document_query, array_to_json_document_query,type_condition,condition, document_visible_condition]).then((documents) => {
                             if (documents.length == 0) {
@@ -202,13 +202,13 @@ exports.upload_document = function (request_data, response_data) {
 
                             var array_to_json_document_query = {$unwind: "$document_details"};
 
-                            var condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.id)}}};
+                            var condition = {"$match": {'user_id': {$eq: new mongoose.Types.ObjectId(request_data_body.id)}}};
 
                             var vehicle_document_condition = {"$match": {'user_type_id': {$eq: null}}};
 
                              if(request_data_body.user_type_id != undefined)
                              {
-                              vehicle_document_condition = {"$match": {'user_type_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_type_id)}}};
+                              vehicle_document_condition = {"$match": {'user_type_id': {$eq: new mongoose.Types.ObjectId(request_data_body.user_type_id)}}};
 
                              }
                             var image_condition = {"$match": {'image_url': {$eq: ""}}};

@@ -93,11 +93,11 @@ exports.get_specification_group = function (request_data, response_data) {
                                     }
                         };
 
-                        var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
 
                         var condition = {"$match": {}};
                         if(request_data_body.specification_group_id){
-                            condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.specification_group_id)}}};
+                            condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.specification_group_id)}}};
                         }
                         Specification_group.aggregate([store_condition, condition, specifications_array]).then((specification_group) => {
                             if (specification_group.length == 0) {
@@ -219,8 +219,8 @@ exports.get_specification_lists = function (request_data, response_data) {
                                     }
                         };
 
-                        var store_condition = {"$match": {'store_id': {$eq: mongoose.Types.ObjectId(request_data_body.store_id)}}};
-                        var specification_group_condition = {"$match": {'_id': {$eq: mongoose.Types.ObjectId(request_data_body.specification_group_id)}}};
+                        var store_condition = {"$match": {'store_id': {$eq: new mongoose.Types.ObjectId(request_data_body.store_id)}}};
+                        var specification_group_condition = {"$match": {'_id': {$eq: new mongoose.Types.ObjectId(request_data_body.specification_group_id)}}};
 
                         Specification_group.aggregate([store_condition, specification_group_condition, specifications_array]).then((specification_group) => {
                             if (specification_group.length == 0) {

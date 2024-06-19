@@ -819,7 +819,7 @@ exports.change_delivery_address = function (request_data, response_data) {
             var mongoose = require('mongoose');
             var Schema = mongoose.Types.ObjectId;
 
-            var cartid_condition = {$match: {'_id': {$eq: Schema(request_data_body.cart_id)}}};
+            var cartid_condition = {$match: {'_id': {$eq: new Schema(request_data_body.cart_id)}}};
             var store_lookup = {
                 $lookup: {
                     from: "stores",

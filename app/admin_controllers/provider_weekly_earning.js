@@ -278,7 +278,7 @@ exports.weekly_statement_for_provider = function (request_data, response_data) {
                                             Provider_analytic_weekly.findOne({provider_id: provider_weekly_earning.provider_id, start_date_tag: provider_weekly_earning.start_date_tag, end_date_tag: provider_weekly_earning.end_date_tag
                                             }).then((provider_analytic_weekly) => {
 
-                                                var provider_condition = {"$match": {'provider_id': {$eq: mongoose.Types.ObjectId(provider_weekly_earning.provider_id)}}};
+                                                var provider_condition = {"$match": {'provider_id': {$eq: new mongoose.Types.ObjectId(provider_weekly_earning.provider_id)}}};
                                                 var filter = {"$match": {"delivered_at": {$gte: provider_weekly_earning.start_date, $lt: provider_weekly_earning.end_date}}};
                                                 var total_condition = {
                                                     $group: {

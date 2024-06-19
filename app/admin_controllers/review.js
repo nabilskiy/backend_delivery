@@ -197,7 +197,7 @@ exports.get_review_detail = function (request_data, response_data) {
         if (response.success) {
 
             var request_data_body = request_data.body;
-            var review_id_condition = {"$match": {'order_id': {$eq: mongoose.Types.ObjectId(request_data_body.order_id)}}};
+            var review_id_condition = {"$match": {'order_id': {$eq: new mongoose.Types.ObjectId(request_data_body.order_id)}}};
             var user_query = {
                 $lookup:
                         {
