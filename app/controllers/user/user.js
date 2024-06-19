@@ -30,6 +30,7 @@ var console = require('../../utils/console');
 
 var LiqPay = require('./liqpay');
 
+const {Types:{ObjectId}} = require('mongoose');
 
 var request = require("request");
 var crypto  = require('crypto');
@@ -2349,7 +2350,7 @@ exports.get_orders = function (request_data, response_data) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else {
 
-                        var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
+                        var user_condition = {"$match": {'user_id': {$eq: new ObjectId(request_data_body.user_id)}}};
                         var order_invoice_condition = {"$match": {'is_user_show_invoice': false}};
 
                         var order_status_condition = {
