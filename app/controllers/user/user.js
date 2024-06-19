@@ -5226,7 +5226,7 @@ exports.order_history = function (request_data, response_data) {
                         end_date = new Date(end_date);
 
 
-                        var user_condition = {"$match": {'user_id': {$eq: mongoose.Types.ObjectId(request_data_body.user_id)}}};
+                        var user_condition = {"$match": {'user_id': {$eq: new ObjectId(request_data_body.user_id)}}};
                         var order_status_condition = {
                             "$match": {
                                 $or: [{
