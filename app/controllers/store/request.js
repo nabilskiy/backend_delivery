@@ -1508,13 +1508,9 @@ exports.complete_request = function (request_data, response_data) {
                                         var user_device_type = user.device_type;
                                         var user_device_token = user.device_token;
 
-                                        console.log('REQUEST ORDER ID -=================================>')
-                                        console.log(request._id);
-                                        console.log(request.orders);
-                                        console.log(request.orders[0].order_id);
+                                       
                                         Order.findOne({ _id: request.orders[0].order_id }).then((order_detail) => {
-                                            console.log('====================== order_details')
-                                            console.log(order_detail)
+                                        
                                             // order_status_id: ORDER_STATUS_ID.RUNNING
 
                                             if (order_detail) {
@@ -1761,7 +1757,7 @@ exports.complete_request = function (request_data, response_data) {
                                                     });
                                                 });
                                             } else {
-                                                console.log('================= ERROR CASE 2')
+                                                //console.log('================= ERROR CASE 2')
 
                                                 response_data.json({
                                                     success: false,
