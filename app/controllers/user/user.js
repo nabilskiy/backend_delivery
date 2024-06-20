@@ -1681,7 +1681,7 @@ exports.get_store_list = function (request_data, response_data) {
                                     near: city_lat_long,
                                     distanceField: "distance",
                                     uniqueDocs: true,
-                                    limit: 100000,
+                                    $limit: 100000,
                                     maxDistance: 100000000
                                 }
                             }
