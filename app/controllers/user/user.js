@@ -1746,9 +1746,6 @@ exports.get_store_list = function (request_data, response_data) {
                                 if (stores.length == 0) {
                                     response_data.json({success: false, error_code: USER_ERROR_CODE.STORE_LIST_NOT_FOUND});
                                 } else {
-                                    stores.forEach(function(store_detail){
-                                        console.log(store_detail.name, store_detail.distance);
-                                    });
                                     response_data.json({
                                         success: true,
                                         message: USER_MESSAGE_CODE.GET_STORE_LIST_SUCCESSFULLY,
