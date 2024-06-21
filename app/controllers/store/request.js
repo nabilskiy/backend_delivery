@@ -1481,8 +1481,7 @@ exports.complete_request = function (request_data, response_data) {
         if (response.success) {
             var request_data_body = request_data.body;
             var request_id = request_data_body.request_id;
-            console.log('=====================> REQ-DATA-BODY')
-            console.log(request_data_body);
+         
 
             Provider.findOne({ _id: request_data_body.provider_id }).then((provider) => {
                 if (provider) {
@@ -1766,7 +1765,7 @@ exports.complete_request = function (request_data, response_data) {
                                             }
 
                                         }, (error) => {
-                                            console.log(error);
+                                    
                                             response_data.json({
                                                 success: false,
                                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
@@ -1774,7 +1773,7 @@ exports.complete_request = function (request_data, response_data) {
                                         });
 
                                     }, (error) => {
-                                        console.log(error);
+                             
                                         response_data.json({
                                             success: false,
                                             error_code: ERROR_CODE.SOMETHING_WENT_WRONG
@@ -1782,7 +1781,7 @@ exports.complete_request = function (request_data, response_data) {
                                     });
 
                                 } else {
-                                    console.log('================= ERROR CASE 1')
+                       
                                     response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                                 }
 

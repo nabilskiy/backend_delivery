@@ -11,11 +11,11 @@ module.exports = async () => {
         const phone = `0${store.phone}`;
         await requestToBinotel(phone, order._id);
     }
-    console.log('end of tel')
+
 }
 
 async function requestToBinotel(phone, orderId) {
-    console.log('Start-> phone: ', phone);
+   
 
     const postData = JSON.stringify({
         "voiceFileID": "225838",
@@ -52,7 +52,7 @@ async function requestToBinotel(phone, orderId) {
                 order.call_id = resData.generalCallID;
                 await order.save();
             }
-            console.log('Ok ->', body.toString());
+          
         });
 
         res.on("error", function (error) {

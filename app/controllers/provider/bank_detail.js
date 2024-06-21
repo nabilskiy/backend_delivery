@@ -1,6 +1,7 @@
 require('../../utils/message_code');
 require('../../utils/error_code');
 require('../../utils/constants');
+const { default: mongoose } = require('mongoose');
 var console = require('../../utils/console');
 
 var utils = require('../../utils/utils');
@@ -288,8 +289,7 @@ exports.get_bank_detail = function (request_data, response_data) {
                     break;
             }
 
-            Table.findOne({_id: request_data_body.bank_holder_id}).then((detail) => {
-
+            Table.findOne({_id: new mongoose.Types.ObjectId(request_data_body.bank_holder_id)}).then((detail) => {
                 if (detail) {
                     if (request_data_body.server_token !== null && detail.server_token != request_data_body.server_token)
                     {
@@ -297,7 +297,7 @@ exports.get_bank_detail = function (request_data, response_data) {
                     } else
                     {
 
-                        Bank_detail.find({bank_holder_type: bank_holder_type, bank_holder_id: request_data_body.bank_holder_id}).then((bank_detail) => {
+                        Bank_detail.find({bank_holder_type: bank_holder_type, bank_holder_id: new mongoose.Types.ObjectId(request_data_body.bank_holder_id)}).then((bank_detail) => {
                             if (bank_detail.length == 0) {
                                 response_data.json({success: false, error_code: BANK_DETAIL_ERROR_CODE.BANK_DETAIL_NOT_FOUND});
                             } else {
@@ -308,6 +308,8 @@ exports.get_bank_detail = function (request_data, response_data) {
 
                     }
 
+                } else {
+                    response_data.json({success: false, error_code: BANK_DETAIL_ERROR_CODE.BANK_DETAIL_NOT_FOUND});
                 }
             }, (error) => {
                 console.log(error);

@@ -45,7 +45,7 @@ schedule.scheduleJob('* * * * *', async () => {
 //  shell aggregate
 // db.orders.aggregate([{$match: {order_status: 7}},{$lookup: {from: "requests", localField: "request_id", foreignField: "_id", as: "requestData"}}]).pretty();
     const notAcceptedRequests = await Order.aggregate(aggregateCondition);
-    console.log(' request worker ========================================>');
+ 
 
     for (let order of notAcceptedRequests) {
     // don't reed constants -> just HARDCODE!)

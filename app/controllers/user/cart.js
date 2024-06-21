@@ -15,10 +15,11 @@ var utils = require('../../utils/utils');
 var my_cart = require('../../controllers/user/cart');
 var geolib = require('geolib');
 var console = require('../../utils/console');
+const { default: mongoose } = require('mongoose');
 
 // user add_item_in_cart
 exports.add_item_in_cart = function (request_data, response_data) {
-
+console.log('AAAAAAAAAAAAA');
     utils.check_request_params(request_data.body, [{name: 'pickup_addresses'}, {name: 'destination_addresses'}], function (response) {
         if (response.success) {
             var request_data_body = request_data.body;
@@ -92,7 +93,7 @@ exports.add_item_in_cart = function (request_data, response_data) {
 
                                 // var query = {$or: [{'email': email}, {'phone': phone}]};
                                 var query = {phone};
-
+console.log('TTTTTTTTTTTTTTTTTTT');
                                 User.findOne(query).then((user_phone_data) => {
                                     if (user_type == ADMIN_DATA_ID.STORE && request_data_body.destination_addresses.length > 0)
                                     {
@@ -115,7 +116,8 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                             } else {
                                                 first_name = "";
                                             }
-                                            var referral_code = utils.generateReferralCode(ADMIN_DATA_ID.ADMIN, country_detail.country_code, first_name, '');
+                                            // var referral_code = utils.generateReferralCode(ADMIN_DATA_ID.ADMIN, country_detail.country_code, first_name, '');
+                                            console.log('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
                                             var user_data = new User({
                                                 user_type: ADMIN_DATA_ID.STORE,
                                                 admin_type: ADMIN_DATA_ID.USER,
@@ -126,7 +128,7 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                                 phone: phone,
                                                 country_id: country_id,
                                                 server_token: server_token,
-                                                referral_code: referral_code,
+                                                //referral_code: referral_code,
                                                 wallet_currency_code: wallet_currency_code,
                                                 cart_id: cart_id
                                             });
@@ -134,11 +136,14 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                             cart_id = user_data.cart_id;
                                             cart_unique_token = null;
 
+                                       console.log('GGGGGGGGGGGGGGGGGGGGG');
                                             utils.insert_documets_for_new_users(user_data, null, ADMIN_DATA_ID.USER, country_id, function(document_response){
                                                 user_data.is_document_uploaded = document_response.is_document_uploaded;
                                                 user_data.save();
                                                 user = user_data;
                                             });
+                                           
+                                            console.log('AHAHAHA');
 
                                         }
                                     }
@@ -153,10 +158,11 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                         user_id = user._id;
                                         cart_unique_token = null;
                                     }
-
-                                    Cart.findOne({$or: [{_id: cart_id}, {cart_unique_token: cart_unique_token}]}).then((cart) => {
+console.log('KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK')
+                                    Cart.findOne({$or: [{_id: new mongoose.Types.ObjectId(cart_id)}, {cart_unique_token: cart_unique_token}]}).then((cart) => {
+                                      console.log('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
                                         if (cart && (!cart.store_id || cart.store_id.equals(store_id) || !store_id ) ) {
-
+console.log('MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM')
                                             if (request_data_body.user_id != "" && request_data_body.user_id != null)
                                             {
                                                 cart.cart_unique_token = "";
@@ -189,8 +195,9 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                                     }
                                                 }
                                             }
-
+console.log('XXXXXXXXXXXXXXXXXXXXXXXXX')
                                             total_item_tax = utils.precisionRoundTwo(Number(total_item_tax));
+                                            console.log(11111,total_item_tax);
                                             cart.total_item_tax = total_item_tax;
                                             cart.save().then(() => {
                                                 response_data.json({success: true, message: CART_MESSAGE_CODE.CART_UPDATED_SUCCESSFULLY,
@@ -244,13 +251,17 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                                 total_cart_price: total_cart_price,
                                                 total_item_tax: total_item_tax
                                             });
+console.log('JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ');
 
+
+console.log(cart);
                                             if (request_data_body.user_id != "" && request_data_body.user_id != undefined)
                                             {
                                                 cart.cart_unique_token = "";
                                             }
 
                                             cart.save().then(() => {
+                                                console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSS');
                                                 if (user)
                                                 {
                                                     user.cart_id = cart._id;
@@ -269,6 +280,8 @@ exports.add_item_in_cart = function (request_data, response_data) {
                                                     error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                 });
                                             });
+
+                                            console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD');
                                         }
                                     }, (error) => {
                                         console.log(error)

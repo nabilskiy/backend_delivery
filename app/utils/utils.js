@@ -2578,7 +2578,7 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
                 online_times: online_times,
                 active_job_times: active_job_times
             });
-            provider_analytic_daily.save(function (error) {
+            provider_analytic_daily.save().then(error =>  {
                 console.log(error)
                 if (error) {
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)

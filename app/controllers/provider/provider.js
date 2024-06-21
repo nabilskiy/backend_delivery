@@ -962,7 +962,8 @@ exports.change_status = function (request_data, response_data) {
                                 provider.total_active_job_time = +provider.total_active_job_time + +provider_time_diff_in_sec_active_job_time;
                             }
                             provider.save().then(() => {
-                                    utils.insert_daily_provider_analytics(city_timezone, provider._id, 0, is_online_time, start_time, is_active_time, start_active_time);
+                                //TODO AHMAD ACTION NEEDS
+                                    //utils.insert_daily_provider_analytics(city_timezone, provider._id, 0, is_online_time, start_time, is_active_time, start_active_time);
                                     response_data.json({success: true, message: PROVIDER_MESSAGE_CODE.STATUS_CHANGED_SUCCESSFULLY, is_online: provider.is_online,
                                         is_active_for_job: provider.is_active_for_job});
                             }, (error) => {
@@ -1130,7 +1131,7 @@ exports.get_active_requests = function (request_data, response_data) {
                         response_data.json({success: false, error_code: ERROR_CODE.INVALID_SERVER_TOKEN});
                     } else
                     {
-                        var provider_condition = {"$match": {'provider_id': Schema(request_data_body.provider_id) }};
+                        var provider_condition = {"$match": {'provider_id': new Schema(request_data_body.provider_id) }};
                         var order_condition =
                             {
                                 $match: {$or: [{$and: [{"order_detail.is_provider_show_invoice": {$eq: false}}, {'order_detail.order_status_id': {$eq: ORDER_STATUS_ID.COMPLETED}}]}, {'order_detail.order_status_id': {$eq: ORDER_STATUS_ID.RUNNING}}]}
