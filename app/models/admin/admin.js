@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-const autoIncrement =require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var admin = new schema({
     unique_id: Number,
     username: {type: String, default: ""},
@@ -31,6 +31,6 @@ admin.index({email: 1, admin_type: 1}, {background: true});
 admin.index({username: 1, password: 1}, {background: true});
 admin.index({email: 1, password: 1}, {background: true});
 
-admin.plugin(autoIncrement.plugin, {model: 'admin', field: 'unique_id', startAt: 1, incrementBy: 1});
+admin.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'admin_counter' });
 
 module.exports = mongoose.model('admin', admin);

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 var delivery_type = new schema({
     name: {type: String, default: ""},
@@ -24,5 +24,5 @@ var delivery_type = new schema({
 
 
  
-delivery_type.plugin(autoIncrement.plugin, {model: 'delivery_type', field: 'unique_id' , startAt: 1,incrementBy: 1});
+delivery_type.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'd_t_counter' });
 module.exports = mongoose.model('delivery_type', delivery_type);

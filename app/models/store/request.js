@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var request = new schema({
 
     unique_id: Number,
@@ -77,5 +77,5 @@ request.index({current_provider: 1, delivery_status: 1, delivery_status_manage_i
 request.index({provider_id: 1, delivery_status: 1, delivery_status_manage_id: 1}, {background: true});
 request.index({provider_id: 1, delivery_status: 1, delivery_status_manage_id: 1, completed_date_in_city_timezone: 1}, {background: true});
 
-request.plugin(autoIncrement.plugin, {model: 'request', field: 'unique_id', startAt: 1, incrementBy: 1});
+request.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'request_counter' });
 module.exports = mongoose.model('request', request);

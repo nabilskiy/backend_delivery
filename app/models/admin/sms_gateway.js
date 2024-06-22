@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var sms_gateway = new schema({
     unique_id: Number,
     name: {type: String, default: ""} ,
@@ -27,5 +27,5 @@ var sms_gateway = new schema({
 })
 
 
-sms_gateway.plugin(autoIncrement.plugin, {model: 'sms_gateway', field: 'unique_id', startAt: 1, incrementBy: 1});
+sms_gateway.plugin(AutoIncrement, { inc_field: 'unique_id',id: 's_g_counter' });
 module.exports = mongoose.model('sms_gateway', sms_gateway);

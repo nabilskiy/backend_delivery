@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var card = new schema({
     unique_id: Number,
     payment_method: {type: String, default: ""},
@@ -37,5 +37,5 @@ var card = new schema({
 card.index({user_id: 1, user_type: 1}, {background: true});
 card.index({user_id: 1, payment_id: 1, is_default: 1}, {background: true});
 
-card.plugin(autoIncrement.plugin, {model: 'card', field: 'unique_id', startAt: 1, incrementBy: 1});
+card.plugin(AutoIncrement, { inc_field: 'unique_id' ,id: 'card_counter'});
 module.exports = mongoose.model('card', card);

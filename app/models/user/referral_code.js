@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var referral_code = new schema({
     unique_id: Number,
     user_type: Number,
@@ -34,5 +34,5 @@ var referral_code = new schema({
 
 referral_code.index({user_id: 1}, {background: true});
 
-referral_code.plugin(autoIncrement.plugin, {model: 'referral_code', field: 'unique_id', startAt: 1, incrementBy: 1});
+referral_code.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'r_c_counter' });
 module.exports = mongoose.model('referral_code', referral_code);

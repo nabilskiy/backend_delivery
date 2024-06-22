@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var vehicle = new schema({
     unique_id: Number,
     vehicle_name: {type: String, default: ""} ,
@@ -28,5 +28,5 @@ var vehicle = new schema({
 
 vehicle.index({is_business: 1}, {background: true});
 
-vehicle.plugin(autoIncrement.plugin, {model: 'vehicle', field: 'unique_id', startAt: 1,incrementBy: 1});
+vehicle.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'vehicle_counter' });
 module.exports = mongoose.model('vehicle', vehicle);

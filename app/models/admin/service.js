@@ -1,7 +1,7 @@
 require('../../utils/constants')
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var service = new schema({
     unique_id: Number,
     country_id: {type: schema.Types.ObjectId},
@@ -47,5 +47,5 @@ var service = new schema({
 
 service.index({city_id: 1, type_id: 1}, {background: true});
 
-service.plugin(autoIncrement.plugin, {model: 'service', field: 'unique_id', startAt: 1, incrementBy: 1});
+service.plugin(AutoIncrement, { inc_field: 'unique_id' ,id: 'service_counter'});
 module.exports = mongoose.model('service', service);

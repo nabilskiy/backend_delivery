@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var promo_code = new schema({
     unique_id: Number,
     created_by: Number,
@@ -81,5 +81,5 @@ promo_code.index({country_id: 1, city_id: 1, promo_code_name: 1, created_id: 1},
 promo_code.index({is_promo_expiry_date: 1}, {background: true});
 promo_code.index({created_id: 1}, {background: true});
 
-promo_code.plugin(autoIncrement.plugin, {model: 'promo_code', field: 'unique_id', startAt: 1, incrementBy: 1});
+promo_code.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'promo_code_counter' });
 module.exports = mongoose.model('promo_code', promo_code);

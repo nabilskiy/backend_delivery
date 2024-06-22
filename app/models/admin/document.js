@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 var document = new schema({
     unique_id: Number,
@@ -33,7 +33,7 @@ document.index({country_id: 1, document_for: 1}, {background: true});
 document.index({is_show: 1}, {background: true});
 document.index({is_mandatory: 1}, {background: true});
 
-document.plugin(autoIncrement.plugin, {model: 'document', field: 'unique_id' , startAt: 1,incrementBy: 1});
+document.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'document_counter' });
 module.exports = mongoose.model('document', document);
 
 

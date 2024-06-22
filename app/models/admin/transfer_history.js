@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var transfer_history = new schema({
     unique_id: Number,
     user_type: Number,
@@ -31,5 +31,5 @@ var transfer_history = new schema({
 });
 
 
-transfer_history.plugin(autoIncrement.plugin, {model: 'transfer_history', field: 'unique_id', startAt: 1, incrementBy: 1});
+transfer_history.plugin(AutoIncrement, { inc_field: 'unique_id',id: 't_h_counter' });
 module.exports = mongoose.model('transfer_history', transfer_history);

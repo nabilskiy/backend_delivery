@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 require('../../utils/constants')
 var order_payment = new schema({
 
@@ -143,5 +143,5 @@ order_payment.index({is_payment_mode_cash: 1}, {background: true});
 order_payment.index({provider_id: 1, is_provider_income_set_in_wallet: 1, is_transfered_to_provider: 1}, {background: true});
 order_payment.index({store_id: 1, is_store_income_set_in_wallet: 1, is_transfered_to_store: 1}, {background: true});
 
-order_payment.plugin(autoIncrement.plugin, {model: 'order_payment', field: 'unique_id', startAt: 1, incrementBy: 1});
+order_payment.plugin(AutoIncrement, { inc_field: 'unique_id' ,id: 'o_p_counter'});
 module.exports = mongoose.model('order_payment', order_payment);

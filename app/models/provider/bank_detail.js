@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var bank_detail = new schema({
     unique_id: Number,
     bank_holder_type: Number,
@@ -32,5 +32,5 @@ var bank_detail = new schema({
 
 bank_detail.index({bank_holder_id: 1, bank_holder_type: 1}, {background: true});
 
-bank_detail.plugin(autoIncrement.plugin, {model: 'bank_detail', field: 'unique_id', startAt: 1, incrementBy: 1});
+bank_detail.plugin(AutoIncrement, { inc_field: 'unique_id' ,id: 'b_d_counter'});
 module.exports = mongoose.model('bank_detail', bank_detail);

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var country = new schema({
     unique_id: Number,
     currency_rate: {type: Number, default: 1},
@@ -56,5 +56,5 @@ country.index({country_name: 1, is_business: 1}, {background: true});
 country.index({country_code: 1, is_business: 1}, {background: true});
 country.index({country_code_2: 1, is_business: 1}, {background: true});
 
-country.plugin(autoIncrement.plugin, {model: 'country', field: 'unique_id', startAt: 1, incrementBy: 1});
+country.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'country_counter' });
 module.exports = mongoose.model('country', country);

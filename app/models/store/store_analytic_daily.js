@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var store_analytic_daily = new schema({
     unique_id: Number,
     store_id: {type: schema.Types.ObjectId},
@@ -40,5 +40,5 @@ var store_analytic_daily = new schema({
 
 store_analytic_daily.index({store_id: 1, date_tage: 1}, {background: true});
 
-store_analytic_daily.plugin(autoIncrement.plugin, {model: 'store_analytic_daily', field: 'unique_id', startAt: 1, incrementBy: 1});
+store_analytic_daily.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'store_analytic_daily_counter' });
 module.exports = mongoose.model('store_analytic_daily', store_analytic_daily);

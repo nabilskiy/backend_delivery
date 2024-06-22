@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var installation_setting = new schema({
     android_user_app_gcm_key: {type: String, default: ""},
     android_provider_app_gcm_key: {type: String, default: ""},
@@ -44,5 +44,5 @@ var installation_setting = new schema({
 
 
 });
-installation_setting.plugin(autoIncrement.plugin, {model: 'installation_setting', field: 'unique_id', startAt: 1, incrementBy: 1});
+installation_setting.plugin(AutoIncrement, { inc_field: 'unique_id' ,id: 'i_s_counter'});
 module.exports = mongoose.model('installation_setting', installation_setting);

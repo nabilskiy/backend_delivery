@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var advertise = new schema({
     unique_id: Number,
     created_by: Number,
@@ -48,5 +48,5 @@ advertise.index({ads_for: 1, city_id: 1}, {background: true});
 advertise.index({is_ads_visible: 1}, {background: true});
 
 
-advertise.plugin(autoIncrement.plugin, {model: 'advertise', field: 'unique_id', startAt: 1, incrementBy: 1});
+advertise.plugin(AutoIncrement, { inc_field: 'unique_id' ,id: 'advertise_counter'});
 module.exports = mongoose.model('advertise', advertise);

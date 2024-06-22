@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var schema = mongoose.Schema;
-var autoIncrement = require('mongoose-id-autoincrement');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 var zonevalue = new schema({
     city_id: { type: schema.Types.ObjectId },
     unique_id: Number,
@@ -33,5 +33,5 @@ var zonevalue = new schema({
 zonevalue.index({from_zone_id: 1, to_zone_id: 1}, {background: true});
 zonevalue.index({city_id: 1, vehicle_id: 1, delivery_type_id: 1, type_id: 1}, {background: true});
 
-zonevalue.plugin(autoIncrement.plugin, {model: 'zonevalue', field: 'unique_id', startAt: 1, incrementBy: 1});
+zonevalue.plugin(AutoIncrement, { inc_field: 'unique_id',id: 'zonevalue_counter' });
 module.exports = mongoose.model('zonevalue', zonevalue);
