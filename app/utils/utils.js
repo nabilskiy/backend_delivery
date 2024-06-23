@@ -2077,14 +2077,14 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                 // console.log(cityzone)
                 // console.log('=========================== end')
                 cityzone.forEach(function (zone_data) {
-                    var store_zone = geolib.isPointInside(
+                    var store_zone = geolib.isPointInPolygon(
                         { latitude: store_location[0], longitude: store_location[1] },
                         zone_data.kmlzone
                     );
                     if (store_zone) {
                         store_zone_id = zone_data._id;
                     }
-                    var destination_zone = geolib.isPointInside(
+                    var destination_zone = geolib.isPointInPolygon(
                         { latitude: destination_location[0], longitude: destination_location[1] },
                         zone_data.kmlzone
                     );
@@ -2097,7 +2097,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                     if (destination_zone_id && store_zone_id && !bool) {
                         // console.log("zonevalue")
                         bool = true;
-                        ZoneValue.findOne({ $or: [{ from_zone_id: store_zone_id, to_zone_id: destination_zone_id }, { from_zone_id: destination_zone_id, to_zone_id: store_zone_id }], type_id: type_id, vehicle_id: vehicle_id, delivery_type: delivery_type }, function (err, zonevalue) {
+                        ZoneValue.findOne({ $or: [{ from_zone_id: store_zone_id, to_zone_id: destination_zone_id }, { from_zone_id: destination_zone_id, to_zone_id: store_zone_id }], type_id: type_id, vehicle_id: vehicle_id, delivery_type: delivery_type }).then(zonevalue =>{
                             if (zonevalue && zonevalue.price >= 0) {
                                 // console.log('=================== zone value')
                                 // console.log(zonevalue)
@@ -2106,7 +2106,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                                 if (!car_calling) {
                                     return_data({ success: true, zone_price: zonevalue.price });
                                 } else {
-                                    ZoneValue.find({ type_id: type_id }, function (err, zones) {
+                                    ZoneValue.find({ type_id: type_id }).then(zones =>  {
                                         // console.log('All zones with type id ============>')
                                         // console.log(zones)
                                         let zone_price_for_car_calling = 0;
