@@ -1766,6 +1766,7 @@ exports.check_order_status = function (request_data, response_data) {
                     } else {
                         Order.findOne({ _id: request_data_body.order_id, store_id: request_data_body.store_id }).then((order) => {
                             if (order) {
+                            
                                 var vehicle_detail = {};
                                 var provider_detail = {};
 
@@ -1788,6 +1789,7 @@ exports.check_order_status = function (request_data, response_data) {
 
                                 var current_provider = null;
                                 Request.findOne({ _id: order.request_id }).then((request) => {
+                             
                                     if (request) {
                                         current_provider = request.current_provider;
                                     }
@@ -1796,7 +1798,6 @@ exports.check_order_status = function (request_data, response_data) {
                                         var currency = country_detail.currency_sign;
                                         Cart.findOne({ _id: order.cart_id, store_id: request_data_body.store_id }).then((cart) => {
                                             if (cart) {
-
                                                 Order_payment.findOne({ _id: order.order_payment_id, order_id: order._id }).then((order_payment) => {
                                                     if (order_payment) {
                                                         var order_datail = {
@@ -1820,8 +1821,6 @@ exports.check_order_status = function (request_data, response_data) {
                                                             created_at: order.created_at,
                                                             provider_location: location,
                                                             bearing: bearing
-
-
                                                         }
                                                         Provider.findOne({ _id: current_provider }).then((provider) => {
                                                             if (provider) {
@@ -1853,7 +1852,6 @@ exports.check_order_status = function (request_data, response_data) {
                                                                             is_business: vehicle.is_business
                                                                         }
                                                                     }
-
                                                                     response_data.json({
                                                                         success: true,
                                                                         message: ORDER_MESSAGE_CODE.GET_ORDER_STATUS_SUCCESSFULLY,
@@ -1887,6 +1885,11 @@ exports.check_order_status = function (request_data, response_data) {
                                                                 success: false,
                                                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                             });
+                                                        });
+                                                    }else {
+                                                        response_data.json({
+                                                            success: false,
+                                                            error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                         });
                                                     }
 
