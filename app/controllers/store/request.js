@@ -139,6 +139,8 @@ exports.create_request = function (request_data, response_data) {
                                         //         order, request,
                                         //     })
                                         // }
+                                    } else {
+                                        response_data.json({ success: false, error_code: ORDER_ERROR_CODE.REQUEST_FAILED });
                                     }
                                 });
                             }
