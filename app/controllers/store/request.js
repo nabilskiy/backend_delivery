@@ -126,18 +126,20 @@ exports.create_request = function (request_data, response_data) {
                             } else {
                                 // Reassign Request
                                 Request.findOne({ _id: order.request_id }).then(request => {
-                                    request.vehicle_id = request_data_body.vehicle_id;
+                                    if (request) {
+                                        request.vehicle_id = request_data_body.vehicle_id;
 
-                                    // if(!order.estimated_time_for_ready_order) {
-                                    my_request.findNearestProvider(request, response_data);
-                                    // } else {
-                                    //     console.log('Dont looking for nearest provider!')
-                                    //     response_data.status(200).json({
-                                    //         success: true,
-                                    //         message: 'We don`t looking for nearest provider!',
-                                    //         order, request,
-                                    //     })
-                                    // }
+                                        // if(!order.estimated_time_for_ready_order) {
+                                        my_request.findNearestProvider(request, response_data);
+                                        // } else {
+                                        //     console.log('Dont looking for nearest provider!')
+                                        //     response_data.status(200).json({
+                                        //         success: true,
+                                        //         message: 'We don`t looking for nearest provider!',
+                                        //         order, request,
+                                        //     })
+                                        // }
+                                    }
                                 });
                             }
 
@@ -1481,7 +1483,7 @@ exports.complete_request = function (request_data, response_data) {
         if (response.success) {
             var request_data_body = request_data.body;
             var request_id = request_data_body.request_id;
-         
+
 
             Provider.findOne({ _id: request_data_body.provider_id }).then((provider) => {
                 if (provider) {
@@ -1507,9 +1509,9 @@ exports.complete_request = function (request_data, response_data) {
                                         var user_device_type = user.device_type;
                                         var user_device_token = user.device_token;
 
-                                       
+
                                         Order.findOne({ _id: request.orders[0].order_id }).then((order_detail) => {
-                                        
+
                                             // order_status_id: ORDER_STATUS_ID.RUNNING
 
                                             if (order_detail) {
@@ -1765,7 +1767,7 @@ exports.complete_request = function (request_data, response_data) {
                                             }
 
                                         }, (error) => {
-                                    
+
                                             response_data.json({
                                                 success: false,
                                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
@@ -1773,7 +1775,7 @@ exports.complete_request = function (request_data, response_data) {
                                         });
 
                                     }, (error) => {
-                             
+
                                         response_data.json({
                                             success: false,
                                             error_code: ERROR_CODE.SOMETHING_WENT_WRONG
@@ -1781,7 +1783,7 @@ exports.complete_request = function (request_data, response_data) {
                                     });
 
                                 } else {
-                       
+
                                     response_data.json({ success: false, error_code: ORDER_ERROR_CODE.ORDER_NOT_FOUND });
                                 }
 
