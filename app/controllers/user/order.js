@@ -180,7 +180,7 @@ exports.create_order = function (request_data, response_data) {
 
                                                                 order.save().then(() => {
 
-                                                                    Order.count({store_id: store_id, order_status: ORDER_STATE.WAITING_FOR_ACCEPT_STORE
+                                                                    Order.countDocuments({store_id: store_id, order_status: ORDER_STATE.WAITING_FOR_ACCEPT_STORE
 
                                                                     }).then((order_count_for_store) => {
 
@@ -306,6 +306,7 @@ exports.create_order = function (request_data, response_data) {
                                                                     });
 
                                                                 }, (error) => {
+                                                                    console.log(error);
                                                                     Promo_code.findOne({_id: order_payment.promo_id}).then((promo_code) => {
                                                                         if (promo_code) {
                                                                             promo_code.used_promo_code = promo_code.used_promo_code - 1;

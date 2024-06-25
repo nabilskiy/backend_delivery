@@ -1067,7 +1067,7 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
 exports.sendPushNotificationWithPushData = function (app_type, device_type, device_token, messageCode, soundFileName, push_data1, push_data2) {
 
     if (device_type == DEVICE_TYPE.ANDROID) {
-        Installation_setting.findOne({}, function (err, installation_setting) {
+        Installation_setting.findOne({}).then(installation_setting => {
             var android_provider_app_gcm_key = installation_setting.android_provider_app_gcm_key;
             var android_user_app_gcm_key = installation_setting.android_user_app_gcm_key;
             var android_store_app_gcm_key = installation_setting.android_store_app_gcm_key;
@@ -1101,7 +1101,7 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
                 });
                 sender.sendNoRetry(message, { topic: '/topics/global' }, function (error, response) {
                     console.log(message);
-                    if (err)
+                    if (error)
                         console.error(error);
                     else {
                         //console.log(response);
