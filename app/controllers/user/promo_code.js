@@ -49,7 +49,7 @@ exports.apply_promo_code = function (request_data, response_data) {
                                                     if (city) {
                                                         if (city.is_promo_apply) {
 
-                                                            Promo_code.findOne({country_id: store.country_id, $or: [{city_id: city._id}, {city_id: mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
+                                                            Promo_code.findOne({country_id: store.country_id, $or: [{city_id: city._id}, {city_id: new mongoose.Types.ObjectId(ID_FOR_ALL.ALL_ID)}],
 
                                                                 promo_code_name: promo_code_name, is_active: true, is_approved: true}).then((promo_code) => {
 

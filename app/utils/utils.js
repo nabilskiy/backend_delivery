@@ -2146,7 +2146,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
 
 exports.insert_daily_store_analytics = function (tag_date, store_id, order_status, item_count, is_store_cancelled) {
 
-    Store_analytic_daily.findOne({ store_id: store_id, date_tag: tag_date }, function (error, store_analytic_daily) {
+    Store_analytic_daily.findOne({ store_id: store_id, date_tag: tag_date }).then(store_analytic_daily =>  {
         var completed_ratio = 0, cancellation_ratio = 0, rejection_ratio = 0, acception_ratio = 0, order_ready_ratio = 0;
         var order_ready = 0, accepted = 0, received = 0, total_orders = 0, completed = 0, cancelled = 0, total_items = 0, total_cancelled_items = 0, rejected = 0;
 
