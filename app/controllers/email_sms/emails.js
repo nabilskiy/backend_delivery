@@ -61,7 +61,7 @@ exports.sendEmail = function (request_data, provider, user, store, email_id, ext
                             htmls = htmls.replace(/&lt;/g, "<");
                             htmls = htmls.replace(/&gt;/g, ">");
                             htmls = htmls.replace(/&#34;/g, '"');
-                            myUtils.mail_notification(email, email_data.email_title, "", htmls);
+                         //   myUtils.mail_notification(email, email_data.email_title, "", htmls);
                         }
                     });
                 }
@@ -244,7 +244,7 @@ exports.emailForOTPVerification = function (request_data, email, otp_for_email, 
                             htmls = htmls.replace(/&lt;/g, "<");
                             htmls = htmls.replace(/&gt;/g, ">");
                             htmls = htmls.replace(/&#34;/g, '"');
-                            myUtils.mail_notification(email, email_data.email_title, "", htmls);
+                          //  myUtils.mail_notification(email, email_data.email_title, "", htmls);
                         }
                     });
                 }
@@ -665,7 +665,7 @@ exports.sendUserInvoiceEmail = function (request_data, user, provider, store, or
                     htmls = htmls.replace(/&gt;/g, ">");
                     htmls = htmls.replace(/&#34;/g, '"');
 
-                    myUtils.mail_notification(user_email, title, pattern, htmls);
+                 //   myUtils.mail_notification(user_email, title, pattern, htmls);
 
                 }
             });
@@ -791,7 +791,7 @@ exports.sendProviderInvoiceEmail = function (request_data, user, provider, store
                     htmls = htmls.replace(/&lt;/g, "<");
                     htmls = htmls.replace(/&gt;/g, ">");
                     htmls = htmls.replace(/&#34;/g, '"');
-                    myUtils.mail_notification(provider_email, title, pattern, htmls);
+                 //   myUtils.mail_notification(provider_email, title, pattern, htmls);
 
                 }
             });
@@ -916,7 +916,7 @@ exports.sendStoreInvoiceEmail = function (request_data, user, provider, store, o
                     htmls = htmls.replace(/&gt;/g, ">");
                     htmls = htmls.replace(/&#34;/g, '"');
 
-                    myUtils.mail_notification(store_email, title, pattern, htmls);
+                 //   myUtils.mail_notification(store_email, title, pattern, htmls);
 
                 }
             });
@@ -1020,7 +1020,7 @@ exports.sendProviderWeeklyInvoiceEmail = function (request_data, provider, provi
                     htmls = htmls.replace(/&gt;/g, ">");
                     htmls = htmls.replace(/&#34;/g, '"');
 
-                    myUtils.mail_notification(provider_email, title, pattern, htmls);
+                  //  myUtils.mail_notification(provider_email, title, pattern, htmls);
 
                 }
             });
@@ -1120,7 +1120,7 @@ exports.sendStoreWeeklyInvoiceEmail = function (request_data, store, store_weekl
                     htmls = htmls.replace(/&gt;/g, ">");
                     htmls = htmls.replace(/&#34;/g, '"');
 
-                    myUtils.mail_notification(store_email, title, pattern, htmls);
+                   // myUtils.mail_notification(store_email, title, pattern, htmls);
 
                 }
             });
