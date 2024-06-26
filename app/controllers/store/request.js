@@ -117,14 +117,6 @@ exports.create_request = function (request_data, response_data) {
                                             });
                                         });
 
-
-
-
-
-
-
-
-
                                     });
                                 });
                             } else {
@@ -263,16 +255,14 @@ exports.findNearestProvider = function (request, response_data) {
                                     } else {
                                         provider_query['provider_type_id'] = null;
                                     }
-                                    console.log('Provider - query ===> ')
-                                    console.log(provider_query)
+                   
 
                                     Provider.find(provider_query).exec().then(providers => {
 
-                                        console.log('Providers ===================>')
-                                        console.log(providers)
+                                      
                                         var time_left_to_responds_trip = setting_detail.provider_timeout;
 
-                                        if (error || providers.length == 0 || time_left_to_responds_trip <= 0) {
+                                        if (providers.length == 0 || time_left_to_responds_trip <= 0) {
 
                                             request.delivery_status = ORDER_STATE.NO_DELIVERY_MAN_FOUND;
                                             request.delivery_status_manage_id = ORDER_STATUS_ID.RUNNING;
