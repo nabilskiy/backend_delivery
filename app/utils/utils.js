@@ -1173,6 +1173,7 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
                         production: is_production
                     };
 
+                    /*
                     var apnProvider = new apn.Provider(options);
                     var note = new apn.Notification();
                     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
@@ -1185,6 +1186,7 @@ exports.sendPushNotificationWithPushData = function (app_type, device_type, devi
                     apnProvider.send(note, device_token).then((result) => {
                         console.log(result)
                     });
+                    */
                 } catch (err) {
                     console.log(err);
                 }
