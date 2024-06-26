@@ -892,7 +892,7 @@ exports.deleteImageFromFolder = function (old_img_path, id) {
 exports.sendPushNotification = function (app_type, device_type, device_token, messageCode, soundFileName) {
 
     if (device_type == DEVICE_TYPE.ANDROID) {
-        Installation_setting.findOne({}, function (err, installation_setting) {
+        Installation_setting.findOne({}).then((installation_setting) =>  {
             var android_provider_app_gcm_key = installation_setting.android_provider_app_gcm_key;
             var android_user_app_gcm_key = installation_setting.android_user_app_gcm_key;
             var android_store_app_gcm_key = installation_setting.android_store_app_gcm_key;
@@ -917,20 +917,23 @@ exports.sendPushNotification = function (app_type, device_type, device_token, me
             /// Now the sender can be used to send messages
             try {
                 sender.send(message, { registrationTokens: regTokens }, function (error, response) {
+                    /*
                     if (error) {
                         console.error(error);
                     } else {
                         console.log(response);
                     }
+                        */
                 });
                 sender.sendNoRetry(message, { topic: '/topics/global' }, function (error, response) {
+                    /*
                     console.log(message);
                     if (err)
                         console.error(error);
                     else {
                         console.log(response);
                     }
-
+*/
                 });
             } catch (error) {
                 console.error(error);
