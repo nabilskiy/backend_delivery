@@ -2042,10 +2042,9 @@ exports.precisionRoundTwo = function (number) {
 }
 
 exports.precisionRound = function (number, precision) {
-    console.log("number" + number);
+
     var factor = Math.pow(10, precision);
-    console.log("factor :" + factor);
-    console.log(Math.round(number * factor) / factor);
+
     return Math.round(number * factor) / factor;
 
 }
