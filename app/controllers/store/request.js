@@ -95,32 +95,36 @@ exports.create_request = function (request_data, response_data) {
                                         }
                                         order.request_id = request._id;
 
+
                                         order.save().then(() => {
-                                            request.save(function (error) {
-                                                if (error) {
+                                            request.save()
+                                                .then(function (models) {
+                                                    if (!order.estimated_time_for_ready_order) {
+                                                        my_request.findNearestProvider(request, response_data);
+                                                    }
+                                                })
+                                                .catch(function (err) {
                                                     response_data.json({
                                                         success: false,
                                                         error_code: PROVIDER_ERROR_CODE.NO_PROVIDER_FOUND
                                                     });
-                                                } else {
-                                                    if (!order.estimated_time_for_ready_order) {
-                                                        my_request.findNearestProvider(request, response_data);
-                                                    }
-                                                }
-                                            }, (error) => {
-                                                console.log(error);
-                                                response_data.json({
-                                                    success: false,
-                                                    error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                                 });
-                                            });
-                                        }, (error) => {
+                                        }).catch(error => {
                                             console.log(error);
                                             response_data.json({
                                                 success: false,
                                                 error_code: ERROR_CODE.SOMETHING_WENT_WRONG
                                             });
                                         });
+
+
+
+
+
+
+
+
+
                                     });
                                 });
                             } else {
