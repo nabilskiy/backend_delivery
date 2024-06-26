@@ -27,8 +27,6 @@ module.exports = async () => {
                     });
 
                     await newNotAcceptedOrder.save();
-                } else {
-                    console.log('/Order already in array/')
                 }
             }
         }
