@@ -183,8 +183,8 @@ exports.copy_products = function (present_store_id, new_store_id, product) {
 
         myUtils.copyImage(product.image_url, new_product_id + FILE_EXTENSION.PRODUCT, FOLDER_NAME.STORE_PRODUCTS);
     }
-    new_product_data.save(function (error) {
-        if (!error) {
+    new_product_data.save().then(() => {
+    
 
             // Add Specification groups
 
@@ -203,7 +203,7 @@ exports.copy_products = function (present_store_id, new_store_id, product) {
                 }
             });
 
-        }
+        
     });
 
 }
@@ -217,8 +217,8 @@ exports.copy_specification_groups = function (new_store_id, specification_group)
     });
     var new_specification_group_id = new_specification_group_data._id;
 
-    new_specification_group_data.save(function (error) {
-        if (!error) {
+    new_specification_group_data.save().then(() =>  {
+     
 
             Specification.find({ store_id: specification_group.store_id, specification_group_id: specification_group._id }).then(specifications => {
 
@@ -242,7 +242,7 @@ exports.copy_specification_groups = function (new_store_id, specification_group)
                 }
             });
 
-        }
+        
     });
 
 }
@@ -1532,9 +1532,7 @@ exports.insert_documets_for_new_users = function (new_user_data, user_type_id, d
                     expired_date: null,
                     image_url: ""
                 });
-                document_uploaded_list.save(function (error) {
-
-                });
+                document_uploaded_list.save();
             });
             if (response) {
                 response({ is_document_uploaded: is_document_uploaded })
@@ -2097,7 +2095,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                     if (destination_zone_id && store_zone_id && !bool) {
                         // console.log("zonevalue")
                         bool = true;
-                        ZoneValue.findOne({ $or: [{ from_zone_id: store_zone_id, to_zone_id: destination_zone_id }, { from_zone_id: destination_zone_id, to_zone_id: store_zone_id }], type_id: type_id, vehicle_id: vehicle_id, delivery_type: delivery_type }).then(zonevalue =>{
+                        ZoneValue.findOne({ $or: [{ from_zone_id: store_zone_id, to_zone_id: destination_zone_id }, { from_zone_id: destination_zone_id, to_zone_id: store_zone_id }], type_id: type_id, vehicle_id: vehicle_id, delivery_type: delivery_type }).then(zonevalue => {
                             if (zonevalue && zonevalue.price >= 0) {
                                 // console.log('=================== zone value')
                                 // console.log(zonevalue)
@@ -2106,7 +2104,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
                                 if (!car_calling) {
                                     return_data({ success: true, zone_price: zonevalue.price });
                                 } else {
-                                    ZoneValue.find({ type_id: type_id }).then(zones =>  {
+                                    ZoneValue.find({ type_id: type_id }).then(zones => {
                                         // console.log('All zones with type id ============>')
                                         // console.log(zones)
                                         let zone_price_for_car_calling = 0;
@@ -2146,7 +2144,7 @@ exports.check_zone = function (city_id, delivery_type, type_id, vehicle_id, zone
 
 exports.insert_daily_store_analytics = function (tag_date, store_id, order_status, item_count, is_store_cancelled) {
 
-    Store_analytic_daily.findOne({ store_id: store_id, date_tag: tag_date }).then(store_analytic_daily =>  {
+    Store_analytic_daily.findOne({ store_id: store_id, date_tag: tag_date }).then(store_analytic_daily => {
         var completed_ratio = 0, cancellation_ratio = 0, rejection_ratio = 0, acception_ratio = 0, order_ready_ratio = 0;
         var order_ready = 0, accepted = 0, received = 0, total_orders = 0, completed = 0, cancelled = 0, total_items = 0, total_cancelled_items = 0, rejected = 0;
 
@@ -2369,12 +2367,10 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
                 provider_analytic_daily.active_job_times = active_job_times;
 
             }
-            provider_analytic_daily.save(function (error) {
-                if (error) {
+            provider_analytic_daily.save().then(() =>  {
+          
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
-                } else {
-                    console.log("provider_analytic_daily saved.");
-                }
+           
 
             });
 
@@ -2395,14 +2391,10 @@ exports.insert_daily_provider_analytics_with_date_old = function (date_now, city
                 total_active_job_time: total_active_job_time,
                 total_online_time: total_online_time
             });
-            provider_analytic_daily.save(function (error) {
-                if (error) {
+            provider_analytic_daily.save().then(() =>  {
+             
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
-                } else {
-
-                    console.log("provider_analytic_daily saved.");
-
-                }
+    
 
             });
         }
@@ -2553,10 +2545,10 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
                 provider_analytic_daily.active_job_times = active_job_times;
 
             }
-            provider_analytic_daily.save(function (error) {
-                if (error) {
-                    myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
-                }
+            provider_analytic_daily.save().then(() => {
+
+                myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
+
             });
 
         } else {
@@ -2578,7 +2570,7 @@ exports.insert_daily_provider_analytics_with_date = function (date_now, city_tim
                 online_times: online_times,
                 active_job_times: active_job_times
             });
-            provider_analytic_daily.save().then(error =>  {
+            provider_analytic_daily.save().then(error => {
                 console.log(error)
                 if (error) {
                     myUtils.insert_daily_provider_analytics_with_date(date_now, city_timezone, provider_id, delivery_status, is_online_time, start_time, is_active_time, start_active_time)
